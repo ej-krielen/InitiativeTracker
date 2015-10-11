@@ -12,7 +12,6 @@ import static com.rekijan.initiativetracker.AppConstants.INITIATIVE;
  */
 public class CharacterModel {
 
-
     private int initiative = INITIATIVE;
     private int hp = HP;
     private int debuffTL = DEBUFF;
@@ -21,19 +20,9 @@ public class CharacterModel {
     private int debuffBL = DEBUFF;
     private int debuffBC = DEBUFF;
     private int debuffBR = DEBUFF;
-    private String test = "test";
 
-    //
-    public String getTest() {
-        return test;
-    }
-
-    public void setTest(String test) {
-        this.test = test;
-    }
-    //
-
-
+    private String characterName = "";
+    private String description = "";
 
     public int getInitiative() {
         return initiative;
@@ -97,6 +86,22 @@ public class CharacterModel {
 
     public void setDebuffBR(int debuffBR) {
         this.debuffBR = debuffBR;
+    }
+
+    public String getCharacterName() {
+        return characterName;
+    }
+
+    public void setCharacterName(String characterName) {
+        this.characterName = characterName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

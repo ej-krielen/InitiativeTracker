@@ -16,5 +16,4 @@ public class AppConstants {
     public static final int HP = 6;
     public static final int DEBUFF = 0;
 
-
 }

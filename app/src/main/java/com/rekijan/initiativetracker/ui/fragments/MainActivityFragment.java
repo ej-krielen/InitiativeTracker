@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A fragment containing a simple view.
+ * A fragment containing the list of CharacterModels
  */
 public class MainActivityFragment extends Fragment {
 

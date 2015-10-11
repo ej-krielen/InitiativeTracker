@@ -13,36 +13,40 @@ import com.rekijan.initiativetracker.character.model.CharacterModel;
 import java.util.List;
 
 /**
- * Custom ArrayAdapter for the Character class
+ * Custom RecyclerView.Adapter for the CharacterModel class
  *
  * @author Erik-Jan Krielen ej.krielen@euphoria-it.nl
  * @since 17-9-2015 Creation of this file
  */
 public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.CharacterViewHolder> {
 
-    public static class CharacterViewHolder extends RecyclerView.ViewHolder {
+    // Field for the list of CharacterModels
+    List<CharacterModel> characters;
 
+    // Constructor
+    public CharacterAdapter(List<CharacterModel> characters) {
+        this.characters = characters;
+    }
+
+
+    /* ViewHolder region */
+    public static class CharacterViewHolder extends RecyclerView.ViewHolder {
         CardView characterCardView;
         EditText initiativeEditText;
 
-
         CharacterViewHolder(View itemView) {
             super(itemView);
-            characterCardView = (CardView)itemView.findViewById(R.id.character_cardView);
-            initiativeEditText = (EditText)itemView.findViewById(R.id.initiative_editText);
+            characterCardView = (CardView) itemView.findViewById(R.id.character_cardView);
+            initiativeEditText = (EditText) itemView.findViewById(R.id.initiative_editText);
         }
     }
+    /* End of Viewholder region */
 
-    List<CharacterModel> characters;
-
-    public CharacterAdapter(List<CharacterModel> characters){
-        this.characters = characters;
-    }
 
     @Override
     public CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.character_card, parent, false);
-        return new CharacterViewHolder (v);
+        return new CharacterViewHolder(v);
     }
 
     @Override
