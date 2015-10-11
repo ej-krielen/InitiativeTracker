@@ -9,4 +9,8 @@
     <!-- MainActivity-->
     <string name="title_activity_main">MainActivity</string>
     <string name="action_party_select">Select a party</string>
+
+
+    <string name="charlist_initiative">Init</string>
+
 </resources>
