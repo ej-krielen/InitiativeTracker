@@ -1,3 +1,8 @@
 <resources>
+
+    <!-- App wide-->
     <string name="app_name">InitiativeTracker</string>
+
+    <!-- SplashActivity-->
+    <string name="splash_title">Initiative\nTracker</string>
 </resources>
