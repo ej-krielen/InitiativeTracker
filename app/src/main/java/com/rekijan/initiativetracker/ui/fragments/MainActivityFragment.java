@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.rekijan.initiativetracker.R;
 
 /**
- * A placeholder fragment containing a simple view.
+ * A fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
 
