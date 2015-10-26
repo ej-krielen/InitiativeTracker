@@ -13,15 +13,13 @@ import com.rekijan.initiativetracker.character.adapter.CharacterAdapter;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A fragment containing the list of CharacterModels
  */
 public class MainActivityFragment extends Fragment {
 
-    private List<CharacterModel> characters;
-    private RecyclerView charactersRecyclerView;
+    private CharacterAdapter mAdapter = new CharacterAdapter();
 
     public MainActivityFragment() {
     }
@@ -32,27 +30,38 @@ public class MainActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        charactersRecyclerView = (RecyclerView) rootView.findViewById(R.id.characters_recyclerView);
+        RecyclerView charactersRecyclerView = (RecyclerView) rootView.findViewById(R.id.characters_recyclerView);
         charactersRecyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         charactersRecyclerView.setLayoutManager(llm);
-
-        initializeData();
-        initializeAdapter();
+        charactersRecyclerView.setAdapter(mAdapter);
 
         return rootView;
     }
 
-    private void initializeData(){
-        characters = new ArrayList<>();
-        characters.add(new CharacterModel());
-        characters.add(new CharacterModel());
-        characters.add(new CharacterModel());
+    private void initializeData() {
+        mAdapter.add(new CharacterModel());
+        mAdapter.add(new CharacterModel());
+        mAdapter.add(new CharacterModel());
     }
 
-    private void initializeAdapter(){
-        CharacterAdapter adapter = new CharacterAdapter(characters);
-        charactersRecyclerView.setAdapter(adapter);
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putParcelableArrayList("characters", mAdapter.getList());
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            ArrayList<CharacterModel> list = savedInstanceState.getParcelableArrayList("characters");
+            if (list != null) {
+                mAdapter.addAll(list);
+            }
+        } else {
+            initializeData();
+        }
     }
 
 }

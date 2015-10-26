@@ -2,6 +2,9 @@ package com.rekijan.initiativetracker.character.adapter;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +13,7 @@ import android.widget.EditText;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,11 +25,24 @@ import java.util.List;
 public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.CharacterViewHolder> {
 
     // Field for the list of CharacterModels
-    List<CharacterModel> characters;
+    ArrayList<CharacterModel> characters = new ArrayList<>();
 
-    // Constructor
-    public CharacterAdapter(List<CharacterModel> characters) {
-        this.characters = characters;
+    public void add(CharacterModel character) {
+        characters.add(character);
+    }
+
+    public void addAll(List<CharacterModel> characters) {
+        this.characters.addAll(characters);
+    }
+
+    public void remove(int position) {
+        if (characters.size() > position) {
+            characters.remove(position);
+        }
+    }
+
+    public ArrayList<CharacterModel> getList() {
+        return characters;
     }
 
 
@@ -68,10 +85,19 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     }
 
     @Override
-    public void onBindViewHolder(CharacterViewHolder holder, int position) {
-        CharacterModel character = characters.get(position);
+    public void onBindViewHolder(final CharacterViewHolder holder, int position) {
+        final CharacterModel character = characters.get(position);
 
         holder.characterInitiativeEditText.setText(String.valueOf(character.getInitiative()));
+
+        if (character.getCharacterName() != null) {
+            holder.characterNameEditText.setText(character.getCharacterName());
+        }
+
+        if (character.getCharacterNotes() != null) {
+            holder.characterNotesEditText.setText(character.getCharacterNotes());
+        }
+
         holder.characterHpEditText.setText(String.valueOf(character.getHp()));
 
         holder.characterDebuffTL.setText(String.valueOf(character.getDebuffTL()));
@@ -81,13 +107,76 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         holder.characterDebuffBC.setText(String.valueOf(character.getDebuffBC()));
         holder.characterDebuffBR.setText(String.valueOf(character.getDebuffBR()));
 
-        if (character.getCharacterName() != null) {
-            holder.characterNameEditText.setText(character.getCharacterName());
-        }
-        if (character.getCharacterNotes() != null) {
-            holder.characterNotesEditText.setText(character.getCharacterNotes());
+
+        holder.characterInitiativeEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterInitiativeEditText));
+        holder.characterNameEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterNameEditText));
+        holder.characterNotesEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterNotesEditText));
+        holder.characterHpEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterHpEditText));
+        holder.characterDebuffTL.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffTL));
+        holder.characterDebuffTC.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffTC));
+        holder.characterDebuffTR.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffTR));
+        holder.characterDebuffBL.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffBL));
+        holder.characterDebuffBC.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffBC));
+        holder.characterDebuffBR.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffBR));
+
+    }
+
+    public class GenericTextWatcher implements TextWatcher {
+        private View view;
+        private CharacterModel character;
+
+        public GenericTextWatcher(CharacterModel character, View view) {
+            this.character = character;
+            this.view = view;
+
         }
 
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            String text = s.toString();
+            switch (view.getId()) {
+                case R.id.character_initiative_editText:
+                    character.setInitiative(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_name_editText:
+                    character.setCharacterName(text);
+                    break;
+                case R.id.character_notes_editText:
+                    character.setCharacterNotes(text);
+                    break;
+                case R.id.character_hp_editText:
+                    character.setHp(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_debuff_TL_editText:
+                    character.setDebuffTL(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_debuff_TC_editText:
+                    character.setDebuffTC(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_debuff_TR_editText:
+                    character.setDebuffTR(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_debuff_BL_editText:
+                    character.setDebuffBL(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_debuff_BC_editText:
+                    character.setDebuffBC(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+                case R.id.character_debuff_BR_editText:
+                    character.setDebuffBR(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                    break;
+            }
+        }
     }
 
     @Override
