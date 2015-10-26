@@ -11,6 +11,14 @@
     <string name="action_party_select">Select a party</string>
 
 
+    <!-- Character Cards-->
     <string name="charlist_initiative">Init</string>
+    <string name="charlist_hp">HP</string>
+    <string name="charlist_buffs">Buffs or</string>
+    <string name="charlist_debuffs">Debuffs</string>
+
+    <!-- EditText Hints-->
+    <string name="EH_character_name">Player name</string>
+    <string name="EH_character_notes">Notes</string>
 
 </resources>
