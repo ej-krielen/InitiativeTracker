@@ -22,7 +22,7 @@ public class CharacterModel {
     private int debuffBR = DEBUFF;
 
     private String characterName = "";
-    private String description = "";
+    private String characterNotes = "";
 
     public int getInitiative() {
         return initiative;
@@ -96,12 +96,12 @@ public class CharacterModel {
         this.characterName = characterName;
     }
 
-    public String getDescription() {
-        return description;
+    public String getCharacterNotes() {
+        return characterNotes;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setCharacterNotes(String characterNotes) {
+        this.characterNotes = characterNotes;
     }
 
 }

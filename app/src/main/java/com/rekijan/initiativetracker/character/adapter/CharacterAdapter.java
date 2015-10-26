@@ -32,12 +32,30 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     /* ViewHolder region */
     public static class CharacterViewHolder extends RecyclerView.ViewHolder {
         CardView characterCardView;
-        EditText initiativeEditText;
+        EditText characterInitiativeEditText;
+        EditText characterNameEditText;
+        EditText characterNotesEditText;
+        EditText characterHpEditText;
+        EditText characterDebuffTL;
+        EditText characterDebuffTC;
+        EditText characterDebuffTR;
+        EditText characterDebuffBL;
+        EditText characterDebuffBC;
+        EditText characterDebuffBR;
 
         CharacterViewHolder(View itemView) {
             super(itemView);
             characterCardView = (CardView) itemView.findViewById(R.id.character_cardView);
-            initiativeEditText = (EditText) itemView.findViewById(R.id.initiative_editText);
+            characterInitiativeEditText = (EditText) itemView.findViewById(R.id.character_initiative_editText);
+            characterNameEditText = (EditText) itemView.findViewById(R.id.character_name_editText);
+            characterNotesEditText = (EditText) itemView.findViewById(R.id.character_notes_editText);
+            characterHpEditText = (EditText) itemView.findViewById(R.id.character_hp_editText);
+            characterDebuffTL = (EditText) itemView.findViewById(R.id.character_debuff_TL_editText);
+            characterDebuffTC = (EditText) itemView.findViewById(R.id.character_debuff_TC_editText);
+            characterDebuffTR = (EditText) itemView.findViewById(R.id.character_debuff_TR_editText);
+            characterDebuffBL = (EditText) itemView.findViewById(R.id.character_debuff_BL_editText);
+            characterDebuffBC = (EditText) itemView.findViewById(R.id.character_debuff_BC_editText);
+            characterDebuffBR = (EditText) itemView.findViewById(R.id.character_debuff_BR_editText);
         }
     }
     /* End of Viewholder region */
@@ -51,7 +69,24 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     @Override
     public void onBindViewHolder(CharacterViewHolder holder, int position) {
-        holder.initiativeEditText.setText(String.valueOf(characters.get(position).getInitiative()));
+        CharacterModel character = characters.get(position);
+
+        holder.characterInitiativeEditText.setText(String.valueOf(character.getInitiative()));
+        holder.characterHpEditText.setText(String.valueOf(character.getHp()));
+
+        holder.characterDebuffTL.setText(String.valueOf(character.getDebuffTL()));
+        holder.characterDebuffTC.setText(String.valueOf(character.getDebuffTC()));
+        holder.characterDebuffTR.setText(String.valueOf(character.getDebuffTR()));
+        holder.characterDebuffBL.setText(String.valueOf(character.getDebuffBL()));
+        holder.characterDebuffBC.setText(String.valueOf(character.getDebuffBC()));
+        holder.characterDebuffBR.setText(String.valueOf(character.getDebuffBR()));
+
+        if (character.getCharacterName() != null) {
+            holder.characterNameEditText.setText(character.getCharacterName());
+        }
+        if (character.getCharacterNotes() != null) {
+            holder.characterNotesEditText.setText(character.getCharacterNotes());
+        }
 
     }
 
