@@ -15,6 +15,8 @@ import static com.rekijan.initiativetracker.AppConstants.INITIATIVE;
  */
 public class CharacterModel implements Parcelable {
 
+    private long id;
+    private long party_id;
     private int initiative = INITIATIVE;
     private int hp = HP;
     private int debuffTL = DEBUFF;
@@ -29,6 +31,70 @@ public class CharacterModel implements Parcelable {
 
     public CharacterModel () {
 
+    }
+
+    public static final Parcelable.Creator<CharacterModel> CREATOR
+            = new Parcelable.Creator<CharacterModel>() {
+        public CharacterModel createFromParcel(Parcel in) {
+            return new CharacterModel(in);
+        }
+
+        public CharacterModel[] newArray(int size) {
+            return new CharacterModel[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeLong(party_id);
+        dest.writeInt(initiative);
+        dest.writeInt(hp);
+        dest.writeInt(debuffTL);
+        dest.writeInt(debuffTC);
+        dest.writeInt(debuffTR);
+        dest.writeInt(debuffBL);
+        dest.writeInt(debuffBC);
+        dest.writeInt(debuffBR);
+        dest.writeString(characterName);
+        dest.writeString(characterNotes);
+    }
+
+    private CharacterModel(Parcel in) {
+        id = in.readLong();
+        party_id = in.readLong();
+        initiative = in.readInt();
+        hp = in.readInt();
+        debuffTL = in.readInt();
+        debuffTC = in.readInt();
+        debuffTR = in.readInt();
+        debuffBL = in.readInt();
+        debuffBC = in.readInt();
+        debuffBR = in.readInt();
+        characterName = in.readString();
+        characterNotes = in.readString();
+
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getParty_id() {
+        return party_id;
+    }
+
+    public void setParty_id(long party_id) {
+        this.party_id = party_id;
     }
 
     public int getInitiative() {
@@ -111,47 +177,4 @@ public class CharacterModel implements Parcelable {
         this.characterNotes = characterNotes;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(initiative);
-        dest.writeInt(hp);
-        dest.writeInt(debuffTL);
-        dest.writeInt(debuffTC);
-        dest.writeInt(debuffTR);
-        dest.writeInt(debuffBL);
-        dest.writeInt(debuffBC);
-        dest.writeInt(debuffBR);
-        dest.writeString(characterName);
-        dest.writeString(characterNotes);
-    }
-
-    public static final Parcelable.Creator<CharacterModel> CREATOR
-            = new Parcelable.Creator<CharacterModel>() {
-        public CharacterModel createFromParcel(Parcel in) {
-            return new CharacterModel(in);
-        }
-
-        public CharacterModel[] newArray(int size) {
-            return new CharacterModel[size];
-        }
-    };
-
-    private CharacterModel(Parcel in) {
-        initiative = in.readInt();
-        hp = in.readInt();
-        debuffTL = in.readInt();
-        debuffTC = in.readInt();
-        debuffTR = in.readInt();
-        debuffBL = in.readInt();
-        debuffBC = in.readInt();
-        debuffBR = in.readInt();
-        characterName = in.readString();
-        characterNotes = in.readString();
-
-    }
 }
