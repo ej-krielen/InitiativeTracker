@@ -3,8 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.rekijan.initiativetracker.ui.activities.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_settings_next_turn"
+        android:orderInCategory="1"
+        android:title="@string/action_next_turn"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings_sort"
         android:orderInCategory="100"
+        android:title="@string/action_sort"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_settings_add_character"
+        android:orderInCategory="100"
+        android:title="@string/action_add_character"
+        app:showAsAction="never"/>
+    <!--<item
+        android:id="@+id/action_settings_select_party"
+        android:orderInCategory="200"
         android:title="@string/action_party_select"
-        app:showAsAction="never" />
+        app:showAsAction="never" />-->
+
 </menu>

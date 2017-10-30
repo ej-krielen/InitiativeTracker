@@ -17,20 +17,29 @@ public class CharacterModel implements Parcelable {
 
     private long id;
     private long party_id;
-    private int initiative = INITIATIVE;
-    private int hp = HP;
-    private int debuffTL = DEBUFF;
-    private int debuffTC = DEBUFF;
-    private int debuffTR = DEBUFF;
-    private int debuffBL = DEBUFF;
-    private int debuffBC = DEBUFF;
-    private int debuffBR = DEBUFF;
+    private int initiative;
+    private int hp;
+    private int debuffTL;
+    private int debuffTC;
+    private int debuffTR;
+    private int debuffBL;
+    private int debuffBC;
+    private int debuffBR;
 
-    private String characterName = "";
-    private String characterNotes = "";
+    private String characterName;
+    private String characterNotes;
 
-    public CharacterModel () {
-
+    public CharacterModel() {
+        initiative = INITIATIVE;
+        hp = HP;
+        debuffTL = DEBUFF;
+        debuffTC = DEBUFF;
+        debuffTR = DEBUFF;
+        debuffBL = DEBUFF;
+        debuffBC = DEBUFF;
+        debuffBR = DEBUFF;
+        characterName = "";
+        characterNotes = "";
     }
 
     public static final Parcelable.Creator<CharacterModel> CREATOR

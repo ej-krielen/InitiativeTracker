@@ -5,6 +5,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,6 +25,11 @@ public class MainActivityFragment extends Fragment {
     private CharacterAdapter mAdapter = new CharacterAdapter();
 
     public MainActivityFragment() {
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -45,6 +53,11 @@ public class MainActivityFragment extends Fragment {
         mAdapter.add(new CharacterModel());
     }
 
+    private void addCharacter() {
+        mAdapter.add(new CharacterModel());
+        mAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putParcelableArrayList("characters", mAdapter.getList());
@@ -61,6 +74,32 @@ public class MainActivityFragment extends Fragment {
             }
         } else {
             initializeData();
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings_next_turn:
+                //TODO go to select party screen
+                return true;
+            case R.id.action_settings_sort:
+                mAdapter.sortInitiative();
+                return true;
+            case R.id.action_settings_add_character:
+                addCharacter();
+                return true;
+//          case R.id.action_settings_select_party:
+//                //TODO go to select party screen add in later
+//                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

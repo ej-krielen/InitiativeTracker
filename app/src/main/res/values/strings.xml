@@ -8,7 +8,12 @@
 
     <!-- MainActivity-->
     <string name="title_activity_main">MainActivity</string>
+
+    <!-- Menu-->
+    <string name="action_next_turn">Next turn</string>
+    <string name="action_sort">Sort</string>
     <string name="action_party_select">Select a party</string>
+    <string name="action_add_character">Add a character</string>
 
 
     <!-- Character Cards-->

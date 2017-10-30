@@ -12,6 +12,8 @@ import com.rekijan.initiativetracker.character.model.CharacterModel;
 import com.rekijan.initiativetracker.listeners.GenericTextWatcher;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -41,6 +43,15 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     public ArrayList<CharacterModel> getList() {
         return characters;
+    }
+
+    public void sortInitiative() {
+        Collections.sort(characters, new Comparator<CharacterModel>() {
+            public int compare(CharacterModel o1, CharacterModel o2) {
+                return o2.getInitiative() - o1.getInitiative();
+            }
+        });
+        notifyDataSetChanged();
     }
 
 
@@ -84,6 +95,48 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     @Override
     public void onBindViewHolder(final CharacterViewHolder holder, int position) {
+                //Remove watcher if they exist to avoid double watchers
+        GenericTextWatcher oldInitiativeWatcher = (GenericTextWatcher)holder.characterInitiativeEditText.getTag();
+        if (oldInitiativeWatcher != null) {
+            holder.characterInitiativeEditText.removeTextChangedListener(oldInitiativeWatcher);
+        }
+        GenericTextWatcher oldNameWatcher = (GenericTextWatcher)holder.characterNameEditText.getTag();
+        if (oldNameWatcher != null) {
+            holder.characterNameEditText.removeTextChangedListener(oldNameWatcher);
+        }
+        GenericTextWatcher oldNoteWatcher = (GenericTextWatcher)holder.characterNotesEditText.getTag();
+        if (oldNoteWatcher != null) {
+            holder.characterNotesEditText.removeTextChangedListener(oldNoteWatcher);
+        }
+        GenericTextWatcher oldHPWatcher = (GenericTextWatcher)holder.characterHpEditText.getTag();
+        if (oldHPWatcher != null) {
+            holder.characterHpEditText.removeTextChangedListener(oldHPWatcher);
+        }
+        GenericTextWatcher oldDebuffTLWatcher = (GenericTextWatcher)holder.characterDebuffTL.getTag();
+        if (oldDebuffTLWatcher != null) {
+            holder.characterDebuffTL.removeTextChangedListener(oldDebuffTLWatcher);
+        }
+        GenericTextWatcher oldDebuffTCWatcher = (GenericTextWatcher)holder.characterDebuffTC.getTag();
+        if (oldDebuffTCWatcher != null) {
+            holder.characterDebuffTC.removeTextChangedListener(oldDebuffTCWatcher);
+        }
+        GenericTextWatcher oldDebuffTRWatcher = (GenericTextWatcher)holder.characterDebuffTR.getTag();
+        if (oldDebuffTRWatcher != null) {
+            holder.characterDebuffTR.removeTextChangedListener(oldDebuffTRWatcher);
+        }
+        GenericTextWatcher oldDebuffBLWatcher = (GenericTextWatcher)holder.characterDebuffBL.getTag();
+        if (oldDebuffBLWatcher != null) {
+            holder.characterDebuffBL.removeTextChangedListener(oldDebuffBLWatcher);
+        }
+        GenericTextWatcher oldDebuffBCWatcher = (GenericTextWatcher)holder.characterDebuffBC.getTag();
+        if (oldDebuffBCWatcher != null) {
+            holder.characterDebuffBC.removeTextChangedListener(oldDebuffBCWatcher);
+        }
+        GenericTextWatcher oldDebuffBRWatcher = (GenericTextWatcher)holder.characterDebuffBR.getTag();
+        if (oldDebuffBRWatcher != null) {
+            holder.characterDebuffBR.removeTextChangedListener(oldDebuffBRWatcher);
+        }
+
         final CharacterModel character = characters.get(position);
 
         holder.characterInitiativeEditText.setText(String.valueOf(character.getInitiative()));
@@ -105,18 +158,46 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         holder.characterDebuffBC.setText(String.valueOf(character.getDebuffBC()));
         holder.characterDebuffBR.setText(String.valueOf(character.getDebuffBR()));
 
+        //Add new text watchers
+        GenericTextWatcher newInitiativeWatcher = new GenericTextWatcher(character, holder.characterInitiativeEditText);
+        holder.characterInitiativeEditText.setTag(newInitiativeWatcher);
+        holder.characterInitiativeEditText.addTextChangedListener(newInitiativeWatcher);
 
-        holder.characterInitiativeEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterInitiativeEditText));
-        holder.characterNameEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterNameEditText));
-        holder.characterNotesEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterNotesEditText));
-        holder.characterHpEditText.addTextChangedListener(new GenericTextWatcher(character, holder.characterHpEditText));
-        holder.characterDebuffTL.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffTL));
-        holder.characterDebuffTC.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffTC));
-        holder.characterDebuffTR.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffTR));
-        holder.characterDebuffBL.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffBL));
-        holder.characterDebuffBC.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffBC));
-        holder.characterDebuffBR.addTextChangedListener(new GenericTextWatcher(character, holder.characterDebuffBR));
+        GenericTextWatcher newNameWatcher = new GenericTextWatcher(character, holder.characterNameEditText);
+        holder.characterNameEditText.setTag(newNameWatcher);
+        holder.characterNameEditText.addTextChangedListener(newNameWatcher);
 
+        GenericTextWatcher newNotesWatcher = new GenericTextWatcher(character, holder.characterNotesEditText);
+        holder.characterNotesEditText.setTag(newNotesWatcher);
+        holder.characterNotesEditText.addTextChangedListener(newNotesWatcher);
+
+        GenericTextWatcher newHPWatcher = new GenericTextWatcher(character, holder.characterHpEditText);
+        holder.characterHpEditText.setTag(newHPWatcher);
+        holder.characterHpEditText.addTextChangedListener(newHPWatcher);
+
+        GenericTextWatcher newDebuffTLWatcher = new GenericTextWatcher(character, holder.characterDebuffTL);
+        holder.characterDebuffTL.setTag(newDebuffTLWatcher);
+        holder.characterDebuffTL.addTextChangedListener(newDebuffTLWatcher);
+
+        GenericTextWatcher newDebuffTCWatcher = new GenericTextWatcher(character, holder.characterDebuffTC);
+        holder.characterDebuffTC.setTag(newDebuffTCWatcher);
+        holder.characterDebuffTC.addTextChangedListener(newDebuffTCWatcher);
+
+        GenericTextWatcher newDebuffTRWatcher = new GenericTextWatcher(character, holder.characterDebuffTR);
+        holder.characterDebuffTR.setTag(newDebuffTRWatcher);
+        holder.characterDebuffTR.addTextChangedListener(newDebuffTRWatcher);
+
+        GenericTextWatcher newDebuffBLWatcher = new GenericTextWatcher(character, holder.characterDebuffBL);
+        holder.characterDebuffBL.setTag(newDebuffBLWatcher);
+        holder.characterDebuffBL.addTextChangedListener(newDebuffBLWatcher);
+
+        GenericTextWatcher newDebuffBCWatcher = new GenericTextWatcher(character, holder.characterDebuffBC);
+        holder.characterDebuffBC.setTag(newDebuffBCWatcher);
+        holder.characterDebuffBC.addTextChangedListener(newDebuffBCWatcher);
+
+        GenericTextWatcher newDebuffBRWatcher = new GenericTextWatcher(character, holder.characterDebuffBR);
+        holder.characterDebuffBR.setTag(newDebuffBRWatcher);
+        holder.characterDebuffBR.addTextChangedListener(newDebuffBRWatcher);
     }
 
     @Override

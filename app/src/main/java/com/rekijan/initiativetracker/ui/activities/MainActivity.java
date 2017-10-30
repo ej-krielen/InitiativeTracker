@@ -26,10 +26,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Done in fragment instead
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                //TODO go to select party screen
-                return true;
+            case R.id.action_settings_next_turn:
+                return false;
+            case R.id.action_settings_sort:
+                return false;
+            case R.id.action_settings_add_character:
+                return false;
+//          case R.id.action_settings_select_party:
+//                //TODO go to select party screen add in later
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
