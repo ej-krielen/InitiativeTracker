@@ -48,6 +48,9 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void initializeData() {
+        //TODO get saved data if available
+        mAdapter.add(new CharacterModel());
+        mAdapter.add(new CharacterModel());
         mAdapter.add(new CharacterModel());
         mAdapter.add(new CharacterModel());
         mAdapter.add(new CharacterModel());
@@ -87,7 +90,7 @@ public class MainActivityFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings_next_turn:
-                //TODO go to select party screen
+                mAdapter.nextTurn();
                 return true;
             case R.id.action_settings_sort:
                 mAdapter.sortInitiative();
@@ -98,6 +101,7 @@ public class MainActivityFragment extends Fragment {
 //          case R.id.action_settings_select_party:
 //                //TODO go to select party screen add in later
 //                return true;
+            //TODO remove/reset character(s)
             default:
                 return super.onOptionsItemSelected(item);
         }

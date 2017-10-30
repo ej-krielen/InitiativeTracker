@@ -42,6 +42,26 @@ public class CharacterModel implements Parcelable {
         characterNotes = "";
     }
 
+    /**
+     * Called by the {@link com.rekijan.initiativetracker.character.adapter.CharacterAdapter} when its a characters turn <br>
+     *     Lowers all (de)buff values by one, but never to negative.
+     */
+    public void updateDebuffs() {
+        debuffTL--;
+//        if (debuffTL == 0) Toast.makeText(context, "Debuff top left expired", Toast.LENGTH_LONG).show(); //TODO notifications when (de)buff runs to zero
+        if (debuffTL < 0) debuffTL = 0;
+        debuffTC--;
+        if (debuffTC < 0) debuffTC = 0;
+        debuffTR--;
+        if (debuffTR < 0) debuffTR = 0;
+        debuffBL--;
+        if (debuffBL < 0) debuffBL = 0;
+        debuffBC--;
+        if (debuffBC < 0) debuffBC = 0;
+        debuffBR--;
+        if (debuffBR < 0) debuffBR = 0;
+    }
+
     public static final Parcelable.Creator<CharacterModel> CREATOR
             = new Parcelable.Creator<CharacterModel>() {
         public CharacterModel createFromParcel(Parcel in) {
@@ -185,5 +205,4 @@ public class CharacterModel implements Parcelable {
     public void setCharacterNotes(String characterNotes) {
         this.characterNotes = characterNotes;
     }
-
 }
