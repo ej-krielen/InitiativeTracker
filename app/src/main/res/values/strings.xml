@@ -26,4 +26,19 @@
     <string name="EH_character_name">Player name</string>
     <string name="EH_character_notes">Notes</string>
 
+    <!--Toast debuffs-->
+    <string name="debuff_expired">Debuff %s expired</string>
+    <string name="debuff_top_left">top left</string>
+    <string name="debuff_middle_top">middle top</string>
+    <string name="debuff_top_right">top right</string>
+    <string name="debuff_bottom_left">bottom left</string>
+    <string name="debuff_middle_bottom">middle bottom</string>
+    <string name="debuff_bottom_right">bottom right</string>
+
+
+    <!--Dialog-->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="error_no_such_value">The following value was not found:\u0020</string>
+
 </resources>

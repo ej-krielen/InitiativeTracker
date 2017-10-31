@@ -1,7 +1,12 @@
 package com.rekijan.initiativetracker.character.model;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.view.Gravity;
+import android.widget.Toast;
+
+import com.rekijan.initiativetracker.R;
 
 import static com.rekijan.initiativetracker.AppConstants.DEBUFF;
 import static com.rekijan.initiativetracker.AppConstants.HP;
@@ -15,6 +20,7 @@ import static com.rekijan.initiativetracker.AppConstants.INITIATIVE;
  */
 public class CharacterModel implements Parcelable {
 
+    private Context context;
     private long id;
     private long party_id;
     private int initiative;
@@ -29,7 +35,7 @@ public class CharacterModel implements Parcelable {
     private String characterName;
     private String characterNotes;
 
-    public CharacterModel() {
+    public CharacterModel(Context context) {
         initiative = INITIATIVE;
         hp = HP;
         debuffTL = DEBUFF;
@@ -40,26 +46,38 @@ public class CharacterModel implements Parcelable {
         debuffBR = DEBUFF;
         characterName = "";
         characterNotes = "";
+        this.context = context;
     }
 
     /**
      * Called by the {@link com.rekijan.initiativetracker.character.adapter.CharacterAdapter} when its a characters turn <br>
-     *     Lowers all (de)buff values by one, but never to negative.
+     * Lowers all (de)buff values by one, but never to negative.
      */
     public void updateDebuffs() {
         debuffTL--;
-//        if (debuffTL == 0) Toast.makeText(context, "Debuff top left expired", Toast.LENGTH_LONG).show(); //TODO notifications when (de)buff runs to zero
+        if (debuffTL == 0) toastExpiredDebuffs(context.getString(R.string.debuff_top_left));
         if (debuffTL < 0) debuffTL = 0;
         debuffTC--;
+        if (debuffTC == 0) toastExpiredDebuffs(context.getString(R.string.debuff_middle_top));
         if (debuffTC < 0) debuffTC = 0;
         debuffTR--;
+        if (debuffTR == 0) toastExpiredDebuffs(context.getString(R.string.debuff_top_right));
         if (debuffTR < 0) debuffTR = 0;
         debuffBL--;
+        if (debuffBL == 0) toastExpiredDebuffs(context.getString(R.string.debuff_bottom_left));
         if (debuffBL < 0) debuffBL = 0;
         debuffBC--;
+        if (debuffBC == 0) toastExpiredDebuffs(context.getString(R.string.debuff_middle_bottom));
         if (debuffBC < 0) debuffBC = 0;
         debuffBR--;
+        if (debuffBR == 0) toastExpiredDebuffs(context.getString(R.string.debuff_bottom_right));
         if (debuffBR < 0) debuffBR = 0;
+    }
+
+    private void toastExpiredDebuffs(String string) {
+        Toast toast = Toast.makeText(context, String.format(context.getString(R.string.debuff_expired), string), Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP, 0, 350);
+        toast.show();
     }
 
     public static final Parcelable.Creator<CharacterModel> CREATOR

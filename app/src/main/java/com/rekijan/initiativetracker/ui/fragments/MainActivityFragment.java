@@ -1,5 +1,6 @@
 package com.rekijan.initiativetracker.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -49,15 +50,16 @@ public class MainActivityFragment extends Fragment {
 
     private void initializeData() {
         //TODO get saved data if available
-        mAdapter.add(new CharacterModel());
-        mAdapter.add(new CharacterModel());
-        mAdapter.add(new CharacterModel());
-        mAdapter.add(new CharacterModel());
-        mAdapter.add(new CharacterModel());
+        Context context = getContext();
+        mAdapter.add(new CharacterModel(context));
+        mAdapter.add(new CharacterModel(context));
+        mAdapter.add(new CharacterModel(context));
+        mAdapter.add(new CharacterModel(context));
+        mAdapter.add(new CharacterModel(context));
     }
 
     private void addCharacter() {
-        mAdapter.add(new CharacterModel());
+        mAdapter.add(new CharacterModel(getContext()));
         mAdapter.notifyDataSetChanged();
     }
 
@@ -98,9 +100,7 @@ public class MainActivityFragment extends Fragment {
             case R.id.action_settings_add_character:
                 addCharacter();
                 return true;
-//          case R.id.action_settings_select_party:
-//                //TODO go to select party screen add in later
-//                return true;
+//          //TODO go to select party screen add in later
             //TODO remove/reset character(s)
             default:
                 return super.onOptionsItemSelected(item);
