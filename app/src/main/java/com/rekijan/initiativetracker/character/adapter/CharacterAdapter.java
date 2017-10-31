@@ -61,13 +61,18 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
      * Each {@link CharacterModel} is pushed down the list by one, bottom one becomes the top
      */
     public void nextTurn() {
+        //Create temporary list
         ArrayList<CharacterModel> newList = new ArrayList<>();
-        characters.get(characters.size()-1).updateDebuffs();
-        newList.add(characters.get(characters.size()-1));
-        for (int i = 0; i < characters.size()-1; i++) {
+        //Add all the items in the new order
+        for (int i = 1; i < characters.size(); i++) {
             newList.add(characters.get(i));
         }
+        newList.add(characters.get(0));
+
+        //Fill the old list with the new temporary one
         characters = newList;
+        //Update the (de)buffs of the top character
+        characters.get(0).updateDebuffs();
         notifyDataSetChanged();
     }
 

@@ -7,7 +7,7 @@
     <string name="splash_title">Initiative\nTracker</string>
 
     <!-- MainActivity-->
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Initiative Tracker</string>
 
     <!-- Menu-->
     <string name="action_next_turn">Next turn</string>
