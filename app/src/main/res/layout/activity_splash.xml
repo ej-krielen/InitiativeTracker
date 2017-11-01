@@ -10,12 +10,11 @@
     android:background="@drawable/gradient_background"
     tools:context=".SplashActivity">
 
-    <!-- //TODO replace image-->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:drawableTop="@mipmap/ic_launcher"
+        android:drawableTop="@mipmap/ic_launcher_clear"
         android:gravity="center"
         android:textColor="@color/white"
         android:text="@string/splash_title"
