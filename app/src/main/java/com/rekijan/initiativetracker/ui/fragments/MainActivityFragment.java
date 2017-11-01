@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,8 +58,10 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onLongClick(View view, final int position) {
+                String characterName = mAdapter.getList().get(position).getCharacterName();
+                characterName = TextUtils.isEmpty(characterName) ? getString(R.string.empty_character_name) : characterName;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(getString(R.string.dialog_delete) + mAdapter.getList().get(position).getCharacterName() + "?")
+                builder.setMessage(getString(R.string.dialog_delete) + characterName + "?")
                         .setTitle(getString(R.string.dialog_delete_title));
                 builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -90,6 +93,18 @@ public class MainActivityFragment extends Fragment {
     private void addCharacter() {
         mAdapter.add(new CharacterModel(getContext()));
         mAdapter.notifyDataSetChanged();
+    }
+
+    public void deleteCharacterInfo() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(getString(R.string.dialog_delete_info))
+                .setTitle(getString(R.string.dialog_delete_info_title));
+        builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
@@ -128,6 +143,9 @@ public class MainActivityFragment extends Fragment {
                 return true;
             case R.id.action_settings_add_character:
                 addCharacter();
+                return true;
+            case R.id.action_settings_delete_character:
+                deleteCharacterInfo();
                 return true;
 //          //TODO go to select party screen add in later
             //TODO remove/reset character(s)

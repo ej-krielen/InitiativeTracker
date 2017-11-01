@@ -14,6 +14,7 @@
     <string name="action_sort">Sort</string>
     <string name="action_party_select">Select a party</string>
     <string name="action_add_character">Add a character</string>
+    <string name="action_delete_character">Delete a character</string>
 
 
     <!-- Character Cards-->
@@ -40,7 +41,10 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_delete">Are you sure you want to delete\u0020</string>
+    <string name="empty_character_name">this character</string>
     <string name="dialog_delete_title">Warning: Confirm delete</string>
+    <string name="dialog_delete_info">To delete a character press down on it, and hold until a confirmation dialog appears.</string>
+    <string name="dialog_delete_info_title">How to delete a character</string>
     <string name="error_no_such_value">The following value was not found:\u0020</string>
 
 </resources>

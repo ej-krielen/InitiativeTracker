@@ -17,6 +17,11 @@
         android:orderInCategory="100"
         android:title="@string/action_add_character"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_settings_delete_character"
+        android:orderInCategory="100"
+        android:title="@string/action_delete_character"
+        app:showAsAction="never"/>
     <!--<item
         android:id="@+id/action_settings_select_party"
         android:orderInCategory="200"
