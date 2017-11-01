@@ -39,6 +39,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         if (characters.size() > position) {
             characters.remove(position);
         }
+        notifyDataSetChanged();
     }
 
     public ArrayList<CharacterModel> getList() {

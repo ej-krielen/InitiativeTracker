@@ -39,6 +39,8 @@
     <!--Dialog-->
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_delete">Are you sure you want to delete\u0020</string>
+    <string name="dialog_delete_title">Warning: Confirm delete</string>
     <string name="error_no_such_value">The following value was not found:\u0020</string>
 
 </resources>
