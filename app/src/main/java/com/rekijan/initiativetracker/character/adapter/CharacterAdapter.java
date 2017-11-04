@@ -29,9 +29,11 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     // Field for the list of CharacterModels
     private ArrayList<CharacterModel> characters = new ArrayList<>();
+    // Passing along the activity is needed to build and populate dialogs
     private Activity activity;
 
-    public CharacterAdapter (Activity activity) {
+    // C'tor
+    public CharacterAdapter(Activity activity) {
         this.activity = activity;
     }
 
@@ -43,11 +45,27 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         this.characters.addAll(characters);
     }
 
+    /**
+     * Remove a character based on position
+     * @param position
+     */
     public void remove(int position) {
         if (characters.size() > position) {
             characters.remove(position);
         }
         notifyDataSetChanged();
+    }
+
+    /**
+     * Remove based on the character given
+     * @param character
+     */
+    public void remove(CharacterModel character) {
+        for (int i = 0; i < characters.size(); i++) {
+            if (characters.get(i) == character) {
+                remove(i);
+            }
+        }
     }
 
     public ArrayList<CharacterModel> getList() {
@@ -102,17 +120,17 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
         CharacterViewHolder(View itemView) {
             super(itemView);
-            characterCardView = (CardView) itemView.findViewById(R.id.character_cardView);
-            characterInitiativeEditText = (EditText) itemView.findViewById(R.id.character_initiative_editText);
-            characterNameEditText = (EditText) itemView.findViewById(R.id.character_name_editText);
-            characterNotesEditText = (EditText) itemView.findViewById(R.id.character_notes_editText);
-            characterHpEditText = (TextView) itemView.findViewById(R.id.character_hp_editText);
-            characterDebuffTL = (EditText) itemView.findViewById(R.id.character_debuff_TL_editText);
-            characterDebuffTC = (EditText) itemView.findViewById(R.id.character_debuff_TC_editText);
-            characterDebuffTR = (EditText) itemView.findViewById(R.id.character_debuff_TR_editText);
-            characterDebuffBL = (EditText) itemView.findViewById(R.id.character_debuff_BL_editText);
-            characterDebuffBC = (EditText) itemView.findViewById(R.id.character_debuff_BC_editText);
-            characterDebuffBR = (EditText) itemView.findViewById(R.id.character_debuff_BR_editText);
+            characterCardView = itemView.findViewById(R.id.character_cardView);
+            characterInitiativeEditText = itemView.findViewById(R.id.character_initiative_editText);
+            characterNameEditText = itemView.findViewById(R.id.character_name_editText);
+            characterNotesEditText = itemView.findViewById(R.id.character_notes_editText);
+            characterHpEditText = itemView.findViewById(R.id.character_hp_editText);
+            characterDebuffTL = itemView.findViewById(R.id.character_debuff_TL_editText);
+            characterDebuffTC = itemView.findViewById(R.id.character_debuff_TC_editText);
+            characterDebuffTR = itemView.findViewById(R.id.character_debuff_TR_editText);
+            characterDebuffBL = itemView.findViewById(R.id.character_debuff_BL_editText);
+            characterDebuffBC = itemView.findViewById(R.id.character_debuff_BC_editText);
+            characterDebuffBR = itemView.findViewById(R.id.character_debuff_BR_editText);
         }
     }
     /* End of Viewholder region */

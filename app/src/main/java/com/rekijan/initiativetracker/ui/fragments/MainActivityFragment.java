@@ -47,12 +47,14 @@ public class MainActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        RecyclerView charactersRecyclerView = (RecyclerView) rootView.findViewById(R.id.characters_recyclerView);
+        //Setup RecyclerView by binding the adapter to it.
+        RecyclerView charactersRecyclerView = rootView.findViewById(R.id.characters_recyclerView);
         charactersRecyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         charactersRecyclerView.setLayoutManager(llm);
         charactersRecyclerView.setAdapter(mAdapter);
 
+        //Setup long click listener to remove character
         charactersRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), charactersRecyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -61,6 +63,7 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onLongClick(View view, final int position) {
+                //Create a dialog to ask for confirmation before deleting
                 String characterName = mAdapter.getList().get(position).getCharacterName();
                 characterName = TextUtils.isEmpty(characterName) ? getString(R.string.empty_character_name) : characterName;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -98,6 +101,9 @@ public class MainActivityFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Show dialog to explain how to remove a character
+     */
     public void deleteCharacterInfo() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(getString(R.string.dialog_delete_info))
@@ -110,6 +116,9 @@ public class MainActivityFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Show dialog explaining more info is available on the website
+     */
     public void aboutInfo() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(getString(R.string.dialog_about_info))
@@ -181,6 +190,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    /* BEGIN REGION Needed to setup long click listener on the RecyclerView */
     public interface ClickListener {
         void onClick(View view, int position);
 
@@ -228,5 +238,5 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-
+    /* END REGION setup long click listener */
 }
