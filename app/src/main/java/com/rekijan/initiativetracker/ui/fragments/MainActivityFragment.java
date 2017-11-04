@@ -30,7 +30,7 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment {
 
-    private CharacterAdapter mAdapter = new CharacterAdapter();
+    private CharacterAdapter mAdapter;
 
     public MainActivityFragment() {
     }
@@ -38,6 +38,7 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+         mAdapter = new CharacterAdapter(getActivity());
     }
 
     @Override

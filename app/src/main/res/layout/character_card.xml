@@ -40,13 +40,15 @@
                 android:hint="@string/EH_character_name"
                 android:inputType="textPersonName|textCapWords" />
 
-            <EditText
+            <TextView
                 android:id="@+id/character_hp_editText"
                 android:layout_width="0dp"
+                android:textColor="?attr/editTextColor"
+                android:background="?attr/editTextBackground"
                 android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMediumInverse"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:inputType="number" />
+                android:gravity="center"/>
 
             <TextView
                 android:id="@+id/buffs_textview"

@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Model class for the Party
  *
- * @author Erik-Jan Krielen ej.krielen@gmail.com
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 7-2-2016
  */
 public class PartyModel implements Parcelable{

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/old_value_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:text="@string/hp_dialog_old_value"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/old_value_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/old_value_label" />
+
+    <EditText
+        android:id="@+id/input_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:gravity="center"
+        android:inputType="number"
+        android:textAppearance="?android:textAppearanceLarge"
+        app:layout_constraintTop_toBottomOf="@id/old_value_label" />
+
+    <TextView
+        android:id="@+id/input_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/input_editText"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:gravity="center"
+        android:text="@string/hp_dialog_input"
+        app:layout_constraintTop_toBottomOf="@id/input_editText" />
+
+    <Button
+        android:id="@+id/add_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/hp_dialog_add_btn"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_textView" />
+
+    <Button
+        android:id="@+id/set_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hp_dialog_set_btn"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintLeft_toRightOf="@+id/add_btn"
+        app:layout_constraintRight_toLeftOf="@+id/subtract_btn"
+        app:layout_constraintTop_toBottomOf="@id/input_textView"
+        app:layout_constraintTop_toTopOf="@id/add_btn" />
+
+    <Button
+        android:id="@+id/subtract_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="24dp"
+        android:text="@string/hp_dialog_subtract_btn"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/set_btn"
+        app:layout_constraintTop_toBottomOf="@id/input_textView"
+        app:layout_constraintTop_toTopOf="@id/add_btn" />
+
+    <TextView
+        android:id="@+id/add_preview_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@id/add_btn"
+        app:layout_constraintRight_toRightOf="@id/add_btn"
+        app:layout_constraintTop_toBottomOf="@id/add_btn" />
+
+    <TextView
+        android:id="@+id/set_preview_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@id/set_btn"
+        app:layout_constraintRight_toRightOf="@id/set_btn"
+        app:layout_constraintTop_toBottomOf="@id/set_btn" />
+
+    <TextView
+        android:id="@+id/subtract_preview_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@id/subtract_btn"
+        app:layout_constraintRight_toRightOf="@id/subtract_btn"
+        app:layout_constraintTop_toBottomOf="@id/subtract_btn" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:text="@string/hp_dialog_preview"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/add_preview_textView" />
+
+
+</android.support.constraint.ConstraintLayout>

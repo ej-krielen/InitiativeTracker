@@ -15,7 +15,7 @@ import static com.rekijan.initiativetracker.AppConstants.INITIATIVE;
 /**
  * Model class for the Character
  *
- * @author Erik-Jan Krielen ej.krielen@gmail.com
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
  */
 public class CharacterModel implements Parcelable {

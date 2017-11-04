@@ -3,7 +3,7 @@ package com.rekijan.initiativetracker;
 /**
  * Constant fields
  *
- * @author Erik-Jan Krielen ej.krielen@gmail.com
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
  */
 public class AppConstants {

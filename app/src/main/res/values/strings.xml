@@ -49,7 +49,15 @@
     <string name="dialog_about_info">To learn more about the app, and its developer, please visit the website.</string>
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
-
     <string name="error_no_such_value">The following value was not found:\u0020</string>
+
+    <!--Dialog Hp-->
+    <string name="hp_dialog_title">Adjust hp value</string>
+    <string name="hp_dialog_old_value">Old value:\u0020</string>
+    <string name="hp_dialog_input">Input</string>
+    <string name="hp_dialog_preview">Preview values</string>
+    <string name="hp_dialog_add_btn">Add</string>
+    <string name="hp_dialog_set_btn">Set</string>
+    <string name="hp_dialog_subtract_btn">Subtract</string>
 
 </resources>

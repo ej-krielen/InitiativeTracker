@@ -11,7 +11,7 @@ import com.rekijan.initiativetracker.character.model.CharacterModel;
 /**
  * <p>Listener for EditText</p>
  * See {@link CharacterModel} and {@link com.rekijan.initiativetracker.character.adapter.CharacterAdapter}
- * @author Erik-Jan Krielen ej.krielen@gmail.com
+ * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 26-10-2015
  */
 public class GenericTextWatcher implements TextWatcher {
