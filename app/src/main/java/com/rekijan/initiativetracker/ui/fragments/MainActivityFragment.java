@@ -3,6 +3,8 @@ package com.rekijan.initiativetracker.ui.fragments;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -107,6 +109,27 @@ public class MainActivityFragment extends Fragment {
         dialog.show();
     }
 
+    public void aboutInfo() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(getString(R.string.dialog_about_info))
+                .setTitle(getString(R.string.dialog_about_info_title));
+        builder.setPositiveButton(getString(R.string.dialog_about_ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent siteIntent =
+                        new Intent("android.intent.action.VIEW",
+                                Uri.parse("http://www.rekijan.nl/"));
+                startActivity(siteIntent);
+            }
+        });
+        builder.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {}
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putParcelableArrayList("characters", mAdapter.getList());
@@ -146,6 +169,9 @@ public class MainActivityFragment extends Fragment {
                 return true;
             case R.id.action_settings_delete_character:
                 deleteCharacterInfo();
+                return true;
+            case R.id.action_settings_about:
+                aboutInfo();
                 return true;
 //          //TODO go to select party screen add in later
             //TODO remove/reset character(s)

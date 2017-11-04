@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             case R.id.action_settings_delete_character:
                 return false;
+            case R.id.action_settings_about:
+                return false;
 //          case R.id.action_settings_select_party:
 //                //TODO go to select party screen add in later
 //                return true;
