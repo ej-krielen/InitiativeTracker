@@ -13,7 +13,7 @@ public class AppConstants {
 
     // Character default values
     public static final int INITIATIVE = 0;
-    public static final int HP = 6;
+    public static final int HP = 0;
     public static final int DEBUFF = 0;
 
     public static final String GSON_TAG = "GSON_TAG";
