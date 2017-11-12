@@ -16,4 +16,7 @@ public class AppConstants {
     public static final int HP = 6;
     public static final int DEBUFF = 0;
 
+    public static final String GSON_TAG = "GSON_TAG";
+    public static final String SHARED_PREF_TAG = "SHARED_PREF_TAG";
+
 }

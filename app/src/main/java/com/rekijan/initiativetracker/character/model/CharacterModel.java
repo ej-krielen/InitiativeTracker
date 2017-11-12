@@ -20,7 +20,7 @@ import static com.rekijan.initiativetracker.AppConstants.INITIATIVE;
  */
 public class CharacterModel implements Parcelable {
 
-    private Context context;
+    private transient Context context; //transient to skip gson from trying to include it
     private long id;
     private long party_id;
     private int initiative;
@@ -223,4 +223,6 @@ public class CharacterModel implements Parcelable {
     public void setCharacterNotes(String characterNotes) {
         this.characterNotes = characterNotes;
     }
+
+    public Context getContext() { return context; }
 }
