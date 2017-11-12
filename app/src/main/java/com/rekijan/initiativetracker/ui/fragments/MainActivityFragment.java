@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,11 +20,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.adapter.CharacterAdapter;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import static com.rekijan.initiativetracker.AppConstants.GSON_TAG;
+import static com.rekijan.initiativetracker.AppConstants.SHARED_PREF_TAG;
 
 /**
  * A fragment containing the list of CharacterModels
@@ -38,7 +45,7 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-         mAdapter = new CharacterAdapter(getActivity());
+        mAdapter = new CharacterAdapter(getActivity());
     }
 
     @Override
@@ -86,14 +93,46 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Looks for previously saved data and restores that, else it will add 5 empty characters
+     */
     private void initializeData() {
-        //TODO get saved data if available
         Context context = getContext();
-        mAdapter.add(new CharacterModel(context));
-        mAdapter.add(new CharacterModel(context));
-        mAdapter.add(new CharacterModel(context));
-        mAdapter.add(new CharacterModel(context));
-        mAdapter.add(new CharacterModel(context));
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(GSON_TAG, null);
+        Type type = new TypeToken<ArrayList<CharacterModel>>() {
+        }.getType();
+        ArrayList<CharacterModel> characters;
+        characters = gson.fromJson(json, type);
+        if (characters != null) {
+            mAdapter.addAll(characters);
+        } else {
+            mAdapter.add(new CharacterModel(context));
+            mAdapter.add(new CharacterModel(context));
+            mAdapter.add(new CharacterModel(context));
+            mAdapter.add(new CharacterModel(context));
+            mAdapter.add(new CharacterModel(context));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        saveData(); //save data when app is going to the background
+        super.onPause();
+    }
+
+    /**
+     * Saves all character data
+     */
+    public void saveData() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        ArrayList<CharacterModel> characters = mAdapter.getList();
+        String json = gson.toJson(characters);
+        editor.putString(GSON_TAG, json);
+        editor.apply();
     }
 
     private void addCharacter() {
