@@ -105,6 +105,9 @@ public class MainActivityFragment extends Fragment {
         ArrayList<CharacterModel> characters;
         characters = gson.fromJson(json, type);
         if (characters != null) {
+            for (CharacterModel c: characters) {
+                c.setContext(context);
+            }
             mAdapter.addAll(characters);
         } else {
             mAdapter.add(new CharacterModel(context));
