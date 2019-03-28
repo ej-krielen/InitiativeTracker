@@ -31,6 +31,7 @@ public class CharacterModel implements Parcelable {
     private int debuffBL;
     private int debuffBC;
     private int debuffBR;
+    private boolean isFirstInRound;
 
     private String characterName;
     private String characterNotes;
@@ -46,6 +47,7 @@ public class CharacterModel implements Parcelable {
         debuffBR = DEBUFF;
         characterName = "";
         characterNotes = "";
+        isFirstInRound = false;
         this.context = context;
     }
 
@@ -110,6 +112,7 @@ public class CharacterModel implements Parcelable {
         dest.writeInt(debuffBR);
         dest.writeString(characterName);
         dest.writeString(characterNotes);
+        dest.writeByte((byte) (isFirstInRound ? 1 : 0));     //if isFirstInRound == true, byte == 1
     }
 
     private CharacterModel(Parcel in) {
@@ -125,7 +128,7 @@ public class CharacterModel implements Parcelable {
         debuffBR = in.readInt();
         characterName = in.readString();
         characterNotes = in.readString();
-
+        isFirstInRound = in.readByte() != 0;     //isFirstInRound == true if byte != 0
     }
 
     public long getId() {
@@ -229,4 +232,10 @@ public class CharacterModel implements Parcelable {
     public void setContext(Context context) {
         this.context = context;
     }
+
+    public void setIsFirstRound(boolean isFirstInRound) {
+        this.isFirstInRound = isFirstInRound;
+    }
+
+    public boolean isFirstRound() { return isFirstInRound; }
 }

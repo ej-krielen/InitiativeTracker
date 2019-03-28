@@ -19,6 +19,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,6 +32,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import static com.rekijan.initiativetracker.AppConstants.GSON_TAG;
+import static com.rekijan.initiativetracker.AppConstants.ROUND_COUNTER;
 import static com.rekijan.initiativetracker.AppConstants.SHARED_PREF_TAG;
 
 /**
@@ -38,6 +41,8 @@ import static com.rekijan.initiativetracker.AppConstants.SHARED_PREF_TAG;
 public class MainActivityFragment extends Fragment {
 
     private CharacterAdapter mAdapter;
+    private int mRoundCounter;
+    private TextView counterTextView;
 
     public MainActivityFragment() {
     }
@@ -53,6 +58,40 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        //Round counter
+        counterTextView = rootView.findViewById(R.id.round_counter_textView);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
+        counterTextView.setText(String.valueOf(sharedPreferences.getInt(ROUND_COUNTER, 0)));
+
+        Button plusButton = rootView.findViewById(R.id.plus_round_button);
+        plusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int oldNumber = Integer.parseInt(counterTextView.getText().toString());
+                mRoundCounter = oldNumber+1;
+                counterTextView.setText(String.valueOf(mRoundCounter));
+            }
+        });
+
+        Button minusButton = rootView.findViewById(R.id.minus_round_button);
+        minusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int oldNumber = Integer.parseInt(counterTextView.getText().toString());
+                mRoundCounter = oldNumber-1;
+                if (mRoundCounter < 0) mRoundCounter = 0;
+                counterTextView.setText(String.valueOf(mRoundCounter));
+            }
+        });
+
+        Button resetButton = rootView.findViewById(R.id.reset_round_button);
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                counterTextView.setText(String.valueOf(0));
+            }
+        });
 
         //Setup RecyclerView by binding the adapter to it.
         RecyclerView charactersRecyclerView = rootView.findViewById(R.id.characters_recyclerView);
@@ -73,7 +112,7 @@ public class MainActivityFragment extends Fragment {
                 //Create a dialog to ask for confirmation before deleting
                 String characterName = mAdapter.getList().get(position).getCharacterName();
                 characterName = TextUtils.isEmpty(characterName) ? getString(R.string.empty_character_name) : characterName;
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
                 builder.setMessage(getString(R.string.dialog_delete) + characterName + "?")
                         .setTitle(getString(R.string.dialog_delete_title));
                 builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
@@ -134,6 +173,7 @@ public class MainActivityFragment extends Fragment {
         ArrayList<CharacterModel> characters = mAdapter.getList();
         String json = gson.toJson(characters);
         editor.putString(GSON_TAG, json);
+        editor.putInt(ROUND_COUNTER, mRoundCounter);
         editor.apply();
     }
 
@@ -146,7 +186,7 @@ public class MainActivityFragment extends Fragment {
      * Show dialog to explain how to remove a character
      */
     public void deleteCharacterInfo() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
         builder.setMessage(getString(R.string.dialog_delete_info))
                 .setTitle(getString(R.string.dialog_delete_info_title));
         builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
@@ -161,7 +201,7 @@ public class MainActivityFragment extends Fragment {
      * Show dialog explaining more info is available on the website
      */
     public void aboutInfo() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
         builder.setMessage(getString(R.string.dialog_about_info))
                 .setTitle(getString(R.string.dialog_about_info_title));
         builder.setPositiveButton(getString(R.string.dialog_about_ok), new DialogInterface.OnClickListener() {
@@ -210,10 +250,12 @@ public class MainActivityFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings_next_turn:
-                mAdapter.nextTurn();
+                boolean isNextRound = mAdapter.nextTurn();
+                if (isNextRound) nextRound();
                 return true;
             case R.id.action_settings_sort:
                 mAdapter.sortInitiative();
+                //TODO dialog to confirm player to have first round (own option?)
                 return true;
             case R.id.action_settings_add_character:
                 addCharacter();
@@ -229,6 +271,16 @@ public class MainActivityFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Called from {@link CharacterAdapter#nextTurn()} if the {@link CharacterModel} whose turn it is marks the start of a new round<br>
+     *     Ups the round counter by 1
+     */
+    private void nextRound() {
+        int oldNumber = Integer.parseInt(counterTextView.getText().toString());
+        mRoundCounter = oldNumber+1;
+        counterTextView.setText(String.valueOf(mRoundCounter));
     }
 
     /* BEGIN REGION Needed to setup long click listener on the RecyclerView */

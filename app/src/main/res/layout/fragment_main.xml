@@ -1,14 +1,26 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.rekijan.initiativetracker.ui.fragments.MainActivityFragment"
+    android:orientation="vertical"
     android:tag="MAIN_FRAGMENT"
+    tools:context="com.rekijan.initiativetracker.ui.fragments.MainActivityFragment"
     tools:showIn="@layout/activity_main">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryLight"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <include layout="@layout/content_round_counter" />
+
+    </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/characters_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content" />
 
-</RelativeLayout>
+</LinearLayout>

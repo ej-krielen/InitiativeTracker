@@ -73,7 +73,8 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     }
 
     /**
-     * Sorts the {@link #characters} list by {@link CharacterModel#getInitiative()}. High to low.
+     * Sorts the {@link #characters} list by {@link CharacterModel#getInitiative()}. High to low. <br>
+     *     And make the first character the first in the round
      */
     public void sortInitiative() {
         Collections.sort(characters, new Comparator<CharacterModel>() {
@@ -81,13 +82,20 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                 return o2.getInitiative() - o1.getInitiative();
             }
         });
+
+        //TODO make its own method? Let player select character to be first in the round?
+        for (CharacterModel c : characters) {
+            c.setIsFirstRound(false);
+        }
+        characters.get(0).setIsFirstRound(true);
         notifyDataSetChanged();
     }
 
     /**
      * Each {@link CharacterModel} is pushed down the list by one, bottom one becomes the top
+     * @return true if its the first character in the round
      */
-    public void nextTurn() {
+    public boolean nextTurn() {
         //Create temporary list
         ArrayList<CharacterModel> newList = new ArrayList<>();
         //Add all the items in the new order
@@ -101,6 +109,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         //Update the (de)buffs of the top character
         characters.get(0).updateDebuffs();
         notifyDataSetChanged();
+        return characters.get(0).isFirstRound();
     }
 
 

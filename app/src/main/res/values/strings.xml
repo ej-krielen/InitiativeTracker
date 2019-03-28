@@ -66,5 +66,10 @@
     <string name="dialog_delete_low_positive">OK, delete</string>
     <string name="dialog_delete_low_negative">NO, keep character</string>
 
+    <!--Round counter-->
+    <string name="plus_round_button_label">+</string>
+    <string name="minus_round_button_label">-</string>
+    <string name="reset_round_button_label">Reset</string>
+
 
 </resources>

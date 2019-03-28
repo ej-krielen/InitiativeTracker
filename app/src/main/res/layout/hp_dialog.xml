@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryLight">
 
     <TextView
         android:id="@+id/old_value_label"
@@ -11,13 +11,17 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:text="@string/hp_dialog_old_value"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/old_value_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toRightOf="@id/old_value_label" />
+        android:textColor="@color/white"
+        app:layout_constraintLeft_toRightOf="@id/old_value_label"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/input_editText"
@@ -28,6 +32,7 @@
         android:gravity="center"
         android:inputType="number"
         android:textAppearance="?android:textAppearanceLarge"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/old_value_label" />
 
     <TextView
@@ -39,6 +44,7 @@
         android:layout_marginRight="24dp"
         android:gravity="center"
         android:text="@string/hp_dialog_input"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/input_editText" />
 
     <Button
@@ -80,6 +86,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="test"
+        android:textColor="@color/white"
         app:layout_constraintLeft_toLeftOf="@id/add_btn"
         app:layout_constraintRight_toRightOf="@id/add_btn"
         app:layout_constraintTop_toBottomOf="@id/add_btn" />
@@ -89,6 +96,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="test"
+        android:textColor="@color/white"
         app:layout_constraintLeft_toLeftOf="@id/set_btn"
         app:layout_constraintRight_toRightOf="@id/set_btn"
         app:layout_constraintTop_toBottomOf="@id/set_btn" />
@@ -98,6 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="test"
+        android:textColor="@color/white"
         app:layout_constraintLeft_toLeftOf="@id/subtract_btn"
         app:layout_constraintRight_toRightOf="@id/subtract_btn"
         app:layout_constraintTop_toBottomOf="@id/subtract_btn" />
@@ -109,6 +118,7 @@
         android:layout_marginRight="24dp"
         android:text="@string/hp_dialog_preview"
         android:textAppearance="?android:textAppearanceLarge"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

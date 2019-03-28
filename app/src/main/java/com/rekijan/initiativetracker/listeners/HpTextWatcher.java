@@ -38,7 +38,7 @@ public class HpTextWatcher implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         //Build a dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
         //Add custom layout to dialog
         LayoutInflater inflater = activity.getLayoutInflater();
         final View alertDialogView = inflater.inflate(R.layout.hp_dialog, null);
@@ -132,7 +132,7 @@ public class HpTextWatcher implements View.OnClickListener {
                 //If the new hp value is less than zero the character is probably dead, ask if the user wants to remove it
                 if (newValue < 0) {
                     //Build second dialog
-                    AlertDialog.Builder removalBuilder = new AlertDialog.Builder(activity);
+                    AlertDialog.Builder removalBuilder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
                     removalBuilder.setTitle(activity.getString(R.string.dialog_delete_low_title))
                             .setMessage(activity.getString(R.string.dialog_delete_low));
                     removalBuilder.setPositiveButton(activity.getString(R.string.dialog_delete_low_positive), new DialogInterface.OnClickListener() {
