@@ -89,7 +89,7 @@ public class MainActivityFragment extends Fragment {
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                counterTextView.setText(String.valueOf(0));
+                counterTextView.setText(String.valueOf(1));
             }
         });
 
@@ -255,7 +255,7 @@ public class MainActivityFragment extends Fragment {
                 return true;
             case R.id.action_settings_sort:
                 mAdapter.sortInitiative();
-                //TODO dialog to confirm player to have first round (own option?)
+                askRoundResetConfirmation();
                 return true;
             case R.id.action_settings_add_character:
                 addCharacter();
@@ -281,6 +281,25 @@ public class MainActivityFragment extends Fragment {
         int oldNumber = Integer.parseInt(counterTextView.getText().toString());
         mRoundCounter = oldNumber+1;
         counterTextView.setText(String.valueOf(mRoundCounter));
+    }
+
+    private void askRoundResetConfirmation() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+        builder.setMessage(getString(R.string.dialog_reset_round_counter))
+                .setTitle(getString(R.string.dialog_reset_round_counter_title));
+        builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                counterTextView.setText(String.valueOf(1));
+            }
+        });
+        builder.setNegativeButton(getString(R.string.dialog_reset_round_counter_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {}
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     /* BEGIN REGION Needed to setup long click listener on the RecyclerView */

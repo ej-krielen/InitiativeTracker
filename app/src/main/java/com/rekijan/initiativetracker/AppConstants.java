@@ -9,7 +9,7 @@ package com.rekijan.initiativetracker;
 public class AppConstants {
 
     // Splash screen timer
-    public static final int SPLASH_TIME_OUT = 3000;
+    public static final int SPLASH_TIME_OUT = 1000;
 
     // Character default values
     public static final int INITIATIVE = 0;

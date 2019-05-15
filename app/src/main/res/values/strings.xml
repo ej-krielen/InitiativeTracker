@@ -50,6 +50,9 @@
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
     <string name="error_no_such_value">The following value was not found:\u0020</string>
+    <string name="dialog_reset_round_counter_title">Reset round counter?</string>
+    <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
+    <string name="dialog_reset_round_counter_cancel">No, keep current number</string>
 
     <!--Dialog Hp-->
     <string name="hp_dialog_title">Adjust hp value</string>

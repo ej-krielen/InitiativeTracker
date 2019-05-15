@@ -83,7 +83,6 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             }
         });
 
-        //TODO make its own method? Let player select character to be first in the round?
         for (CharacterModel c : characters) {
             c.setIsFirstRound(false);
         }
