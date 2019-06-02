@@ -1,0 +1,296 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/character_detail_textView"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/colorPrimaryLight"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/character_detail_textView">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/initiative_bonus_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintStart_toStartOf="@+id/guideline_33"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/initiative_bonus_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_initiative_bonus"
+                app:layout_constraintBottom_toBottomOf="@+id/initiative_bonus_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
+
+            <EditText
+                android:id="@+id/max_hp_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:selectAllOnFocus="true"
+                app:layout_constraintStart_toStartOf="@+id/guideline_67"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/max_hp_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_max_hp"
+                app:layout_constraintBottom_toBottomOf="@+id/initiative_bonus_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_67" />
+
+            <TextView
+                android:id="@+id/skill_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_skills"
+                app:layout_constraintBottom_toBottomOf="@+id/skills_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+
+            <EditText
+                android:id="@+id/skills_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/initiative_bonus_editText" />
+
+            <EditText
+                android:id="@+id/attack_routine_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/char_detail_attack_routine_hint"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/skills_editText" />
+
+            <TextView
+                android:id="@+id/attack_routine_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_attack_routine"
+                app:layout_constraintBottom_toBottomOf="@+id/attack_routine_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+
+            <EditText
+                android:id="@+id/ac_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/attack_routine_editText" />
+
+            <TextView
+                android:id="@+id/ac_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_ac"
+                app:layout_constraintBottom_toBottomOf="@+id/ac_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+
+            <EditText
+                android:id="@+id/maneuvers_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/ac_editText" />
+
+            <TextView
+                android:id="@+id/maneuvers_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_maneuvers"
+                app:layout_constraintBottom_toBottomOf="@+id/maneuvers_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+
+            <EditText
+                android:id="@+id/saves_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintTop_toBottomOf="@+id/maneuvers_editText" />
+
+            <TextView
+                android:id="@+id/saves_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/char_detail_saves"
+                app:layout_constraintBottom_toBottomOf="@+id/saves_editText"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+
+            <TextView
+                android:id="@+id/notes_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/char_detail_notes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/saves_editText" />
+
+            <EditText
+                android:id="@+id/notes_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/gray"
+                android:lines="5"
+                android:hint="@string/char_detail_notes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/notes_label_textView" />
+
+            <TextView
+                android:id="@+id/debuff_label_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/char_detail_debuffs"
+                app:layout_constraintBottom_toBottomOf="@+id/add_debuff_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/add_debuff_button" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/debuff_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/add_debuff_button" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_33"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.33" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_67"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.67" />
+
+            <Button
+                android:id="@+id/add_debuff_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/char_detail_add_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/debuff_label_textView"
+                app:layout_constraintTop_toBottomOf="@+id/notes_editText" />
+
+            <Button
+                android:id="@+id/clear_all_debuffs_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/char_detail_clear_button"
+                app:layout_constraintEnd_toStartOf="@+id/debuff_label_textView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/notes_editText" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+
+
+</android.support.constraint.ConstraintLayout>

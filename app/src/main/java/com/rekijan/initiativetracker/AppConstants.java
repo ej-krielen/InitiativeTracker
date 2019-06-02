@@ -13,8 +13,10 @@ public class AppConstants {
 
     // Character default values
     public static final int INITIATIVE = 0;
-    public static final int HP = 0;
-    public static final int DEBUFF = 0;
+    public static final int HP = 6;
+    public static final int AC_AND_SAVES = 10;
+
+    public static final String POSITION = "POSITION";
 
     public static final String GSON_TAG = "GSON_TAG";
     public static final String SHARED_PREF_TAG = "SHARED_PREF_TAG";

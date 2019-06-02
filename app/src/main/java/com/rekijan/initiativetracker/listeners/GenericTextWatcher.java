@@ -7,21 +7,27 @@ import android.view.View;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
+import com.rekijan.initiativetracker.character.model.DebuffModel;
 
 /**
  * <p>Listener for EditText</p>
- * See {@link CharacterModel} and {@link com.rekijan.initiativetracker.character.adapter.CharacterAdapter}
+ * See {@link CharacterModel} and {@link com.rekijan.initiativetracker.character.adapter.CharacterAdapter} as well as {@link DebuffModel} and {@link com.rekijan.initiativetracker.character.adapter.DebuffAdapter}
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 26-10-2015
  */
 public class GenericTextWatcher implements TextWatcher {
     private View view;
     private CharacterModel character;
+    private DebuffModel debuff;
 
     public GenericTextWatcher(CharacterModel character, View view) {
         this.character = character;
         this.view = view;
+    }
 
+    public GenericTextWatcher(DebuffModel debuff, View view) {
+        this.debuff = debuff;
+        this.view = view;
     }
 
     @Override
@@ -37,32 +43,41 @@ public class GenericTextWatcher implements TextWatcher {
             case R.id.character_initiative_editText:
                 character.setInitiative(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
                 break;
+            case R.id.initiative_bonus_editText:
+                character.setInitiativeBonus(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                break;
+            case R.id.skills_editText:
+                character.setSkills(text);
+                break;
+            case R.id.attack_routine_editText:
+                character.setAttackRoutine(text);
+                break;
+            case R.id.ac_editText:
+                character.setAc(text);
+                break;
+            case R.id.saves_editText:
+                character.setSaves(text);
+                break;
+            case R.id.maneuvers_editText:
+                character.setManeuvers(text);
+                break;
+            case R.id.max_hp_editText:
+                character.setMaxHp(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                break;
             case R.id.character_name_editText:
                 character.setCharacterName(text);
                 break;
-            case R.id.character_notes_editText:
+            case R.id.notes_editText:
                 character.setCharacterNotes(text);
                 break;
-            case R.id.character_hp_editText:
-                character.setHp(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+            case R.id.debuff_name_editText:
+                debuff.setName(text);
                 break;
-            case R.id.character_debuff_TL_editText:
-                character.setDebuffTL(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+            case R.id.debuff_duration_editText:
+                debuff.setDuration(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
                 break;
-            case R.id.character_debuff_TC_editText:
-                character.setDebuffTC(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
-                break;
-            case R.id.character_debuff_TR_editText:
-                character.setDebuffTR(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
-                break;
-            case R.id.character_debuff_BL_editText:
-                character.setDebuffBL(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
-                break;
-            case R.id.character_debuff_BC_editText:
-                character.setDebuffBC(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
-                break;
-            case R.id.character_debuff_BR_editText:
-                character.setDebuffBR(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+            case R.id.debuff_description_editText:
+                debuff.setDescription(text);
                 break;
         }
     }

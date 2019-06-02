@@ -8,7 +8,9 @@ import android.widget.Toast;
 
 import com.rekijan.initiativetracker.R;
 
-import static com.rekijan.initiativetracker.AppConstants.DEBUFF;
+import java.util.ArrayList;
+
+import static com.rekijan.initiativetracker.AppConstants.AC_AND_SAVES;
 import static com.rekijan.initiativetracker.AppConstants.HP;
 import static com.rekijan.initiativetracker.AppConstants.INITIATIVE;
 
@@ -24,27 +26,32 @@ public class CharacterModel implements Parcelable {
     private long id;
     private long party_id;
     private int initiative;
+    private int initiativeBonus;
+    private String skills;
+    private String attackRoutine;
+    private String ac;
+    private String saves;
+    private String maneuvers;
     private int hp;
-    private int debuffTL;
-    private int debuffTC;
-    private int debuffTR;
-    private int debuffBL;
-    private int debuffBC;
-    private int debuffBR;
+    private int maxHp;
     private boolean isFirstInRound;
 
     private String characterName;
     private String characterNotes;
 
+    private ArrayList<DebuffModel> debuffList = new ArrayList<>();
+
     public CharacterModel(Context context) {
         initiative = INITIATIVE;
+        initiativeBonus = INITIATIVE;
+        skills = "";
+        attackRoutine = "";
+        boolean isTablet = context.getResources().getBoolean(R.bool.isTablet);
+        ac = isTablet ? String.format(context.getString(R.string.standard_ac), AC_AND_SAVES) : String.format(context.getString(R.string.standard_mobile_ac), AC_AND_SAVES);
+        saves = isTablet ? String.format(context.getString(R.string.standard_saves), AC_AND_SAVES) : String.format(context.getString(R.string.standard__mobile_saves), AC_AND_SAVES);
+        maneuvers = String.format(context.getString(R.string.maneuvers), 0, AC_AND_SAVES);
         hp = HP;
-        debuffTL = DEBUFF;
-        debuffTC = DEBUFF;
-        debuffTR = DEBUFF;
-        debuffBL = DEBUFF;
-        debuffBC = DEBUFF;
-        debuffBR = DEBUFF;
+        maxHp = HP;
         characterName = "";
         characterNotes = "";
         isFirstInRound = false;
@@ -56,24 +63,13 @@ public class CharacterModel implements Parcelable {
      * Lowers all (de)buff values by one, but never to negative.
      */
     public void updateDebuffs() {
-        debuffTL--;
-        if (debuffTL == 0) toastExpiredDebuffs(context.getString(R.string.debuff_top_left));
-        if (debuffTL < 0) debuffTL = 0;
-        debuffTC--;
-        if (debuffTC == 0) toastExpiredDebuffs(context.getString(R.string.debuff_middle_top));
-        if (debuffTC < 0) debuffTC = 0;
-        debuffTR--;
-        if (debuffTR == 0) toastExpiredDebuffs(context.getString(R.string.debuff_top_right));
-        if (debuffTR < 0) debuffTR = 0;
-        debuffBL--;
-        if (debuffBL == 0) toastExpiredDebuffs(context.getString(R.string.debuff_bottom_left));
-        if (debuffBL < 0) debuffBL = 0;
-        debuffBC--;
-        if (debuffBC == 0) toastExpiredDebuffs(context.getString(R.string.debuff_middle_bottom));
-        if (debuffBC < 0) debuffBC = 0;
-        debuffBR--;
-        if (debuffBR == 0) toastExpiredDebuffs(context.getString(R.string.debuff_bottom_right));
-        if (debuffBR < 0) debuffBR = 0;
+        for (DebuffModel d: debuffList) {
+            int duration = d.getDuration();
+            duration--;
+            if (duration == 0) toastExpiredDebuffs(d.getName());
+            if (duration < 0) duration = 0;
+            d.setDuration(duration);
+        }
     }
 
     private void toastExpiredDebuffs(String string) {
@@ -82,54 +78,6 @@ public class CharacterModel implements Parcelable {
         toast.show();
     }
 
-    public static final Parcelable.Creator<CharacterModel> CREATOR
-            = new Parcelable.Creator<CharacterModel>() {
-        public CharacterModel createFromParcel(Parcel in) {
-            return new CharacterModel(in);
-        }
-
-        public CharacterModel[] newArray(int size) {
-            return new CharacterModel[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeLong(party_id);
-        dest.writeInt(initiative);
-        dest.writeInt(hp);
-        dest.writeInt(debuffTL);
-        dest.writeInt(debuffTC);
-        dest.writeInt(debuffTR);
-        dest.writeInt(debuffBL);
-        dest.writeInt(debuffBC);
-        dest.writeInt(debuffBR);
-        dest.writeString(characterName);
-        dest.writeString(characterNotes);
-        dest.writeByte((byte) (isFirstInRound ? 1 : 0));     //if isFirstInRound == true, byte == 1
-    }
-
-    private CharacterModel(Parcel in) {
-        id = in.readLong();
-        party_id = in.readLong();
-        initiative = in.readInt();
-        hp = in.readInt();
-        debuffTL = in.readInt();
-        debuffTC = in.readInt();
-        debuffTR = in.readInt();
-        debuffBL = in.readInt();
-        debuffBC = in.readInt();
-        debuffBR = in.readInt();
-        characterName = in.readString();
-        characterNotes = in.readString();
-        isFirstInRound = in.readByte() != 0;     //isFirstInRound == true if byte != 0
-    }
 
     public long getId() {
         return id;
@@ -155,6 +103,42 @@ public class CharacterModel implements Parcelable {
         this.initiative = initiative;
     }
 
+    public int getInitiativeBonus() {
+        return initiativeBonus;
+    }
+
+    public void setInitiativeBonus(int initiativeBonus) {
+        this.initiativeBonus = initiativeBonus;
+    }
+
+    public String getSkills() {
+        return skills;
+    }
+
+    public void setSkills(String skills) {
+        this.skills = skills;
+    }
+
+    public String getAttackRoutine() {
+        return attackRoutine;
+    }
+
+    public void setAttackRoutine(String attackRoutine) {
+        this.attackRoutine = attackRoutine;
+    }
+
+    public String getAc() { return ac; }
+
+    public void setAc(String ac) { this.ac = ac; }
+
+    public String getSaves() { return saves; }
+
+    public void setSaves(String saves) { this.saves = saves; }
+
+    public String getManeuvers() { return maneuvers; }
+
+    public void setManeuvers(String maneuvers) { this.maneuvers = maneuvers; }
+
     public int getHp() {
         return hp;
     }
@@ -163,52 +147,12 @@ public class CharacterModel implements Parcelable {
         this.hp = hp;
     }
 
-    public int getDebuffTL() {
-        return debuffTL;
+    public int getMaxHp() {
+        return maxHp;
     }
 
-    public void setDebuffTL(int debuffTL) {
-        this.debuffTL = debuffTL;
-    }
-
-    public int getDebuffTC() {
-        return debuffTC;
-    }
-
-    public void setDebuffTC(int debuffTC) {
-        this.debuffTC = debuffTC;
-    }
-
-    public int getDebuffTR() {
-        return debuffTR;
-    }
-
-    public void setDebuffTR(int debuffTR) {
-        this.debuffTR = debuffTR;
-    }
-
-    public int getDebuffBL() {
-        return debuffBL;
-    }
-
-    public void setDebuffBL(int debuffBL) {
-        this.debuffBL = debuffBL;
-    }
-
-    public int getDebuffBC() {
-        return debuffBC;
-    }
-
-    public void setDebuffBC(int debuffBC) {
-        this.debuffBC = debuffBC;
-    }
-
-    public int getDebuffBR() {
-        return debuffBR;
-    }
-
-    public void setDebuffBR(int debuffBR) {
-        this.debuffBR = debuffBR;
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp;
     }
 
     public String getCharacterName() {
@@ -238,4 +182,68 @@ public class CharacterModel implements Parcelable {
     }
 
     public boolean isFirstRound() { return isFirstInRound; }
+
+    public ArrayList<DebuffModel> getDebuffList() {
+        //Need to check for null because previous iteration didn't have this array list
+        if (debuffList == null) debuffList = new ArrayList<>();
+        return debuffList;
+    }
+
+    public void setDebuffList(ArrayList<DebuffModel> debuffList) {
+        this.debuffList = debuffList;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeLong(this.party_id);
+        dest.writeInt(this.initiative);
+        dest.writeInt(this.initiativeBonus);
+        dest.writeString(this.skills);
+        dest.writeString(this.attackRoutine);
+        dest.writeString(this.ac);
+        dest.writeString(this.saves);
+        dest.writeString(this.maneuvers);
+        dest.writeInt(this.hp);
+        dest.writeInt(this.maxHp);
+        dest.writeByte(this.isFirstInRound ? (byte) 1 : (byte) 0);
+        dest.writeString(this.characterName);
+        dest.writeString(this.characterNotes);
+        dest.writeTypedList(this.debuffList);
+    }
+
+    protected CharacterModel(Parcel in) {
+        this.id = in.readLong();
+        this.party_id = in.readLong();
+        this.initiative = in.readInt();
+        this.initiativeBonus = in.readInt();
+        this.skills = in.readString();
+        this.attackRoutine = in.readString();
+        this.ac = in.readString();
+        this.saves = in.readString();
+        this.maneuvers = in.readString();
+        this.hp = in.readInt();
+        this.maxHp = in.readInt();
+        this.isFirstInRound = in.readByte() != 0;
+        this.characterName = in.readString();
+        this.characterNotes = in.readString();
+        this.debuffList = in.createTypedArrayList(DebuffModel.CREATOR);
+    }
+
+    public static final Parcelable.Creator<CharacterModel> CREATOR = new Parcelable.Creator<CharacterModel>() {
+        @Override
+        public CharacterModel createFromParcel(Parcel source) {
+            return new CharacterModel(source);
+        }
+
+        @Override
+        public CharacterModel[] newArray(int size) {
+            return new CharacterModel[size];
+        }
+    };
 }

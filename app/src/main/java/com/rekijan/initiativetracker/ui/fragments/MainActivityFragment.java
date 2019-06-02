@@ -22,16 +22,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.rekijan.initiativetracker.AppExtension;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.adapter.CharacterAdapter;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-
-import static com.rekijan.initiativetracker.AppConstants.GSON_TAG;
 import static com.rekijan.initiativetracker.AppConstants.ROUND_COUNTER;
 import static com.rekijan.initiativetracker.AppConstants.SHARED_PREF_TAG;
 
@@ -40,17 +35,16 @@ import static com.rekijan.initiativetracker.AppConstants.SHARED_PREF_TAG;
  */
 public class MainActivityFragment extends Fragment {
 
-    private CharacterAdapter mAdapter;
     private int mRoundCounter;
     private TextView counterTextView;
 
-    public MainActivityFragment() {
-    }
+    public MainActivityFragment() {}
+
+    public static MainActivityFragment newInstance() { return new MainActivityFragment(); }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mAdapter = new CharacterAdapter(getActivity());
     }
 
     @Override
@@ -98,26 +92,27 @@ public class MainActivityFragment extends Fragment {
         charactersRecyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         charactersRecyclerView.setLayoutManager(llm);
-        charactersRecyclerView.setAdapter(mAdapter);
+
+        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        final CharacterAdapter adapter = app.getCharacterAdapter();
+        charactersRecyclerView.setAdapter(adapter);
 
         //Setup long click listener to remove character
         charactersRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), charactersRecyclerView, new ClickListener() {
             @Override
-            public void onClick(View view, int position) {
-
-            }
+            public void onClick(View view, int position) { }
 
             @Override
             public void onLongClick(View view, final int position) {
                 //Create a dialog to ask for confirmation before deleting
-                String characterName = mAdapter.getList().get(position).getCharacterName();
+                String characterName = adapter.getList().get(position).getCharacterName();
                 characterName = TextUtils.isEmpty(characterName) ? getString(R.string.empty_character_name) : characterName;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
                 builder.setMessage(getString(R.string.dialog_delete) + characterName + "?")
                         .setTitle(getString(R.string.dialog_delete_title));
                 builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mAdapter.remove(position);
+                        adapter.remove(position);
                     }
                 });
                 builder.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
@@ -131,55 +126,17 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
-    /**
-     * Looks for previously saved data and restores that, else it will add 5 empty characters
-     */
-    private void initializeData() {
-        Context context = getContext();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString(GSON_TAG, null);
-        Type type = new TypeToken<ArrayList<CharacterModel>>() {
-        }.getType();
-        ArrayList<CharacterModel> characters;
-        characters = gson.fromJson(json, type);
-        if (characters != null) {
-            for (CharacterModel c: characters) {
-                c.setContext(context);
-            }
-            mAdapter.addAll(characters);
-        } else {
-            mAdapter.add(new CharacterModel(context));
-            mAdapter.add(new CharacterModel(context));
-            mAdapter.add(new CharacterModel(context));
-            mAdapter.add(new CharacterModel(context));
-            mAdapter.add(new CharacterModel(context));
-        }
-    }
-
     @Override
     public void onPause() {
-        saveData(); //save data when app is going to the background
+        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        app.saveData(mRoundCounter);
         super.onPause();
     }
 
-    /**
-     * Saves all character data
-     */
-    public void saveData() {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        ArrayList<CharacterModel> characters = mAdapter.getList();
-        String json = gson.toJson(characters);
-        editor.putString(GSON_TAG, json);
-        editor.putInt(ROUND_COUNTER, mRoundCounter);
-        editor.apply();
-    }
-
     private void addCharacter() {
-        mAdapter.add(new CharacterModel(getContext()));
-        mAdapter.notifyDataSetChanged();
+        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        app.getCharacterAdapter().add(new CharacterModel(getContext()));
+        app.getCharacterAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -223,21 +180,14 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putParcelableArrayList("characters", mAdapter.getList());
+        AppExtension app = (AppExtension) getActivity().getApplicationContext();
+        savedInstanceState.putParcelableArrayList("characters", app.getCharacterAdapter().getList());
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            ArrayList<CharacterModel> list = savedInstanceState.getParcelableArrayList("characters");
-            if (list != null) {
-                mAdapter.addAll(list);
-            }
-        } else {
-            initializeData();
-        }
     }
 
     @Override
@@ -248,13 +198,14 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        AppExtension app = (AppExtension) getActivity().getApplicationContext();
         switch (item.getItemId()) {
             case R.id.action_settings_next_turn:
-                boolean isNextRound = mAdapter.nextTurn();
+                boolean isNextRound = app.getCharacterAdapter().nextTurn();
                 if (isNextRound) nextRound();
                 return true;
             case R.id.action_settings_sort:
-                mAdapter.sortInitiative();
+                app.getCharacterAdapter().sortInitiative();
                 askRoundResetConfirmation();
                 return true;
             case R.id.action_settings_add_character:

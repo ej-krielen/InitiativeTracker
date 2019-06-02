@@ -19,10 +19,32 @@
 
 
     <!-- Character Cards-->
-    <string name="charlist_initiative">Init</string>
-    <string name="charlist_hp">HP</string>
-    <string name="charlist_buffs">Buffs or</string>
-    <string name="charlist_debuffs">Debuffs</string>
+    <string name="char_card_initiative">Init</string>
+    <string name="char_card_hp">HP</string>
+    <string name="char_card_buffs">Buffs or</string>
+    <string name="char_card_debuffs">(De)buffs:</string>
+    <string name="char_card_show_more">Show\nMore</string>
+
+    <!--Debuff Cards-->
+    <string name="debuff_card_name">(De)buff name</string>
+    <string name="debuff_card_duration">10</string>
+    <string name="debuff_card_duration_label">Duration</string>
+    <string name="debuff_card_description">(De)buff description</string>
+    <string name="debuff_card_remove_button">Remove</string>
+
+    <!--Character detail fragment-->
+    <string name="char_detail_initiative_bonus">Initiative bonus</string>
+    <string name="char_detail_max_hp">Max hp</string>
+    <string name="char_detail_skills">Skills</string>
+    <string name="char_detail_attack_routine">Attack routine</string>
+    <string name="char_detail_attack_routine_hint">to hit/damage</string>
+    <string name="char_detail_ac">AC touch AC ff AC</string>
+    <string name="char_detail_maneuvers">Maneuvers</string>
+    <string name="char_detail_saves">Fort Ref Will</string>
+    <string name="char_detail_notes">Notes</string>
+    <string name="char_detail_debuffs">Debuffs, buffs, spells</string>
+    <string name="char_detail_add_button">Add</string>
+    <string name="char_detail_clear_button">Clear all</string>
 
     <!-- EditText Hints-->
     <string name="EH_character_name">Character name</string>
@@ -74,5 +96,12 @@
     <string name="minus_round_button_label">-</string>
     <string name="reset_round_button_label">Reset</string>
 
+    <!--Character details-->
+    <string name="character_details_name_title">Character details for :\u0020 %1$s</string>
+    <string name="standard_ac">AC %1$d (touch %1$d, flatfooted %1$d)</string>
+    <string name="standard_saves">Fort %1$d Ref %1$d Will %1$d</string>
+    <string name="standard_mobile_ac">AC %1$d (touch %1$d, \n flatfooted %1$d)</string>
+    <string name="standard__mobile_saves">Fort %1$d Ref %1$d \n Will %1$d</string>
+    <string name="maneuvers">CMB +%1$d CMD %2$d</string>
 
 </resources>

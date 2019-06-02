@@ -1,7 +1,7 @@
 package com.rekijan.initiativetracker.listeners;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -26,25 +26,25 @@ import com.rekijan.initiativetracker.character.model.CharacterModel;
 public class HpTextWatcher implements View.OnClickListener {
 
     private CharacterModel character;
-    private Activity activity;
+    private Context context;
     private CharacterAdapter characterAdapter;
 
-    public HpTextWatcher(CharacterModel character, CharacterAdapter characterAdapter, Activity activity) {
+    public HpTextWatcher(CharacterModel character, CharacterAdapter characterAdapter, Context context) {
         this.character = character;
-        this.activity = activity;
+        this.context = context;
         this.characterAdapter = characterAdapter;
     }
 
     @Override
     public void onClick(View view) {
         //Build a dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
         //Add custom layout to dialog
-        LayoutInflater inflater = activity.getLayoutInflater();
+        LayoutInflater inflater = LayoutInflater.from(context);
         final View alertDialogView = inflater.inflate(R.layout.hp_dialog, null);
-        builder.setTitle(activity.getString(R.string.hp_dialog_title));
+        builder.setTitle(context.getString(R.string.hp_dialog_title));
         //Set button to close and cancel
-        builder.setNegativeButton(activity.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(context.getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -52,17 +52,17 @@ public class HpTextWatcher implements View.OnClickListener {
 
         //Get views
         TextView oldValueTextView = alertDialogView.findViewById(R.id.old_value_textView);
-        final TextView addPreviewTextview = alertDialogView.findViewById(R.id.add_preview_textView);
-        final TextView setPreviewTextview = alertDialogView.findViewById(R.id.set_preview_textView);
-        final TextView subtractPreviewTextview = alertDialogView.findViewById(R.id.subtract_preview_textView);
+        final TextView addPreviewTextView = alertDialogView.findViewById(R.id.add_preview_textView);
+        final TextView setPreviewTextView = alertDialogView.findViewById(R.id.set_preview_textView);
+        final TextView subtractPreviewTextView = alertDialogView.findViewById(R.id.subtract_preview_textView);
         final EditText inputTextView = alertDialogView.findViewById(R.id.input_editText);
 
         //Set initial values
         String initialValue = String.valueOf(character.getHp());
         oldValueTextView.setText(initialValue);
-        addPreviewTextview.setText(initialValue);
-        setPreviewTextview.setText(initialValue);
-        subtractPreviewTextview.setText(initialValue);
+        addPreviewTextView.setText(initialValue);
+        setPreviewTextView.setText(initialValue);
+        subtractPreviewTextView.setText(initialValue);
 
         //Add text change listener
         inputTextView.addTextChangedListener(new TextWatcher() {
@@ -81,9 +81,9 @@ public class HpTextWatcher implements View.OnClickListener {
                 //After the input value changed update the preview TextViews
                 String inputValueString = inputTextView.getText().toString();
                 int inputValue = TextUtils.isEmpty(inputValueString) ? 0 : Integer.parseInt(inputValueString);
-                addPreviewTextview.setText(String.valueOf(character.getHp() + inputValue));
-                setPreviewTextview.setText(String.valueOf(inputValue));
-                subtractPreviewTextview.setText(String.valueOf(character.getHp() - inputValue));
+                addPreviewTextView.setText(String.valueOf(character.getHp() + inputValue));
+                setPreviewTextView.setText(String.valueOf(inputValue));
+                subtractPreviewTextView.setText(String.valueOf(character.getHp() - inputValue));
 
             }
         });
@@ -132,10 +132,10 @@ public class HpTextWatcher implements View.OnClickListener {
                 //If the new hp value is less than zero the character is probably dead, ask if the user wants to remove it
                 if (newValue < 0) {
                     //Build second dialog
-                    AlertDialog.Builder removalBuilder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
-                    removalBuilder.setTitle(activity.getString(R.string.dialog_delete_low_title))
-                            .setMessage(activity.getString(R.string.dialog_delete_low));
-                    removalBuilder.setPositiveButton(activity.getString(R.string.dialog_delete_low_positive), new DialogInterface.OnClickListener() {
+                    AlertDialog.Builder removalBuilder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
+                    removalBuilder.setTitle(context.getString(R.string.dialog_delete_low_title))
+                            .setMessage(context.getString(R.string.dialog_delete_low));
+                    removalBuilder.setPositiveButton(context.getString(R.string.dialog_delete_low_positive), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             characterAdapter.remove(character);
@@ -143,7 +143,7 @@ public class HpTextWatcher implements View.OnClickListener {
 
                         }
                     });
-                    removalBuilder.setNegativeButton(activity.getString(R.string.dialog_delete_low_negative), new DialogInterface.OnClickListener() {
+                    removalBuilder.setNegativeButton(context.getString(R.string.dialog_delete_low_negative), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 

@@ -1,18 +1,21 @@
 package com.rekijan.initiativetracker.character.adapter;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
+import com.rekijan.initiativetracker.character.model.DebuffModel;
 import com.rekijan.initiativetracker.listeners.GenericTextWatcher;
 import com.rekijan.initiativetracker.listeners.HpTextWatcher;
+import com.rekijan.initiativetracker.ui.activities.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,11 +33,11 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     // Field for the list of CharacterModels
     private ArrayList<CharacterModel> characters = new ArrayList<>();
     // Passing along the activity is needed to build and populate dialogs
-    private Activity activity;
+    private Context context;
 
     // C'tor
-    public CharacterAdapter(Activity activity) {
-        this.activity = activity;
+    public CharacterAdapter(Context context) {
+        this.context = context;
     }
 
     public void add(CharacterModel character) {
@@ -111,34 +114,28 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         return characters.get(0).isFirstRound();
     }
 
+    public void removeAll() {
+        characters.clear();
+    }
+
 
     /* ViewHolder region */
     public static class CharacterViewHolder extends RecyclerView.ViewHolder {
         CardView characterCardView;
         EditText characterInitiativeEditText;
         EditText characterNameEditText;
-        EditText characterNotesEditText;
         TextView characterHpEditText;
-        EditText characterDebuffTL;
-        EditText characterDebuffTC;
-        EditText characterDebuffTR;
-        EditText characterDebuffBL;
-        EditText characterDebuffBC;
-        EditText characterDebuffBR;
+        TextView debuffOverviewTextView;
+        Button showCharacterDetailButton;
 
         CharacterViewHolder(View itemView) {
             super(itemView);
             characterCardView = itemView.findViewById(R.id.character_cardView);
             characterInitiativeEditText = itemView.findViewById(R.id.character_initiative_editText);
             characterNameEditText = itemView.findViewById(R.id.character_name_editText);
-            characterNotesEditText = itemView.findViewById(R.id.character_notes_editText);
-            characterHpEditText = itemView.findViewById(R.id.character_hp_editText);
-            characterDebuffTL = itemView.findViewById(R.id.character_debuff_TL_editText);
-            characterDebuffTC = itemView.findViewById(R.id.character_debuff_TC_editText);
-            characterDebuffTR = itemView.findViewById(R.id.character_debuff_TR_editText);
-            characterDebuffBL = itemView.findViewById(R.id.character_debuff_BL_editText);
-            characterDebuffBC = itemView.findViewById(R.id.character_debuff_BC_editText);
-            characterDebuffBR = itemView.findViewById(R.id.character_debuff_BR_editText);
+            characterHpEditText = itemView.findViewById(R.id.debuff_duration_editText);
+            showCharacterDetailButton = itemView.findViewById(R.id.show_character_detail_button);
+            debuffOverviewTextView = itemView.findViewById(R.id.debuff_description_editText);
         }
     }
     /* End of Viewholder region */
@@ -161,59 +158,22 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         if (oldNameWatcher != null) {
             holder.characterNameEditText.removeTextChangedListener(oldNameWatcher);
         }
-        GenericTextWatcher oldNoteWatcher = (GenericTextWatcher) holder.characterNotesEditText.getTag();
-        if (oldNoteWatcher != null) {
-            holder.characterNotesEditText.removeTextChangedListener(oldNoteWatcher);
-        }
         HpTextWatcher oldHPWatcher = (HpTextWatcher) holder.characterHpEditText.getTag();
         if (oldHPWatcher != null) {
             holder.characterHpEditText.setOnClickListener(null);
         }
-        GenericTextWatcher oldDebuffTLWatcher = (GenericTextWatcher) holder.characterDebuffTL.getTag();
-        if (oldDebuffTLWatcher != null) {
-            holder.characterDebuffTL.removeTextChangedListener(oldDebuffTLWatcher);
-        }
-        GenericTextWatcher oldDebuffTCWatcher = (GenericTextWatcher) holder.characterDebuffTC.getTag();
-        if (oldDebuffTCWatcher != null) {
-            holder.characterDebuffTC.removeTextChangedListener(oldDebuffTCWatcher);
-        }
-        GenericTextWatcher oldDebuffTRWatcher = (GenericTextWatcher) holder.characterDebuffTR.getTag();
-        if (oldDebuffTRWatcher != null) {
-            holder.characterDebuffTR.removeTextChangedListener(oldDebuffTRWatcher);
-        }
-        GenericTextWatcher oldDebuffBLWatcher = (GenericTextWatcher) holder.characterDebuffBL.getTag();
-        if (oldDebuffBLWatcher != null) {
-            holder.characterDebuffBL.removeTextChangedListener(oldDebuffBLWatcher);
-        }
-        GenericTextWatcher oldDebuffBCWatcher = (GenericTextWatcher) holder.characterDebuffBC.getTag();
-        if (oldDebuffBCWatcher != null) {
-            holder.characterDebuffBC.removeTextChangedListener(oldDebuffBCWatcher);
-        }
-        GenericTextWatcher oldDebuffBRWatcher = (GenericTextWatcher) holder.characterDebuffBR.getTag();
-        if (oldDebuffBRWatcher != null) {
-            holder.characterDebuffBR.removeTextChangedListener(oldDebuffBRWatcher);
-        }
 
+        // Get the corresponding CharacterModel
         final CharacterModel character = characters.get(position);
 
+        // Set values TextViews and EditTexts
         holder.characterInitiativeEditText.setText(String.valueOf(character.getInitiative()));
 
         if (character.getCharacterName() != null) {
             holder.characterNameEditText.setText(character.getCharacterName());
         }
 
-        if (character.getCharacterNotes() != null) {
-            holder.characterNotesEditText.setText(character.getCharacterNotes());
-        }
-
         holder.characterHpEditText.setText(String.valueOf(character.getHp()));
-
-        holder.characterDebuffTL.setText(String.valueOf(character.getDebuffTL()));
-        holder.characterDebuffTC.setText(String.valueOf(character.getDebuffTC()));
-        holder.characterDebuffTR.setText(String.valueOf(character.getDebuffTR()));
-        holder.characterDebuffBL.setText(String.valueOf(character.getDebuffBL()));
-        holder.characterDebuffBC.setText(String.valueOf(character.getDebuffBC()));
-        holder.characterDebuffBR.setText(String.valueOf(character.getDebuffBR()));
 
         //Add new text watchers
         GenericTextWatcher newInitiativeWatcher = new GenericTextWatcher(character, holder.characterInitiativeEditText);
@@ -224,37 +184,34 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         holder.characterNameEditText.setTag(newNameWatcher);
         holder.characterNameEditText.addTextChangedListener(newNameWatcher);
 
-        GenericTextWatcher newNotesWatcher = new GenericTextWatcher(character, holder.characterNotesEditText);
-        holder.characterNotesEditText.setTag(newNotesWatcher);
-        holder.characterNotesEditText.addTextChangedListener(newNotesWatcher);
-
-        HpTextWatcher newHPWatcher = new HpTextWatcher(character, this, activity);
+        HpTextWatcher newHPWatcher = new HpTextWatcher(character, this, context);
         holder.characterHpEditText.setTag(newHPWatcher);
         holder.characterHpEditText.setOnClickListener(newHPWatcher);
 
-        GenericTextWatcher newDebuffTLWatcher = new GenericTextWatcher(character, holder.characterDebuffTL);
-        holder.characterDebuffTL.setTag(newDebuffTLWatcher);
-        holder.characterDebuffTL.addTextChangedListener(newDebuffTLWatcher);
+        ArrayList<DebuffModel> debuffs = character.getDebuffList();
+        if (debuffs.size() > 0) {
+            holder.debuffOverviewTextView.setVisibility(View.VISIBLE);
+            StringBuilder debuffString = new StringBuilder();
+            debuffString.append(context.getResources().getString(R.string.char_card_debuffs));
+            for (DebuffModel d: debuffs) {
+                debuffString.append(" ");
+                debuffString.append(d.getName());
+                debuffString.append(" (");
+                debuffString.append(d.getDuration());
+                debuffString.append("), ");
+            }
+            debuffString.delete(debuffString.length()-2, debuffString.length()); //Remove last comma and space
+            holder.debuffOverviewTextView.setText(debuffString.toString());
+        } else {
+            holder.debuffOverviewTextView.setVisibility(View.GONE); //Don't show TextView if list is empty
+        }
 
-        GenericTextWatcher newDebuffTCWatcher = new GenericTextWatcher(character, holder.characterDebuffTC);
-        holder.characterDebuffTC.setTag(newDebuffTCWatcher);
-        holder.characterDebuffTC.addTextChangedListener(newDebuffTCWatcher);
-
-        GenericTextWatcher newDebuffTRWatcher = new GenericTextWatcher(character, holder.characterDebuffTR);
-        holder.characterDebuffTR.setTag(newDebuffTRWatcher);
-        holder.characterDebuffTR.addTextChangedListener(newDebuffTRWatcher);
-
-        GenericTextWatcher newDebuffBLWatcher = new GenericTextWatcher(character, holder.characterDebuffBL);
-        holder.characterDebuffBL.setTag(newDebuffBLWatcher);
-        holder.characterDebuffBL.addTextChangedListener(newDebuffBLWatcher);
-
-        GenericTextWatcher newDebuffBCWatcher = new GenericTextWatcher(character, holder.characterDebuffBC);
-        holder.characterDebuffBC.setTag(newDebuffBCWatcher);
-        holder.characterDebuffBC.addTextChangedListener(newDebuffBCWatcher);
-
-        GenericTextWatcher newDebuffBRWatcher = new GenericTextWatcher(character, holder.characterDebuffBR);
-        holder.characterDebuffBR.setTag(newDebuffBRWatcher);
-        holder.characterDebuffBR.addTextChangedListener(newDebuffBRWatcher);
+        holder.showCharacterDetailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)context).replaceCharacterDetailFragment(holder.getAdapterPosition());
+            }
+        });
     }
 
     @Override

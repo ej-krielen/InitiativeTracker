@@ -1,6 +1,6 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/character_cardView"
+    android:id="@+id/debuff_cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="@dimen/activity_vertical_margin"
@@ -14,94 +14,73 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/character_initiative_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:gravity="center"
-            android:hint="0"
-            android:imeOptions="actionDone"
-            android:inputType="number"
-            android:selectAllOnFocus="true"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/initiative_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/char_card_initiative"
-            android:textAllCaps="true"
-            card_view:layout_constraintEnd_toEndOf="@+id/character_initiative_editText"
-            card_view:layout_constraintStart_toStartOf="@+id/character_initiative_editText"
-            card_view:layout_constraintTop_toBottomOf="@+id/character_initiative_editText" />
-
-        <EditText
-            android:id="@+id/character_name_editText"
+            android:id="@+id/debuff_name_editText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:hint="@string/EH_character_name"
+            android:hint="@string/debuff_card_name"
             android:imeOptions="actionDone"
             android:inputType="textPersonName|textCapWords"
-            card_view:layout_constraintEnd_toStartOf="@+id/debuff_duration_editText"
-            card_view:layout_constraintStart_toEndOf="@+id/character_initiative_editText"
+            card_view:layout_constraintEnd_toStartOf="@+id/duration_textView"
+            card_view:layout_constraintStart_toStartOf="parent"
             card_view:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <EditText
             android:id="@+id/debuff_duration_editText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:background="?attr/editTextBackground"
             android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse"
-            android:textColor="?attr/editTextColor"
-            card_view:layout_constraintEnd_toStartOf="@+id/show_character_detail_button"
+            android:hint="@string/debuff_card_duration"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:selectAllOnFocus="true"
+            card_view:layout_constraintEnd_toEndOf="@+id/duration_textView"
+            card_view:layout_constraintStart_toStartOf="@+id/duration_textView"
             card_view:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/duration_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
             android:gravity="center"
-            android:text="@string/char_card_hp"
+            android:text="@string/debuff_card_duration_label"
             android:textAllCaps="true"
-            card_view:layout_constraintEnd_toEndOf="@+id/debuff_duration_editText"
-            card_view:layout_constraintStart_toStartOf="@+id/debuff_duration_editText"
+            card_view:layout_constraintEnd_toStartOf="@+id/remove_debuff_button"
             card_view:layout_constraintTop_toBottomOf="@+id/debuff_duration_editText" />
 
         <Button
-            android:id="@+id/show_character_detail_button"
+            android:id="@+id/remove_debuff_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/char_card_show_more"
-            card_view:layout_constraintBottom_toBottomOf="@+id/duration_textView"
+            android:text="@string/debuff_card_remove_button"
+            card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toTopOf="@+id/debuff_duration_editText" />
+            card_view:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <EditText
             android:id="@+id/debuff_description_editText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:padding="8dp"
-            card_view:layout_constraintEnd_toEndOf="parent"
+            android:hint="@string/debuff_card_description"
+            card_view:layout_constraintEnd_toStartOf="@+id/remove_debuff_button"
             card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/initiative_textView" />
+            card_view:layout_constraintTop_toBottomOf="@+id/duration_textView" />
 
     </android.support.constraint.ConstraintLayout>
 
