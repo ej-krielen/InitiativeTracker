@@ -35,6 +35,7 @@ public class CharacterModel implements Parcelable {
     private int hp;
     private int maxHp;
     private boolean isFirstInRound;
+    private boolean isPC;
 
     private String characterName;
     private String characterNotes;
@@ -55,6 +56,24 @@ public class CharacterModel implements Parcelable {
         characterName = "";
         characterNotes = "";
         isFirstInRound = false;
+        isPC = false;
+        this.context = context;
+    }
+
+    public CharacterModel(Context context, int initiative, int initiativeBonus, String skills, String attackRoutine, String ac, String saves, String maneuvers, int hp, int maxHp, String characterName, String characterNotes, boolean isFirstInRound, boolean isPC) {
+        this.initiative = initiative;
+        this.initiativeBonus = initiativeBonus;
+        this.skills = skills;
+        this.attackRoutine = attackRoutine;
+        this.ac = ac;
+        this.saves = saves;
+        this.maneuvers = maneuvers;
+        this.hp = hp;
+        this.maxHp = maxHp;
+        this.characterName = characterName;
+        this.characterNotes = characterNotes;
+        this.isFirstInRound = isFirstInRound;
+        this.isPC = isPC;
         this.context = context;
     }
 
@@ -183,6 +202,12 @@ public class CharacterModel implements Parcelable {
 
     public boolean isFirstRound() { return isFirstInRound; }
 
+    public void setIsPC(boolean isPC) {
+        this.isPC = isPC;
+    }
+
+    public boolean isPC() { return isPC; }
+
     public ArrayList<DebuffModel> getDebuffList() {
         //Need to check for null because previous iteration didn't have this array list
         if (debuffList == null) debuffList = new ArrayList<>();
@@ -212,6 +237,7 @@ public class CharacterModel implements Parcelable {
         dest.writeInt(this.hp);
         dest.writeInt(this.maxHp);
         dest.writeByte(this.isFirstInRound ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isPC ? (byte) 1 : (byte) 0);
         dest.writeString(this.characterName);
         dest.writeString(this.characterNotes);
         dest.writeTypedList(this.debuffList);
@@ -230,6 +256,7 @@ public class CharacterModel implements Parcelable {
         this.hp = in.readInt();
         this.maxHp = in.readInt();
         this.isFirstInRound = in.readByte() != 0;
+        this.isPC = in.readByte() != 0;
         this.characterName = in.readString();
         this.characterNotes = in.readString();
         this.debuffList = in.createTypedArrayList(DebuffModel.CREATOR);

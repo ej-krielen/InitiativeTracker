@@ -6,6 +6,9 @@
 
     <color name="colorPrimaryLight">#7986CB</color>
 
+    <color name="npcColor">#26F44336</color>
+    <color name="pcColor">#2603A9F4</color>
+
     <color name="white">#FFFFFF</color>
     <color name="gray">#FAFAFA</color>
     <color name="black">#000000</color>

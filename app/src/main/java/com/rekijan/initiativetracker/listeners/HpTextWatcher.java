@@ -129,8 +129,8 @@ public class HpTextWatcher implements View.OnClickListener {
                 characterAdapter.notifyDataSetChanged();
                 dialog.dismiss();
 
-                //If the new hp value is less than zero the character is probably dead, ask if the user wants to remove it
-                if (newValue < 0) {
+                //If the character is an NPC and the new hp value is less than zero then it is probably dead, ask if the user wants to remove it
+                if (!character.isPC() && newValue < 0) {
                     //Build second dialog
                     AlertDialog.Builder removalBuilder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
                     removalBuilder.setTitle(context.getString(R.string.dialog_delete_low_title))

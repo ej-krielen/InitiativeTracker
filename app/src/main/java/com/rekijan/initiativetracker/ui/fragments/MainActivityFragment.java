@@ -214,6 +214,9 @@ public class MainActivityFragment extends Fragment {
             case R.id.action_settings_delete_character:
                 deleteCharacterInfo();
                 return true;
+            case R.id.action_settings_set_pcs_max_hp:
+                app.getCharacterAdapter().setPCsToMaxHP();
+                return true;
             case R.id.action_settings_about:
                 aboutInfo();
                 return true;

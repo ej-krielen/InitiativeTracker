@@ -50,18 +50,21 @@ public class AppExtension extends Application {
             }.getType();
             ArrayList<CharacterModel> characters;
             characters = gson.fromJson(json, type);
+            mCharacterAdapter.removeAll();
             if (characters != null) {
                 for (CharacterModel c : characters) {
-                    c.setContext(this);
+                    mCharacterAdapter.add(new CharacterModel(this, c.getInitiative(), c.getInitiativeBonus(), c.getSkills(), c.getAttackRoutine(), c.getAc(), c.getSaves(),
+                            c.getManeuvers(), c.getHp(), c.getMaxHp(), c.getCharacterName(), c.getCharacterNotes(), c.isFirstRound(), c.isPC()));
                 }
-                mCharacterAdapter.removeAll();
-                mCharacterAdapter.addAll(characters);
             } else {
                 mCharacterAdapter.add(new CharacterModel(this));
                 mCharacterAdapter.add(new CharacterModel(this));
                 mCharacterAdapter.add(new CharacterModel(this));
                 mCharacterAdapter.add(new CharacterModel(this));
                 mCharacterAdapter.add(new CharacterModel(this));
+                for (CharacterModel c : mCharacterAdapter.getList()) {
+                    c.setIsPC(true);
+                }
             }
         }
     }

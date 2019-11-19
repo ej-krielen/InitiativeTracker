@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
@@ -49,14 +50,22 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     }
 
     /**
-     * Remove a character based on position
+     * Remove a character based on position, flag another with isFirstRound if the one being removed is currently flagged thus
      * @param position
      */
     public void remove(int position) {
-        if (characters.size() > position) {
-            characters.remove(position);
-        }
-        notifyDataSetChanged();
+        if (characters.size() > position)
+            if (characters.get(position).isFirstRound()) {
+                {
+                    if (position-1 < 0) {
+                        characters.get(characters.size()-1).setIsFirstRound(true);
+                    } else {
+                        characters.get(position-1).setIsFirstRound(true);
+                    }
+                }
+                characters.remove(position);
+            }
+        this.notifyDataSetChanged();
     }
 
     /**
@@ -90,7 +99,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             c.setIsFirstRound(false);
         }
         characters.get(0).setIsFirstRound(true);
-        notifyDataSetChanged();
+        this.notifyDataSetChanged();
     }
 
     /**
@@ -110,12 +119,35 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         characters = newList;
         //Update the (de)buffs of the top character
         characters.get(0).updateDebuffs();
-        notifyDataSetChanged();
+        this.notifyDataSetChanged();
         return characters.get(0).isFirstRound();
     }
 
     public void removeAll() {
         characters.clear();
+    }
+
+    /**
+     * Goes through all characters and checks if they are a PC.<br>
+     *     If the pc's max hp value is higher then its current hp value it gets updated,<br>
+     *         but if not its name is added to a list and displayed so the user know.
+     *
+     */
+    public void setPCsToMaxHP() {
+        StringBuilder unUpdatedPcNames = new StringBuilder();
+        for (CharacterModel c : characters) {
+            if (c.isPC()) {
+                if (c.getMaxHp() > c.getHp()) {
+                    c.setHp(c.getMaxHp());
+                } else {
+                    unUpdatedPcNames.append(c.getCharacterName());
+                    unUpdatedPcNames.append("\n");
+                }
+            }
+        }
+        String toastMessage = context.getString(R.string.toast_max_hp, unUpdatedPcNames.toString());
+        this.notifyDataSetChanged();
+        Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
     }
 
 
@@ -165,6 +197,10 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
         // Get the corresponding CharacterModel
         final CharacterModel character = characters.get(position);
+
+        // Set background color depending on whether the character is a PC or NPC
+        int color = character.isPC() ? context.getResources().getColor(R.color.pcColor) : context.getResources().getColor(R.color.npcColor);
+        ((CardView) holder.itemView).setCardBackgroundColor(color);
 
         // Set values TextViews and EditTexts
         holder.characterInitiativeEditText.setText(String.valueOf(character.getInitiative()));

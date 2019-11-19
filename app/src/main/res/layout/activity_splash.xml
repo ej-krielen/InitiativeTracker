@@ -8,16 +8,30 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@drawable/gradient_background"
-    tools:context=".SplashActivity">
+    tools:context=".SplashScreen">
 
     <TextView
+        android:id="@+id/splash_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:drawableTop="@mipmap/ic_launcher_clear"
+        android:drawableTop="@mipmap/ic_launcher"
         android:gravity="center"
-        android:textColor="@color/white"
         android:text="@string/splash_title"
+        android:textColor="@color/white"
         android:textSize="50sp"
         android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/splash_textView"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/splash_site"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
 </RelativeLayout>

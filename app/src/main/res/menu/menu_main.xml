@@ -23,6 +23,11 @@
         android:title="@string/action_delete_character"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/action_settings_set_pcs_max_hp"
+        android:orderInCategory="5"
+        android:title="@string/action_set_pcs_max_hp"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_settings_about"
         android:orderInCategory="5"
         android:title="@string/action_about"

@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.rekijan.initiativetracker.AppExtension;
@@ -61,6 +63,9 @@ public class CharacterDetailFragment extends Fragment {
         //Get fields and set their values
         TextView textView = rootView.findViewById(R.id.character_detail_textView);
         textView.setText(String.format(getString(R.string.character_details_name_title), characterModel.getCharacterName()));
+
+        Switch pcSwitch = rootView.findViewById(R.id.is_pc_switch);
+        pcSwitch.setChecked(characterModel.isPC());
 
         EditText initiativeBonusEditText = rootView.findViewById(R.id.initiative_bonus_editText);
         initiativeBonusEditText.setText(String.valueOf(characterModel.getInitiativeBonus()));
@@ -190,6 +195,12 @@ public class CharacterDetailFragment extends Fragment {
                 adapter.add(newDebuff);
                 characterModel.getDebuffList().add(newDebuff);
                 adapter.notifyDataSetChanged();
+            }
+        });
+
+        pcSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                characterModel.setIsPC(isChecked);
             }
         });
 
