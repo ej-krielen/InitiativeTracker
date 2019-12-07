@@ -64,6 +64,8 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                     }
                 }
                 characters.remove(position);
+            } else {
+                characters.remove(position);
             }
         this.notifyDataSetChanged();
     }
