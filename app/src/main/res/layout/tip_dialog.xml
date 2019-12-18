@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@color/colorPrimaryLight">
+
+    <TextView
+        android:id="@+id/select_tip_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tip_dialog_select"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/five_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/tip_dialog_five"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_tip_label" />
+
+    <TextView
+        android:id="@+id/five_full_price_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/five_btn"
+        app:layout_constraintStart_toEndOf="@+id/five_btn"
+        app:layout_constraintTop_toTopOf="@+id/five_btn" />
+
+    <Button
+        android:id="@+id/ten_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/tip_dialog_ten"
+        android:theme="@style/AppTheme.Button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/five_btn" />
+
+    <TextView
+        android:id="@+id/ten_full_price_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/ten_btn"
+        app:layout_constraintStart_toEndOf="@+id/ten_btn"
+        app:layout_constraintTop_toTopOf="@+id/ten_btn" />
+
+
+</android.support.constraint.ConstraintLayout>

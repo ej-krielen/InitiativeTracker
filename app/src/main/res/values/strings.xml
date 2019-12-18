@@ -18,6 +18,7 @@
     <string name="action_delete_character">Delete a character</string>
     <string name="action_set_pcs_max_hp">Set PCs at max hp</string>
     <string name="action_about">About</string>
+    <string name="action_tip">Tip the dev</string>
 
     <string name="toast_max_hp">The following PCs did not get updated because their max hp was not higher then their current hp.\n\u0020\n%1$s</string>
 
@@ -107,5 +108,11 @@
     <string name="standard_mobile_ac">AC %1$d (touch %1$d, \n flatfooted %1$d)</string>
     <string name="standard__mobile_saves">Fort %1$d Ref %1$d \n Will %1$d</string>
     <string name="maneuvers">CMB +%1$d CMD %2$d</string>
+
+    <!--Tip dialog    -->
+    <string name="tip_dialog_title">Tip the developer</string>
+    <string name="tip_dialog_select">Select your amount\n \nAmount is before taxes, total price in your currency is displayed next to it.</string>
+    <string name="tip_dialog_five">€5,-</string>
+    <string name="tip_dialog_ten">€10,-</string>
 
 </resources>

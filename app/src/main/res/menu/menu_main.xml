@@ -32,6 +32,11 @@
         android:orderInCategory="5"
         android:title="@string/action_about"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_settings_tip"
+        android:orderInCategory="5"
+        android:title="@string/action_tip"
+        app:showAsAction="ifRoom"/>
     <!--<item
         android:id="@+id/action_settings_select_party"
         android:orderInCategory="200"
