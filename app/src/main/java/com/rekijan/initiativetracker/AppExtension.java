@@ -54,7 +54,7 @@ public class AppExtension extends Application {
             if (characters != null) {
                 for (CharacterModel c : characters) {
                     mCharacterAdapter.add(new CharacterModel(this, c.getInitiative(), c.getInitiativeBonus(), c.getSkills(), c.getAttackRoutine(), c.getAc(), c.getSaves(),
-                            c.getManeuvers(), c.getHp(), c.getMaxHp(), c.getCharacterName(), c.getCharacterNotes(), c.isFirstRound(), c.isPC()));
+                            c.getManeuvers(), c.getHp(), c.getMaxHp(), c.getCharacterName(), c.getCharacterNotes(), c.isFirstRound(), c.isPC(), c.getFastHealing(), c.getRegeneration()));
                 }
             } else {
                 mCharacterAdapter.add(new CharacterModel(this));

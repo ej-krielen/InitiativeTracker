@@ -139,6 +139,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         characters = newList;
         //Update the (de)buffs of the top character
         characters.get(0).updateDebuffs(activity);
+        characters.get(0).automaticHealingCheck(activity);
         this.notifyDataSetChanged();
         return characters.get(0).isFirstRound();
     }

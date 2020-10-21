@@ -8,6 +8,7 @@ import android.os.Parcelable;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.rekijan.initiativetracker.AppExtension;
 import com.rekijan.initiativetracker.R;
 
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class CharacterModel implements Parcelable {
     private int maxHp;
     private boolean isFirstInRound;
     private boolean isPC;
+    private int fastHealing;
+    private int regeneration;
 
     private String characterName;
     private String characterNotes;
@@ -59,10 +62,12 @@ public class CharacterModel implements Parcelable {
         characterNotes = "";
         isFirstInRound = false;
         isPC = false;
+        fastHealing = 0;
+        regeneration = 0;
         this.context = context;
     }
 
-    public CharacterModel(Context context, int initiative, int initiativeBonus, String skills, String attackRoutine, String ac, String saves, String maneuvers, int hp, int maxHp, String characterName, String characterNotes, boolean isFirstInRound, boolean isPC) {
+    public CharacterModel(Context context, int initiative, int initiativeBonus, String skills, String attackRoutine, String ac, String saves, String maneuvers, int hp, int maxHp, String characterName, String characterNotes, boolean isFirstInRound, boolean isPC, int fastHealing, int regeneration) {
         this.initiative = initiative;
         this.initiativeBonus = initiativeBonus;
         this.skills = skills;
@@ -76,6 +81,8 @@ public class CharacterModel implements Parcelable {
         this.characterNotes = characterNotes;
         this.isFirstInRound = isFirstInRound;
         this.isPC = isPC;
+        this.fastHealing = fastHealing;
+        this.regeneration = regeneration;
         this.context = context;
     }
 
@@ -121,6 +128,70 @@ public class CharacterModel implements Parcelable {
         AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+
+    public void automaticHealingCheck(final FragmentActivity activity) {
+        if (fastHealing > 0)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
+            builder.setMessage(context.getString(R.string.auto_healing_dialog_fast_healing_message))
+                    .setTitle(activity.getString(R.string.auto_healing_dialog_fast_healing_title));
+            builder.setPositiveButton(activity.getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    addAutomaticHealing(fastHealing, activity);
+                }
+            });
+            builder.setNegativeButton(activity.getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {}
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        if (regeneration > 0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
+            builder.setMessage(context.getString(R.string.auto_healing_dialog_regeneration_message))
+                    .setTitle(activity.getString(R.string.auto_healing_dialog_regeneration_title));
+            builder.setPositiveButton(activity.getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    addAutomaticHealing(regeneration, activity);
+                }
+            });
+            builder.setNegativeButton(activity.getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {}
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+    }
+
+    private void addAutomaticHealing(int healing, FragmentActivity activity) {
+        final AppExtension mApp = (AppExtension) activity.getApplicationContext();
+        setHp(hp+healing);
+        mApp.getCharacterAdapter().notifyDataSetChanged();
+        if (hp > maxHp) {
+            resolveExceededMaxHp(activity);
+        }
+    }
+
+    private void resolveExceededMaxHp(final FragmentActivity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
+        builder.setMessage(context.getString(R.string.auto_healing_dialog_max_exceeded_message))
+                .setTitle(activity.getString(R.string.auto_healing_dialog_max_exceeded_title));
+        builder.setPositiveButton(activity.getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                final AppExtension mApp = (AppExtension) activity.getApplicationContext();
+                hp = maxHp;
+                mApp.getCharacterAdapter().notifyDataSetChanged();
+            }
+        });
+        builder.setNegativeButton(activity.getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {}
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public long getId() {
@@ -233,6 +304,22 @@ public class CharacterModel implements Parcelable {
 
     public boolean isPC() { return isPC; }
 
+    public void setFastHealing(int fastHealing) {
+        this.fastHealing = fastHealing;
+    }
+
+    public int getFastHealing() {
+        return fastHealing;
+    }
+
+    public void setRegeneration(int regeneration) {
+        this.regeneration = regeneration;
+    }
+
+    public int getRegeneration() {
+        return regeneration;
+    }
+
     public ArrayList<DebuffModel> getDebuffList() {
         //Need to check for null because previous iteration didn't have this array list
         if (debuffList == null) debuffList = new ArrayList<>();
@@ -266,6 +353,8 @@ public class CharacterModel implements Parcelable {
         dest.writeString(this.characterName);
         dest.writeString(this.characterNotes);
         dest.writeTypedList(this.debuffList);
+        dest.writeInt(this.fastHealing);
+        dest.writeInt(this.regeneration);
     }
 
     protected CharacterModel(Parcel in) {
@@ -285,6 +374,8 @@ public class CharacterModel implements Parcelable {
         this.characterName = in.readString();
         this.characterNotes = in.readString();
         this.debuffList = in.createTypedArrayList(DebuffModel.CREATOR);
+        this.fastHealing = in.readInt();
+        this.regeneration = in.readInt();
     }
 
     public static final Parcelable.Creator<CharacterModel> CREATOR = new Parcelable.Creator<CharacterModel>() {

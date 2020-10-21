@@ -46,6 +46,12 @@ public class GenericTextWatcher implements TextWatcher {
             case R.id.initiative_bonus_editText:
                 character.setInitiativeBonus(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
                 break;
+            case R.id.fast_healing_editText:
+                character.setFastHealing(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                break;
+            case R.id.regeneration_editText:
+                character.setRegeneration(TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text));
+                break;
             case R.id.skills_editText:
                 character.setSkills(text);
                 break;

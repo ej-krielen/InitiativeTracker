@@ -40,6 +40,8 @@
     <string name="char_detail_switch_pc_on">Character is a  PC</string>
     <string name="char_detail_initiative_bonus">Initiative bonus</string>
     <string name="char_detail_max_hp">Max hp</string>
+    <string name="char_detail_fast_healing">Fast Healing</string>
+    <string name="char_detail_regeneration">Regeneration</string>
     <string name="char_detail_skills">Skills</string>
     <string name="char_detail_attack_routine">Attack routine</string>
     <string name="char_detail_attack_routine_hint">to hit/damage</string>
@@ -72,6 +74,8 @@
     <!--Dialog-->
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
     <string name="dialog_delete">Are you sure you want to delete\u0020</string>
     <string name="empty_character_name">this character</string>
     <string name="dialog_delete_title">Warning: Confirm delete</string>
@@ -88,7 +92,7 @@
 
     <!-- Dialog debuff expired -->
     <string name="dialog_debuff_expired_title">Debuff expired</string>
-    <string name="dialog_debuff_remove">Remove</string>
+    <string name="dialog_debuff_remove">Remove (after this turn)</string>
     <string name="dialog_debuff_keep">Keep anyway</string>
 
     <!--Dialog Hp-->
@@ -125,5 +129,13 @@
     <string name="tip_dialog_select">Select your amount\n \nAmount is before taxes, total price in your currency is displayed next to it.</string>
     <string name="tip_dialog_five">€5,-</string>
     <string name="tip_dialog_ten">€10,-</string>
+
+    <!-- Automatic healing dialog -->
+    <string name="auto_healing_dialog_fast_healing_title">Fast Healing detected</string>
+    <string name="auto_healing_dialog_fast_healing_message">This character has fast healing, do you wish to add it to the hp total?</string>
+    <string name="auto_healing_dialog_regeneration_title">Regeneration detected</string>
+    <string name="auto_healing_dialog_regeneration_message">This character has regeneration, do you wish to add it to the hp total?</string>
+    <string name="auto_healing_dialog_max_exceeded_title">Max Hp Exceeded</string>
+    <string name="auto_healing_dialog_max_exceeded_message">Looks like the automatic healing exceeded the max hp value for this creature, do you want to reset it to its max hp?</string>
 
 </resources>

@@ -74,6 +74,12 @@ public class CharacterDetailFragment extends Fragment {
         EditText maxHpEditText = rootView.findViewById(R.id.max_hp_editText);
         maxHpEditText.setText(String.valueOf(characterModel.getMaxHp()));
 
+        EditText fastHealingEditText = rootView.findViewById(R.id.fast_healing_editText);
+        fastHealingEditText.setText(String.valueOf(characterModel.getFastHealing()));
+
+        EditText regenerationEditText = rootView.findViewById(R.id.regeneration_editText);
+        regenerationEditText.setText(String.valueOf(characterModel.getRegeneration()));
+
         EditText skillsEditText = rootView.findViewById(R.id.skills_editText);
         skillsEditText.setText(characterModel.getSkills());
 
@@ -96,6 +102,16 @@ public class CharacterDetailFragment extends Fragment {
         GenericTextWatcher oldInitiativeBonusWatcher = (GenericTextWatcher) initiativeBonusEditText.getTag();
         if (oldInitiativeBonusWatcher != null) {
             initiativeBonusEditText.removeTextChangedListener(oldInitiativeBonusWatcher);
+        }
+
+        GenericTextWatcher oldFastHealingWatcher = (GenericTextWatcher) fastHealingEditText.getTag();
+        if (oldFastHealingWatcher != null) {
+            fastHealingEditText.removeTextChangedListener(oldFastHealingWatcher);
+        }
+
+        GenericTextWatcher oldRegenerationWatcher = (GenericTextWatcher) regenerationEditText.getTag();
+        if (oldRegenerationWatcher != null) {
+            regenerationEditText.removeTextChangedListener(oldRegenerationWatcher);
         }
 
         GenericTextWatcher oldSkillsWatcher = (GenericTextWatcher) skillsEditText.getTag();
@@ -137,6 +153,14 @@ public class CharacterDetailFragment extends Fragment {
         GenericTextWatcher newInitiativeBonusWatcher = new GenericTextWatcher(characterModel, initiativeBonusEditText);
         initiativeBonusEditText.setTag(newInitiativeBonusWatcher);
         initiativeBonusEditText.addTextChangedListener(newInitiativeBonusWatcher);
+
+        GenericTextWatcher newFastHealingWatcher = new GenericTextWatcher(characterModel, fastHealingEditText);
+        fastHealingEditText.setTag(newFastHealingWatcher);
+        fastHealingEditText.addTextChangedListener(newFastHealingWatcher);
+
+        GenericTextWatcher newRegenerationWatcher = new GenericTextWatcher(characterModel, regenerationEditText);
+        regenerationEditText.setTag(newRegenerationWatcher);
+        regenerationEditText.addTextChangedListener(newRegenerationWatcher);
 
         GenericTextWatcher newSkillsWatcher = new GenericTextWatcher(characterModel, skillsEditText);
         skillsEditText.setTag(newSkillsWatcher);
