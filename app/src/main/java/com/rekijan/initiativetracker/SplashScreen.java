@@ -3,7 +3,7 @@ package com.rekijan.initiativetracker;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.rekijan.initiativetracker.ui.activities.MainActivity;
 import static com.rekijan.initiativetracker.AppConstants.*;

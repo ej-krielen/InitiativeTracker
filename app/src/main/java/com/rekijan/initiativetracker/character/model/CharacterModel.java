@@ -1,10 +1,12 @@
 package com.rekijan.initiativetracker.character.model;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.view.Gravity;
-import android.widget.Toast;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.rekijan.initiativetracker.R;
 
@@ -79,24 +81,47 @@ public class CharacterModel implements Parcelable {
 
     /**
      * Called by the {@link com.rekijan.initiativetracker.character.adapter.CharacterAdapter} when its a characters turn <br>
-     * Lowers all (de)buff values by one, but never to negative.
+     * Lowers all (de)buff values by one, but never to negative. <br>
+     * Checks when a debuff goes to 0 duration for the first time and asks user if they want to remove those.
+     * @param activity
      */
-    public void updateDebuffs() {
+    public void updateDebuffs(FragmentActivity activity) {
+        int debuffPosition = 0;
         for (DebuffModel d: debuffList) {
             int duration = d.getDuration();
             duration--;
-            if (duration == 0) toastExpiredDebuffs(d.getName());
+            if (duration == 0) askRoundResetConfirmation(activity, d, debuffPosition);
             if (duration < 0) duration = 0;
             d.setDuration(duration);
+            debuffPosition++;
         }
+        this.setDebuffList(debuffList);
     }
 
-    private void toastExpiredDebuffs(String string) {
-        Toast toast = Toast.makeText(context, String.format(context.getString(R.string.debuff_expired), string), Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.TOP, 0, 350);
-        toast.show();
-    }
+    /**
+     * Create a dialog so the user can choose to keep or remove a debuff that just went to 0 duration
+     * @param activity used to create dialog
+     * @param debuff Debuff that has just been expired
+     * @param debuffPosition position in list for debuff
+     */
+    private void askRoundResetConfirmation(FragmentActivity activity, DebuffModel debuff, final int debuffPosition) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyle);
+        builder.setMessage(String.format(context.getString(R.string.debuff_expired), debuff.getName()))
+                .setTitle(activity.getString(R.string.dialog_debuff_expired_title));
+        builder.setPositiveButton(activity.getString(R.string.dialog_debuff_remove), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                debuffList.remove(debuffPosition);
+            }
+        });
+        builder.setNegativeButton(activity.getString(R.string.dialog_debuff_keep), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {}
+        });
 
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
 
     public long getId() {
         return id;

@@ -7,9 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -22,10 +19,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.rekijan.initiativetracker.AppExtension;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.adapter.CharacterAdapter;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
+import com.rekijan.initiativetracker.ui.activities.MainActivity;
 
 import static com.rekijan.initiativetracker.AppConstants.ROUND_COUNTER;
 import static com.rekijan.initiativetracker.AppConstants.SHARED_PREF_TAG;
@@ -58,7 +60,7 @@ public class MainActivityFragment extends Fragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
         counterTextView.setText(String.valueOf(sharedPreferences.getInt(ROUND_COUNTER, 0)));
 
-        Button plusButton = rootView.findViewById(R.id.plus_round_button);
+        Button plusButton = rootView.findViewById(R.id.up_edit_order_button);
         plusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,6 +86,15 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 counterTextView.setText(String.valueOf(1));
+            }
+        });
+
+        Button editOrderButton = rootView.findViewById(R.id.edit_order_button);
+        editOrderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)requireActivity()).replaceEditOrderFragment();
+
             }
         });
 
@@ -201,12 +212,11 @@ public class MainActivityFragment extends Fragment {
         AppExtension app = (AppExtension) getActivity().getApplicationContext();
         switch (item.getItemId()) {
             case R.id.action_settings_next_turn:
-                boolean isNextRound = app.getCharacterAdapter().nextTurn();
+                boolean isNextRound = app.getCharacterAdapter().nextTurn(getActivity());
                 if (isNextRound) nextRound();
                 return true;
             case R.id.action_settings_sort:
-                app.getCharacterAdapter().sortInitiative();
-                askRoundResetConfirmation();
+                askRoundResetConfirmation(app.getCharacterAdapter().sortInitiative());
                 return true;
             case R.id.action_settings_add_character:
                 addCharacter();
@@ -228,7 +238,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     /**
-     * Called from {@link CharacterAdapter#nextTurn()} if the {@link CharacterModel} whose turn it is marks the start of a new round<br>
+     * Called from {@link CharacterAdapter#nextTurn(androidx.fragment.app.FragmentActivity)} if the {@link CharacterModel} whose turn it is marks the start of a new round<br>
      *     Ups the round counter by 1
      */
     private void nextRound() {
@@ -237,9 +247,10 @@ public class MainActivityFragment extends Fragment {
         counterTextView.setText(String.valueOf(mRoundCounter));
     }
 
-    private void askRoundResetConfirmation() {
+    private void askRoundResetConfirmation(boolean warnForDoubleInitiative) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
-        builder.setMessage(getString(R.string.dialog_reset_round_counter))
+        String message = warnForDoubleInitiative ? getString(R.string.dialog_reset_round_counter) +  getString(R.string.dialog_reset_round_double_init) : getString(R.string.dialog_reset_round_counter);
+        builder.setMessage(message)
                 .setTitle(getString(R.string.dialog_reset_round_counter_title));
         builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

@@ -1,8 +1,6 @@
 package com.rekijan.initiativetracker.character.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +8,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.character.model.CharacterModel;
@@ -90,7 +92,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
      * Sorts the {@link #characters} list by {@link CharacterModel#getInitiative()}. High to low. <br>
      *     And make the first character the first in the round
      */
-    public void sortInitiative() {
+    public boolean sortInitiative() {
         Collections.sort(characters, new Comparator<CharacterModel>() {
             public int compare(CharacterModel o1, CharacterModel o2) {
                 return o2.getInitiative() - o1.getInitiative();
@@ -102,13 +104,29 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         }
         characters.get(0).setIsFirstRound(true);
         this.notifyDataSetChanged();
+
+        return checkForDoubleInitiative();
+    }
+
+    private boolean checkForDoubleInitiative() {
+
+        boolean doubleInitiativeDetected = false;
+        for (CharacterModel m : characters) {
+            for (CharacterModel m2 : characters) {
+                if (m != m2 && m2.getInitiative() == m.getInitiative()) {
+                    doubleInitiativeDetected = true;
+                }
+            }
+        }
+        return doubleInitiativeDetected;
     }
 
     /**
      * Each {@link CharacterModel} is pushed down the list by one, bottom one becomes the top
      * @return true if its the first character in the round
+     * @param activity
      */
-    public boolean nextTurn() {
+    public boolean nextTurn(FragmentActivity activity) {
         //Create temporary list
         ArrayList<CharacterModel> newList = new ArrayList<>();
         //Add all the items in the new order
@@ -120,7 +138,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         //Fill the old list with the new temporary one
         characters = newList;
         //Update the (de)buffs of the top character
-        characters.get(0).updateDebuffs();
+        characters.get(0).updateDebuffs(activity);
         this.notifyDataSetChanged();
         return characters.get(0).isFirstRound();
     }

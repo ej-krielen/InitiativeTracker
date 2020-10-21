@@ -51,6 +51,10 @@
     <string name="char_detail_add_button">Add</string>
     <string name="char_detail_clear_button">Clear all</string>
 
+    <!-- Edit Order fragment -->
+    <string name="up_button_label">Λ</string>
+    <string name="down_button_label">v</string>
+
     <!-- EditText Hints-->
     <string name="EH_character_name">Character name</string>
     <string name="EH_character_notes">Notes</string>
@@ -79,7 +83,13 @@
     <string name="error_no_such_value">The following value was not found:\u0020</string>
     <string name="dialog_reset_round_counter_title">Reset round counter?</string>
     <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
+    <string name="dialog_reset_round_double_init">\n\nWARNING\n\nSome characters have the same initiative, you might want to edit the order and resolve this.\nPlease note this will not change who is first in the round for tracking turns (You will need to change numbers and sort again to do that).</string>
     <string name="dialog_reset_round_counter_cancel">No, keep current number</string>
+
+    <!-- Dialog debuff expired -->
+    <string name="dialog_debuff_expired_title">Debuff expired</string>
+    <string name="dialog_debuff_remove">Remove</string>
+    <string name="dialog_debuff_keep">Keep anyway</string>
 
     <!--Dialog Hp-->
     <string name="hp_dialog_title">Adjust hp value</string>
@@ -100,6 +110,7 @@
     <string name="plus_round_button_label">+</string>
     <string name="minus_round_button_label">-</string>
     <string name="reset_round_button_label">Reset</string>
+    <string name="edit_order_button_label">Edit\norder</string>
 
     <!--Character details-->
     <string name="character_details_name_title">Character details for :\u0020 %1$s</string>

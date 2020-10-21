@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
@@ -33,6 +34,7 @@ import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.rekijan.initiativetracker.AppExtension;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.ui.fragments.CharacterDetailFragment;
+import com.rekijan.initiativetracker.ui.fragments.EditOrderFragment;
 import com.rekijan.initiativetracker.ui.fragments.MainActivityFragment;
 
 import java.util.ArrayList;
@@ -171,13 +173,10 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 nextTurn();
             return false;
             case R.id.action_settings_sort:
-                if (!isTablet && fragmentExists) onSupportNavigateUp();
-                return false;
             case R.id.action_settings_add_character:
                 if (!isTablet && fragmentExists) onSupportNavigateUp();
                 return false;
             case R.id.action_settings_delete_character:
-                return false;
             case R.id.action_settings_about:
                 return false;
             case R.id.action_settings_tip:
@@ -214,6 +213,17 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
             AppExtension app = (AppExtension) this.getApplicationContext();
             app.setShowBackNavigation(true);
         }
+    }
+
+    public void replaceEditOrderFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.main_fragment_container, EditOrderFragment.newInstance());
+        transaction.addToBackStack(null);
+        transaction.commit();
+        //Enable the back button in action bar
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        AppExtension app = (AppExtension) this.getApplicationContext();
+        app.setShowBackNavigation(true);
     }
 
     @Override
@@ -343,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         ConsumeParams consumeParams =
                 ConsumeParams.newBuilder()
                         .setPurchaseToken(purchaseToken)
-                        .setDeveloperPayload(developerPayload)
+//                        .setDeveloperPayload(developerPayload)
                         .build();
 
         billingClient.consumeAsync(consumeParams, listener);
