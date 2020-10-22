@@ -133,13 +133,8 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
         holder.editOrderUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (position-1 > 0) {
-                    Collections.swap(app.getCharacterAdapter().getList(), position, position-1);
-                    Collections.swap(characters, position, position-1);
-                } else {
-                    Collections.swap(app.getCharacterAdapter().getList(), position, characters.size()-1);
-                    Collections.swap(characters, position, characters.size()-1);
-                }
+                Collections.rotate(app.getCharacterAdapter().getList(), -1);
+                Collections.rotate(characters, -1);
                 notifyDataSetChanged();
             }
         });
@@ -147,13 +142,8 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
         holder.editOrderDownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (position+1 < characters.size()) {
-                    Collections.swap(app.getCharacterAdapter().getList(), position, position+1);
-                    Collections.swap(characters, position, position+1);
-                } else {
-                    Collections.swap(app.getCharacterAdapter().getList(), position, 0);
-                    Collections.swap(characters, position, 0);
-                }
+                Collections.rotate(app.getCharacterAdapter().getList(), 1);
+                Collections.rotate(characters, 1);
                 notifyDataSetChanged();
             }
         });
