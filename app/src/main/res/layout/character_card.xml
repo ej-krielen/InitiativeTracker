@@ -62,7 +62,7 @@
             android:background="?attr/editTextBackground"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceMediumInverse"
-            android:textColor="?attr/editTextColor"
+            android:textColor="@color/text_color"
             card_view:layout_constraintEnd_toStartOf="@+id/show_character_detail_button"
             card_view:layout_constraintTop_toTopOf="parent" />
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1E1E1E</color>
+    <color name="colorPrimaryDark">#252525</color>
+    <color name="colorAccent">#F37F5A</color>
+
+    <color name="colorPrimaryLight">#494949</color>
+    <color name="colorBackground">#121212</color>
+    <color name="colorBackgroundLight">#252525</color>
+
+    <color name="npcColor">#B3F6ACA6</color>
+    <color name="pcColor">#6F848E</color>
+
+    <color name="text_background_color">#000000</color>
+    <color name="text_color">#FFFFFF</color>
+
+    <color name="edit_text_color">#B3FFFFFF</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+</resources>

@@ -1,0 +1,50 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="editTextStyle">@style/EditTextStyle</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.Button" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ButtonAppTheme" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@color/colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:colorBackground">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <style name="EditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:textColorHint">@color/edit_text_color</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:itemBackground">@color/colorPrimaryLight</item>
+    </style>
+
+</resources>

@@ -5,12 +5,18 @@
     <color name="colorAccent">#FF5722</color>
 
     <color name="colorPrimaryLight">#7986CB</color>
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorBackgroundLight">#FAFAFA</color>
 
     <color name="npcColor">#26F44336</color>
     <color name="pcColor">#2603A9F4</color>
 
+    <color name="text_background_color">#FFFFFF</color>
+    <color name="text_color">#000000</color>
+
+    <color name="edit_text_color">?attr/editTextColor</color>
+
     <color name="white">#FFFFFF</color>
-    <color name="gray">#FAFAFA</color>
     <color name="black">#000000</color>
 
 </resources>

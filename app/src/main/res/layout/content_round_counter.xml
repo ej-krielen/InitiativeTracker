@@ -20,9 +20,9 @@
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:background="@color/white"
+        android:background="@color/text_background_color"
         android:gravity="center"
-        android:textColor="@color/black"
+        android:textColor="@color/text_color"
         app:layout_constraintBottom_toBottomOf="@+id/up_edit_order_button"
         app:layout_constraintStart_toEndOf="@+id/up_edit_order_button"
         app:layout_constraintTop_toTopOf="@+id/up_edit_order_button" />

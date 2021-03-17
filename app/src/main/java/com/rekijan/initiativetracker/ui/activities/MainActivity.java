@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setPopupTheme(R.style.PopupMenuStyle);
 
         AppExtension app = (AppExtension) this.getApplicationContext();
         app.initializeData(this);
