@@ -53,8 +53,13 @@ public class AppExtension extends Application {
             mCharacterAdapter.removeAll();
             if (characters != null) {
                 for (CharacterModel c : characters) {
-                    mCharacterAdapter.add(new CharacterModel(this, c.getInitiative(), c.getInitiativeBonus(), c.getSkills(), c.getAttackRoutine(), c.getAc(), c.getSaves(),
-                            c.getManeuvers(), c.getHp(), c.getMaxHp(), c.getCharacterName(), c.getCharacterNotes(), c.isFirstRound(), c.isPC(), c.getFastHealing(), c.getRegeneration()));
+                    CharacterModel tempCharacter = new CharacterModel(this, c.getInitiative(), c.getInitiativeBonus(), c.getSkills(), c.getAttackRoutine(), c.getAc(), c.getSaves(),
+                            c.getManeuvers(), c.getHp(), c.getMaxHp(), c.getCharacterName(), c.getCharacterNotes(), c.isFirstRound(), c.isPC(), c.getFastHealing(), c.getRegeneration());
+                    if (c.getDebuffList() != null)
+                    {
+                        tempCharacter.setDebuffList(c.getDebuffList());
+                    }
+                    mCharacterAdapter.add(tempCharacter);
                 }
             } else {
                 mCharacterAdapter.add(new CharacterModel(this));
@@ -72,14 +77,14 @@ public class AppExtension extends Application {
     /**
      * Saves all character data
      */
-    public void saveData(int roundConter) {
+    public void saveData(int roundCounter) {
         SharedPreferences sharedPreferences = this.getSharedPreferences(SHARED_PREF_TAG, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Gson gson = new Gson();
         ArrayList<CharacterModel> characters = mCharacterAdapter.getList();
         String json = gson.toJson(characters);
         editor.putString(GSON_TAG, json);
-        editor.putInt(ROUND_COUNTER, roundConter);
+        editor.putInt(ROUND_COUNTER, roundCounter);
         editor.apply();
     }
 
