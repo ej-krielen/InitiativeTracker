@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -93,6 +94,7 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
         TextView editOrderNameTextView;
         Button editOrderUpButton;
         Button editOrderDownButton;
+        ImageView firstInRoundImage;
 
         CharacterViewHolder(View itemView) {
             super(itemView);
@@ -101,6 +103,7 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
             editOrderNameTextView = itemView.findViewById(R.id.edit_order_name_textView);
             editOrderUpButton = itemView.findViewById(R.id.up_edit_order_button);
             editOrderDownButton = itemView.findViewById(R.id.down_edit_order_button);
+            firstInRoundImage = itemView.findViewById(R.id.first_in_round_imageView);
         }
     }
     /* End of Viewholder region */
@@ -147,6 +150,8 @@ public class EditOrderAdapter extends RecyclerView.Adapter<EditOrderAdapter.Char
                 notifyDataSetChanged();
             }
         });
+
+        holder.firstInRoundImage.setVisibility(character.isFirstRound() ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override

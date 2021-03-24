@@ -56,6 +56,7 @@
     <!-- Edit Order fragment -->
     <string name="up_button_label">Λ</string>
     <string name="down_button_label">v</string>
+    <string name="edit_order_instruction">Press and hold a character to set it to be the one first in the round.</string>
 
     <!-- EditText Hints-->
     <string name="EH_character_name">Character name</string>

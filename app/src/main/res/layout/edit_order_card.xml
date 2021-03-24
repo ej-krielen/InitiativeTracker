@@ -59,7 +59,7 @@
             android:hint="@string/EH_character_name"
             android:textColor="@color/text_color"
             card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintEnd_toStartOf="@+id/down_edit_order_button"
+            card_view:layout_constraintEnd_toStartOf="@+id/first_in_round_imageView"
             card_view:layout_constraintStart_toEndOf="@+id/initiative_textView"
             card_view:layout_constraintTop_toTopOf="parent" />
 
@@ -73,6 +73,18 @@
             card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintTop_toTopOf="parent"
             card_view:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:id="@+id/first_in_round_imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            card_view:layout_constraintEnd_toStartOf="@+id/down_edit_order_button"
+            card_view:layout_constraintStart_toEndOf="@+id/edit_order_name_textView"
+            card_view:layout_constraintTop_toTopOf="parent"
+            card_view:srcCompat="@android:drawable/ic_popup_reminder" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

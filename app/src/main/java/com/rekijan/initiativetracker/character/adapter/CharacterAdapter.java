@@ -108,6 +108,14 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         return checkForDoubleInitiative();
     }
 
+    public void setFirstInRound(int pos){
+        for (CharacterModel c : characters) {
+            c.setIsFirstRound(false);
+        }
+        characters.get(pos).setIsFirstRound(true);
+        this.notifyDataSetChanged();
+    }
+
     private boolean checkForDoubleInitiative() {
 
         boolean doubleInitiativeDetected = false;
@@ -156,19 +164,23 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
      */
     public void setPCsToMaxHP() {
         StringBuilder unUpdatedPcNames = new StringBuilder();
+        boolean isNotUpdated = false;
         for (CharacterModel c : characters) {
             if (c.isPC()) {
-                if (c.getMaxHp() > c.getHp()) {
+                if (c.getMaxHp() >= c.getHp()) {
                     c.setHp(c.getMaxHp());
                 } else {
+                    isNotUpdated = true;
                     unUpdatedPcNames.append(c.getCharacterName());
                     unUpdatedPcNames.append("\n");
                 }
             }
         }
-        String toastMessage = context.getString(R.string.toast_max_hp, unUpdatedPcNames.toString());
+        if (isNotUpdated) {
+            String toastMessage = context.getString(R.string.toast_max_hp, unUpdatedPcNames.toString());
+            Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
+        }
         this.notifyDataSetChanged();
-        Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
     }
 
 
