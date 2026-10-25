@@ -223,4 +223,33 @@ public class EncounterTest {
         e.nextRound();
         assertEquals(2, calls[0]);
     }
+
+    @Test
+    public void removeAllRemovesTheChosenAndKeepsFirstInRound() {
+        CharacterModel a = character("A", 20);
+        CharacterModel b = character("B", 15);
+        CharacterModel c = character("C", 10);
+        CharacterModel d = character("D", 5);
+        Encounter e = encounterOf(a, b, c, d);
+        e.setFirstInRound(1);
+        int[] calls = {0};
+        e.addListener(() -> calls[0]++);
+
+        e.removeAll(Arrays.asList(b, d));
+
+        assertEquals(Arrays.asList("A", "C"), names(e));
+        // B was first in round, so the next one (C) took over
+        assertTrue(c.isFirstInRound());
+        assertEquals(1, calls[0]);
+    }
+
+    @Test
+    public void removeAllWithUnknownCharactersChangesNothing() {
+        Encounter e = encounterOf(character("A", 20));
+        int[] calls = {0};
+        e.addListener(() -> calls[0]++);
+        e.removeAll(Arrays.asList(character("X", 1)));
+        assertEquals(1, e.size());
+        assertEquals(0, calls[0]);
+    }
 }

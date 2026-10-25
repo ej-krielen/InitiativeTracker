@@ -6,9 +6,8 @@ import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 
 /**
- * The info dialogs from the menu: About (links to the website, and to Licenses), Licenses (the
- * icons and the bundled fonts), Privacy Policy (short summary with a link to the full policy) and
- * how to delete a character.
+ * The info dialogs from the drawer: About (links to the website, and to Licenses), Licenses (the
+ * icons and the bundled fonts), and Privacy Policy (short summary with a link to the full policy).
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -49,14 +48,6 @@ public final class InfoDialogs {
                 .setMessage(R.string.dialog_privacy_info)
                 .setPositiveButton(R.string.dialog_privacy_ok, (d, w) -> Dialogs.openUrl(context, PRIVACY_URL))
                 .setNegativeButton(R.string.dialog_cancel, null)
-                .show();
-    }
-
-    public static void howToDeleteCharacter(Context context) {
-        Dialogs.builder(context)
-                .setTitle(R.string.dialog_delete_info_title)
-                .setMessage(R.string.dialog_delete_info)
-                .setPositiveButton(R.string.dialog_ok, null)
                 .show();
     }
 }

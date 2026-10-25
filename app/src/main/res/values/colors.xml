@@ -34,6 +34,9 @@
     <color name="rk_npc_container">#F8E6E8</color>
     <color name="rk_npc_marker">@color/brand_bordeaux</color>
 
+    <!-- Session status light: joined or hosting -->
+    <color name="rk_status_on">#3B6D11</color>
+
     <!-- ============ Material 3 roles ============ -->
     <color name="md_primary">@color/rk_primary</color>
     <color name="md_on_primary">#FFFFFF</color>

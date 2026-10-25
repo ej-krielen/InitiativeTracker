@@ -13,6 +13,8 @@ import com.rekijan.initiativetracker.feature.encounter.Encounter;
 import com.rekijan.initiativetracker.feature.party.Party;
 import com.rekijan.initiativetracker.feature.party.PartyBook;
 import com.rekijan.initiativetracker.feature.party.PartyStore;
+import com.rekijan.initiativetracker.feature.player.PlayerBook;
+import com.rekijan.initiativetracker.feature.profile.ProfileState;
 import com.rekijan.initiativetracker.feature.sync.SyncManager;
 import com.rekijan.initiativetracker.feature.sync.SyncRepository;
 import com.rekijan.initiativetracker.feature.sync.SyncStore;
@@ -27,6 +29,9 @@ import java.util.List;
  * the 1.x save becomes the first party (see PartyStore). It also remembers whether Remove Ads was
  * bought, and runs Table sync ({@link SyncManager}), which merges players' sends into the active
  * party through the same Encounter.
+ * <p>
+ * Besides parties, the user can have player characters ({@link PlayerBook}), and
+ * {@link ProfileState} remembers which of the two was opened last, so the app opens it again.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 16-5-2019
@@ -37,6 +42,8 @@ public class InitiativeTrackerApp extends Application implements SyncManager.Hos
     private PartyBook parties;
     private Encounter encounter;
     private SyncManager sync;
+    private PlayerBook players;
+    private ProfileState profile;
 
     @Override
     public void onCreate() {
@@ -46,6 +53,8 @@ public class InitiativeTrackerApp extends Application implements SyncManager.Hos
         store = new EncounterStore(values);
         String firstName = getString(R.string.party_first_name);
         parties = new PartyBook(new PartyStore(values, firstName), firstName);
+        players = new PlayerBook(values);
+        profile = new ProfileState(values);
 
         sync = new SyncManager(this, new SyncRepository(), new SyncStore(values),
                 () -> AppCheckInstaller.install(this));
@@ -54,6 +63,39 @@ public class InitiativeTrackerApp extends Application implements SyncManager.Hos
 
     public PartyBook getParties() {
         return parties;
+    }
+
+    public PlayerBook getPlayers() {
+        return players;
+    }
+
+    /** @return True when a player character is the open profile; false for the party. */
+    public boolean isPlayerOpen() {
+        return profile.isPlayer() && players.contains(profile.getPlayerId());
+    }
+
+    /** @return The id of the open player character, or null when the party is open. */
+    public String getOpenPlayerId() {
+        return isPlayerOpen() ? profile.getPlayerId() : null;
+    }
+
+    /** Opens a party: it becomes the active party and the open profile. */
+    public void openParty(String id) {
+        switchParty(id);
+        profile.openParty();
+    }
+
+    /** Opens a player character; the active party stays as it is, for when the user goes back. */
+    public void openPlayer(String id) {
+        if (players.contains(id)) profile.openPlayer(id);
+    }
+
+    /** Deletes a player character: it leaves its session first. Deleting the open one opens the party. */
+    public void deletePlayer(String id) {
+        boolean wasOpen = id.equals(getOpenPlayerId());
+        sync.forgetPlayer(id);
+        players.delete(id);
+        if (wasOpen) profile.openParty();
     }
 
     public SyncManager getSync() {

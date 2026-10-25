@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A player's own character, like Secret Roller's character screen: the session card on top
+     (code and Join, or a status light with Sync and Leave once joined), the sheet with the Stats
+     and Conditions tabs (view_character_sheet), and Send to GM. PlayerFragment fills it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/player_session_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_3"
+        android:layout_marginTop="@dimen/space_1"
+        android:layout_marginEnd="@dimen/space_3"
+        android:layout_marginBottom="@dimen/space_1"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+        app:contentPadding="@dimen/space_2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/player_status_lamp"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginStart="@dimen/space_1"
+                android:layout_marginEnd="@dimen/space_2"
+                android:background="@drawable/bg_status_lamp" />
+
+            <!-- Not joined: code and Join -->
+            <LinearLayout
+                android:id="@+id/player_join_row"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/player_code_layout"
+                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_2"
+                    android:layout_weight="1"
+                    android:hint="@string/sync_code_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/player_code_editText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:imeOptions="actionGo"
+                        android:importantForAutofill="no"
+                        android:inputType="textCapCharacters|textNoSuggestions"
+                        android:maxLength="8" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/player_join_button"
+                    style="@style/Widget.Rekijan.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sync_join" />
+            </LinearLayout>
+
+            <!-- Joined: code, last sent and synced, Sync and Leave -->
+            <LinearLayout
+                android:id="@+id/player_joined_row"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/player_joined_textView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="Joined K7QX4M\nSent 20:14 · synced 20:31" />
+
+                <Button
+                    android:id="@+id/player_sync_button"
+                    style="@style/Widget.Rekijan.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:text="@string/player_sync"
+                    app:icon="@drawable/ic_sync"
+                    app:iconTint="?attr/colorSecondary" />
+
+                <Button
+                    android:id="@+id/player_leave_button"
+                    style="@style/Widget.Rekijan.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:text="@string/sync_leave"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <include
+        android:id="@+id/player_sheet"
+        layout="@layout/view_character_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/player_send_button"
+        style="@style/Widget.Rekijan.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_3"
+        android:layout_marginTop="@dimen/space_1"
+        android:layout_marginEnd="@dimen/space_3"
+        android:layout_marginBottom="@dimen/space_2"
+        android:text="@string/sync_send" />
+</LinearLayout>

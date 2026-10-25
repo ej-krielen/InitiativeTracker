@@ -12,8 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tests {@link SyncStore}: the hosted session, the applied sends and the player's form and
- * sentAt are saved and read back, and a new session starts without applied sends.
+ * Tests {@link SyncStore}: the hosted session and the applied sends are saved and read back, a
+ * new session starts without applied sends, and each player character keeps its own session,
+ * sentAt and syncedAt.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -58,28 +59,46 @@ public class SyncStoreTest {
     }
 
     @Test
-    public void playerFormAndCodeAreSaved() {
-        store.setPlayerCode("K7QX4M");
-        store.savePlayerSheet(PlayerSheetTest.valeros());
+    public void eachPlayerCharacterHasItsOwnSession() {
+        store.setPlayerCode("a", "K7QX4M");
+        store.setPlayerCode("b", "ABCDEF");
         SyncStore reopened = new SyncStore(values);
-        assertEquals("K7QX4M", reopened.getPlayerCode());
-        assertEquals("Valeros", reopened.loadPlayerSheet().name);
-        assertEquals(34, reopened.loadPlayerSheet().maxHp);
-        reopened.setPlayerCode(null);
-        assertNull(reopened.getPlayerCode());
+        assertEquals("K7QX4M", reopened.getPlayerCode("a"));
+        assertEquals("ABCDEF", reopened.getPlayerCode("b"));
+        assertNull(reopened.getPlayerCode("c"));
     }
 
     @Test
-    public void emptyFormWhenNothingSaved() {
-        assertEquals("", store.loadPlayerSheet().name);
+    public void leavingForgetsSyncedButKeepsSentAt() {
+        store.setPlayerCode("a", "K7QX4M");
+        store.setPlayerSentAt("a", 5000);
+        store.setPlayerSyncedAt("a", 6000);
+        store.setPlayerCode("a", null);
+        assertNull(store.getPlayerCode("a"));
+        assertEquals(0, store.getPlayerSyncedAt("a"));
+        // Kept, so a later send in a new session is still newer than the last one
+        assertEquals(5000, store.getPlayerSentAt("a"));
+    }
+
+    @Test
+    public void forgetPlayerRemovesEverything() {
+        store.setPlayerCode("a", "K7QX4M");
+        store.setPlayerSentAt("a", 5000);
+        store.setPlayerSyncedAt("a", 6000);
+        store.forgetPlayer("a");
+        assertNull(store.getPlayerCode("a"));
+        assertEquals(0, store.getPlayerSentAt("a"));
+        assertEquals(0, store.getPlayerSyncedAt("a"));
     }
 
     @Test
     public void sentAtAlwaysGoesUp() {
-        assertEquals(5000, store.nextSentAt(5000));
-        store.setPlayerSentAt(5000);
+        assertEquals(5000, store.nextSentAt("a", 5000));
+        store.setPlayerSentAt("a", 5000);
         // The clock was set back: still later than the last send
-        assertEquals(5001, store.nextSentAt(100));
-        assertEquals(9000, store.nextSentAt(9000));
+        assertEquals(5001, store.nextSentAt("a", 100));
+        assertEquals(9000, store.nextSentAt("a", 9000));
+        // Another character has its own count
+        assertEquals(100, store.nextSentAt("b", 100));
     }
 }

@@ -17,6 +17,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 
+import java.util.function.Function;
+
 /**
  * The party dialogs: name a new party or rename one (checked with {@link PartyNames}, the error
  * shows under the field and the dialog stays open), confirm a delete, and the "all slots used" and
@@ -41,8 +43,20 @@ public final class PartyDialogs {
     public static void askName(Context context, @StringRes int title, @StringRes int positive,
                                String initialName, PartyBook book, @Nullable String excludeId,
                                NameListener listener) {
+        askName(context, title, positive, R.string.dialog_party_name_hint, initialName,
+                name -> book.checkName(name, excludeId), listener);
+    }
+
+    /**
+     * Asks for a name with the same rules as a party name, checked by the given check; used for
+     * player characters too.
+     */
+    public static void askName(Context context, @StringRes int title, @StringRes int positive,
+                               @StringRes int hint, String initialName,
+                               Function<String, PartyNames.Check> check, NameListener listener) {
         View content = LayoutInflater.from(context).inflate(R.layout.dialog_party_name, null);
         TextInputLayout layout = content.findViewById(R.id.party_name_layout);
+        layout.setHint(hint);
         EditText input = content.findViewById(R.id.party_name_editText);
         layout.setCounterMaxLength(PartyNames.MAX_LENGTH);
         input.setText(initialName);
@@ -57,7 +71,7 @@ public final class PartyDialogs {
 
         Runnable submit = () -> {
             String name = input.getText().toString();
-            String error = errorFor(context, book.checkName(name, excludeId));
+            String error = errorFor(context, check.apply(name));
             if (error != null) {
                 layout.setError(error);
                 return;

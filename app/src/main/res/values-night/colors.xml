@@ -23,6 +23,8 @@
     <!-- Lighter than rk_primary so the stripe and label stay readable on the dark card -->
     <color name="rk_npc_marker">#C4505F</color>
 
+    <color name="rk_status_on">#97C459</color>
+
     <!-- ============ Material 3 roles ============ -->
     <color name="md_primary">@color/rk_primary</color>
     <color name="md_on_primary">#FFFFFF</color>

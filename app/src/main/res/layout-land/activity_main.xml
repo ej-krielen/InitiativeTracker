@@ -37,6 +37,7 @@
                 android:layout_weight="1" />
 
             <View
+                android:id="@+id/pane_divider"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:background="?attr/colorOutlineVariant" />

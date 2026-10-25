@@ -6,10 +6,7 @@
     <!-- Menu-->
     <string name="action_next_turn">Next turn</string>
     <string name="action_sort">Sort</string>
-    <string name="action_party_select">Select a party</string>
     <string name="action_add_character">Add a character</string>
-    <string name="action_delete_character">Delete a character</string>
-    <string name="action_set_pcs_max_hp">Set PCs at max hp</string>
     <string name="action_about">About</string>
     <string name="action_privacy">Privacy Policy</string>
     <string name="action_tip">Tip the dev</string>
@@ -21,11 +18,8 @@
     <string name="nav_drawer_open">Open menu</string>
     <string name="nav_drawer_close">Close menu</string>
     <string name="nav_back">Back</string>
-    <string name="nav_category_parties">Parties</string>
     <string name="nav_category_support">Support</string>
     <string name="nav_category_more">More</string>
-    <string name="nav_new_party">New party</string>
-    <string name="nav_party_slots">%1$d of %2$d parties used</string>
     <string name="nav_get_more_parties">Get more parties</string>
     <string name="nav_active_party">%1$s · round %2$d</string>
     <string name="nav_party_options">Options for %1$s</string>
@@ -123,8 +117,6 @@
     <string name="dialog_delete">Are you sure you want to delete\u0020</string>
     <string name="empty_character_name">this character</string>
     <string name="dialog_delete_title">Warning: Confirm delete</string>
-    <string name="dialog_delete_info">To delete a character press down on it, and hold until a confirmation dialog appears.</string>
-    <string name="dialog_delete_info_title">How to delete a character</string>
     <string name="dialog_about_info">To learn more about the app, and its developer, please visit the website.</string>
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
@@ -184,7 +176,7 @@
     <string name="billing_ads_already_removed">Ads are already removed.</string>
 
     <!--Privacy Policy dialog    -->
-    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, unless you use Table sync.\n\n<b>Table sync</b>\nOnly when you start or join a session, the app signs in to Google Firebase with an anonymous ID (no name, email or account). A player\'s character (name, initiative, hp, AC, saves, maneuvers, skills, attack routine and notes) is sent to Firebase so the GM\'s app can receive it. Sessions and the characters sent to them are deleted when the GM stops the session, or at the latest about 31 days after the GM last used it. Firebase App Check is used to block requests that don\'t come from this app.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
+    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, unless you use Table sync.\n\n<b>Table sync</b>\nOnly when you start or join a session, the app signs in to Google Firebase with an anonymous ID (no name, email or account). A player\'s character (name, initiative, hp, AC, saves, maneuvers, skills, attack routine and notes) is sent to Firebase so the GM\'s app can receive it. The GM\'s app stores its copy of that character\'s hp and conditions there too, so the player can sync them; a player only sees their own character. Sessions and the characters sent to them are deleted when the GM stops the session, or at the latest about 31 days after the GM last used it. Firebase App Check is used to block requests that don\'t come from this app.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
     <string name="dialog_privacy_info_title">Privacy Policy</string>
     <string name="dialog_privacy_ok">Go to website</string>
 
@@ -200,9 +192,6 @@
     <string name="nav_category_table">Table</string>
     <string name="nav_table_sync">Table sync</string>
     <string name="nav_table_sync_hosting">Table sync · hosting %1$s</string>
-    <string name="nav_table_sync_joined">Table sync · joined %1$s</string>
-    <string name="sync_tab_host">Host</string>
-    <string name="sync_tab_join">Join</string>
     <string name="sync_host_intro">Start a session and give your players the code. Each player sends their character from their own phone, and it is added to %1$s as a PC. When they send again, their character is updated.</string>
     <string name="sync_start">Start session</string>
     <string name="sync_code_label">Session code</string>
@@ -219,30 +208,17 @@
     <string name="sync_stop_title">Stop session?</string>
     <string name="sync_stop_message">The code stops working and the characters sent to it are deleted online. Characters already in your party stay.</string>
     <string name="sync_stop_offline">Stopped here. The session couldn\'t be deleted online and expires on its own.</string>
-    <string name="sync_join_intro">Ask your GM for the session code. Your character goes straight into their party, and you can send again any time, for example after taking damage.</string>
     <string name="sync_code_hint">Session code</string>
     <string name="sync_code_invalid">Enter the %1$d-character code</string>
     <string name="sync_code_not_found">No session with this code. Check it with your GM.</string>
     <string name="sync_join">Join</string>
     <string name="sync_joined">Joined %1$s</string>
-    <string name="sync_last_sent">Last sent %1$s</string>
     <string name="sync_leave">Leave</string>
-    <string name="sync_your_character">Your character</string>
     <string name="sync_field_name">Name</string>
     <string name="sync_field_initiative">Initiative</string>
-    <string name="sync_field_initiative_bonus">Initiative bonus</string>
     <string name="sync_field_hp">HP</string>
-    <string name="sync_field_max_hp">Max HP</string>
-    <string name="sync_field_ac">AC</string>
-    <string name="sync_field_saves">Saves</string>
-    <string name="sync_field_maneuvers">Maneuvers</string>
-    <string name="sync_field_skills">Skills</string>
-    <string name="sync_field_attack_routine">Attack routine</string>
-    <string name="sync_field_notes">Notes</string>
     <string name="sync_name_missing">Enter a name</string>
-    <string name="sync_number_range">Between %1$d and %2$d</string>
     <string name="sync_send">Send to GM</string>
-    <string name="sync_send_hint">Send again any time to update your character</string>
     <string name="sync_join_first">Join a session first</string>
     <string name="sync_sent">Sent to your GM</string>
     <string name="sync_session_gone">That session has ended. Ask your GM for a new code.</string>
@@ -250,4 +226,50 @@
     <string name="sync_error_denied">Table sync was refused. Update the app, or try again later.</string>
     <string name="sync_error_generic">Something went wrong with Table sync. Try again.</string>
     <string name="sync_players_joined">Joined: %1$s</string>
+
+    <!-- Character sheet tabs (view_character_sheet) -->
+    <string name="sheet_tab_stats">Stats</string>
+    <string name="sheet_tab_conditions">Conditions</string>
+    <string name="sheet_tab_conditions_count">Conditions (%1$d)</string>
+    <string name="sheet_conditions_empty">No conditions. Tap Add for a buff, debuff or spell.</string>
+
+    <!-- Round bar -->
+    <string name="action_pcs_max_hp_short">PCs to max HP</string>
+
+    <!-- Drawer -->
+    <string name="nav_switch_profile">Switch profile</string>
+    <string name="nav_no_profile">Choose a profile</string>
+    <string name="nav_player_line">%1$s · player</string>
+    <string name="nav_category_encounter">Encounter</string>
+    <string name="nav_delete_characters">Delete characters</string>
+    <string name="delete_characters_none">There are no characters to delete</string>
+
+    <!-- Profile list (feature/profile) -->
+    <string name="profiles_parties_label">Parties · %1$d of %2$d used</string>
+    <plurals name="profiles_party_detail">
+        <item quantity="one">%d character</item>
+        <item quantity="other">%d characters</item>
+    </plurals>
+    <string name="profiles_hosting">%1$s · hosting %2$s</string>
+    <string name="profiles_not_joined">Not in a session</string>
+    <string name="profiles_role_gm">GM</string>
+    <string name="profiles_role_player">Player</string>
+    <string name="profiles_characters_label">Your characters</string>
+    <string name="profiles_characters_empty">Playing in someone else\'s game? Make a character with New to join their table.</string>
+    <string name="profiles_new">New</string>
+    <string name="profiles_new_title">New</string>
+    <string name="profiles_new_party">Party (you\'re the GM)</string>
+    <string name="profiles_new_character">Character (you\'re a player)</string>
+    <string name="profiles_new_character_title">New character</string>
+    <string name="profiles_rename_character_title">Rename character</string>
+    <string name="profiles_character_name_hint">Character name</string>
+    <string name="profiles_delete_character_title">Delete character?</string>
+    <string name="profiles_delete_character_message">%1$s and its conditions are deleted from this phone. If it joined a session, it leaves it.</string>
+
+    <!-- Player screen (feature/player) -->
+    <string name="player_sync">Sync</string>
+    <string name="player_sent_at">Sent %1$s</string>
+    <string name="player_synced_at">synced %1$s</string>
+    <string name="player_synced">Your GM\'s hp and conditions are on your sheet</string>
+    <string name="player_no_copy">Your GM doesn\'t have your character yet. Send it first.</string>
 </resources>

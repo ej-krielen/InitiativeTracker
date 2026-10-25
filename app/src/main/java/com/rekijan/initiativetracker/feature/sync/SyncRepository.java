@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
@@ -32,8 +33,10 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * All Firestore access for Table sync, following Secret Roller's SessionRepository. A session is
- * sessions/{code} (owner gmUid, createdAt, expiresAt); each player's sheet is
- * sessions/{code}/players/{uid}. The rules in firestore.rules decide who may do what.
+ * sessions/{code} (owner gmUid, createdAt, expiresAt); each player character's sheet is
+ * sessions/{code}/players/{docId}, and the GM's copy of it (hp, max hp, conditions) is
+ * sessions/{code}/gmCopies/{docId}, with docId from {@link SyncIds}. The rules in
+ * firestore.rules decide who may do what.
  * <p>
  * A session lives until {@link #SESSION_RETENTION_DAYS} days after the GM last used it: the GM's
  * app renews the expiry of the session and its players when it opens the session. Expired
@@ -51,6 +54,7 @@ public class SyncRepository {
     private static final String TAG = "SyncRepository";
     private static final String COLLECTION_SESSIONS = "sessions";
     private static final String COLLECTION_PLAYERS = "players";
+    private static final String COLLECTION_GM_COPIES = "gmCopies";
     private static final String KEY_CREATED_AT = "createdAt";
     private static final String KEY_GM_UID = "gmUid";
     private static final String KEY_EXPIRES_AT = "expiresAt";
@@ -87,9 +91,17 @@ public class SyncRepository {
         void onFailure(Exception e);
     }
 
+    /** Result of reading the GM's copy of a player character. */
+    public interface GmCopyCallback {
+        /** @param copy Null when the GM's app hasn't uploaded one yet. */
+        void onResult(@Nullable GmCopy copy);
+
+        void onFailure(Exception e);
+    }
+
     /** Live updates of the players in a session. */
     public interface PlayersListener {
-        /** @param sheets Per player uid, their latest (cleaned) sheet. */
+        /** @param sheets Per document id (see SyncIds), the latest (cleaned) sheet. */
         void onPlayers(Map<String, PlayerSheet> sheets);
 
         void onError(FirebaseFirestoreException error);
@@ -124,12 +136,12 @@ public class SyncRepository {
                 });
     }
 
-    /** Writes the player's sheet to sessions/{code}/players/{uid}; it expires with the session. */
-    public void savePlayer(@NonNull String code, @NonNull String uid, @NonNull PlayerSheet sheet,
+    /** Writes a player character's sheet to sessions/{code}/players/{docId}; it expires with the session. */
+    public void savePlayer(@NonNull String code, @NonNull String docId, @NonNull PlayerSheet sheet,
                            @NonNull Timestamp expiresAt, @NonNull CompletionCallback callback) {
         Map<String, Object> data = sheet.toMap();
         data.put(KEY_EXPIRES_AT, expiresAt);
-        withTimeout(playerRef(code, uid).set(data), "savePlayer " + code)
+        withTimeout(playerRef(code, docId).set(data), "savePlayer " + code)
                 .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "savePlayer failed for " + code, e);
@@ -138,9 +150,31 @@ public class SyncRepository {
     }
 
     /** Removes the player's own sheet when they leave. Best effort: it expires anyway. */
-    public void deletePlayer(@NonNull String code, @NonNull String uid) {
-        playerRef(code, uid).delete().addOnFailureListener(e ->
+    public void deletePlayer(@NonNull String code, @NonNull String docId) {
+        playerRef(code, docId).delete().addOnFailureListener(e ->
                 Log.w(TAG, "deletePlayer failed for " + code, e));
+    }
+
+    /**
+     * Writes the GM's copy of a player character (hp, max hp, conditions). Background work for
+     * the GM's app: failures are only logged, the next change tries again.
+     */
+    public void saveGmCopy(@NonNull String code, @NonNull String docId, @NonNull GmCopy copy,
+                           @NonNull Timestamp expiresAt) {
+        Map<String, Object> data = copy.toMap();
+        data.put(KEY_EXPIRES_AT, expiresAt);
+        gmCopyRef(code, docId).set(data).addOnFailureListener(e ->
+                Log.w(TAG, "saveGmCopy failed for " + docId, e));
+    }
+
+    /** Reads the GM's copy of this player character, from the server; null when there is none yet. */
+    public void fetchGmCopy(@NonNull String code, @NonNull String docId, @NonNull GmCopyCallback callback) {
+        withTimeout(gmCopyRef(code, docId).get(Source.SERVER), "fetchGmCopy " + code)
+                .addOnSuccessListener(doc -> callback.onResult(doc.exists() ? GmCopy.fromMap(doc.getData()) : null))
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "fetchGmCopy failed for " + code, e);
+                    callback.onFailure(e);
+                });
     }
 
     /**
@@ -165,19 +199,24 @@ public class SyncRepository {
     }
 
     /**
-     * Deletes a session: first its players (one by one, the rules allow that only while the
-     * session exists), then the session itself.
+     * Deletes a session: first its players and the GM's copies (one by one, the rules allow that
+     * only while the session exists), then the session itself.
      */
     public void deleteSession(@NonNull String code, @NonNull CompletionCallback callback) {
         DocumentReference ref = sessionRef(code);
-        withTimeout(ref.collection(COLLECTION_PLAYERS).get(Source.SERVER), "deleteSession read " + code)
+        Task<List<Object>> reads = Tasks.whenAllSuccess(
+                ref.collection(COLLECTION_PLAYERS).get(Source.SERVER),
+                ref.collection(COLLECTION_GM_COPIES).get(Source.SERVER));
+        withTimeout(reads, "deleteSession read " + code)
                 .continueWithTask(task -> {
                     if (!task.isSuccessful()) return Tasks.<Void>forException(failure(task));
                     List<Task<Void>> deletes = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : task.getResult()) {
-                        deletes.add(doc.getReference().delete());
+                    for (Object result : task.getResult()) {
+                        for (QueryDocumentSnapshot doc : (QuerySnapshot) result) {
+                            deletes.add(doc.getReference().delete());
+                        }
                     }
-                    return withTimeout(Tasks.whenAll(deletes), "deleteSession players " + code);
+                    return withTimeout(Tasks.whenAll(deletes), "deleteSession documents " + code);
                 })
                 .continueWithTask(task -> {
                     if (!task.isSuccessful()) return task;
@@ -234,13 +273,16 @@ public class SyncRepository {
                 .addOnFailureListener(e -> Log.w(TAG, "cleanup: query failed", e));
     }
 
+    /** Renews the players' sheets and the GM's copies to the session's new expiry. */
     private void extendPlayers(DocumentReference ref, Timestamp newExpiry) {
-        ref.collection(COLLECTION_PLAYERS).get(Source.SERVER).addOnSuccessListener(players -> {
-            for (QueryDocumentSnapshot doc : players) {
-                doc.getReference().update(KEY_EXPIRES_AT, newExpiry).addOnFailureListener(e ->
-                        Log.w(TAG, "extend player failed: " + doc.getId(), e));
-            }
-        }).addOnFailureListener(e -> Log.w(TAG, "extend players: read failed", e));
+        for (String collection : new String[]{COLLECTION_PLAYERS, COLLECTION_GM_COPIES}) {
+            ref.collection(collection).get(Source.SERVER).addOnSuccessListener(docs -> {
+                for (QueryDocumentSnapshot doc : docs) {
+                    doc.getReference().update(KEY_EXPIRES_AT, newExpiry).addOnFailureListener(e ->
+                            Log.w(TAG, "extend failed: " + collection + "/" + doc.getId(), e));
+                }
+            }).addOnFailureListener(e -> Log.w(TAG, "extend " + collection + ": read failed", e));
+        }
     }
 
     private static Exception failure(Task<?> task) {
@@ -257,8 +299,12 @@ public class SyncRepository {
         return db().collection(COLLECTION_SESSIONS).document(code);
     }
 
-    private DocumentReference playerRef(String code, String uid) {
-        return sessionRef(code).collection(COLLECTION_PLAYERS).document(uid);
+    private DocumentReference playerRef(String code, String docId) {
+        return sessionRef(code).collection(COLLECTION_PLAYERS).document(docId);
+    }
+
+    private DocumentReference gmCopyRef(String code, String docId) {
+        return sessionRef(code).collection(COLLECTION_GM_COPIES).document(docId);
     }
 
     /** Past its expiry a session counts as gone, like in the rules. */

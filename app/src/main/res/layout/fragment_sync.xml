@@ -1,473 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Table sync: Host (the GM starts a session for the active party and sees who joined) and Join
-     (a player joins with the code and sends their character). SyncFragment shows one tab at a
-     time and fills it. The maxLength values match PlayerSheet and firestore.rules. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Table sync for the GM: start a session for the active party, show the code to read out or
+     share, the players who sent a character, and Stop session. Players join from their own
+     character screen (fragment_player). SyncFragment fills it. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:clipToPadding="false"
+    android:paddingStart="@dimen/space_3"
+    android:paddingEnd="@dimen/space_3"
+    android:paddingBottom="@dimen/space_3">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/sync_tabs"
+    <LinearLayout
+        android:id="@+id/sync_host_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/colorBackground"
-        app:tabIndicatorColor="@color/rk_wordmark"
-        app:tabSelectedTextColor="@color/rk_wordmark"
-        app:tabTextColor="?attr/colorOnSurfaceVariant">
+        android:orientation="vertical">
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sync_tab_host" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sync_tab_join" />
-    </com.google.android.material.tabs.TabLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/space_3">
-
-        <FrameLayout
+        <TextView
+            android:id="@+id/sync_host_intro_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/space_3"
-            android:paddingEnd="@dimen/space_3">
+            android:layout_marginTop="@dimen/space_3"
+            android:textAppearance="@style/TextAppearance.Rekijan.Body"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="@string/sync_host_intro" />
 
-            <!-- ================= Host ================= -->
+        <Button
+            android:id="@+id/sync_start_button"
+            style="@style/Widget.Rekijan.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="@string/sync_start" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/sync_code_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3">
+
             <LinearLayout
-                android:id="@+id/sync_host_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/sync_host_intro_textView"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:textAppearance="@style/TextAppearance.Rekijan.Body"
+                    android:text="@string/sync_code_label"
+                    android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/sync_code_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.2"
                     android:textColor="?attr/colorOnSurface"
-                    tools:text="@string/sync_host_intro" />
-
-                <Button
-                    android:id="@+id/sync_start_button"
-                    style="@style/Widget.Rekijan.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:text="@string/sync_start" />
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/sync_code_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/sync_code_label"
-                            android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
-
-                        <TextView
-                            android:id="@+id/sync_code_textView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:letterSpacing="0.2"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textIsSelectable="true"
-                            android:textSize="34sp"
-                            android:textStyle="bold"
-                            tools:text="K7QX4M" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <Button
-                                android:id="@+id/sync_copy_button"
-                                style="@style/Widget.Rekijan.Button.Text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/sync_copy" />
-
-                            <Button
-                                android:id="@+id/sync_share_button"
-                                style="@style/Widget.Rekijan.Button.Text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/sync_share" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/sync_host_party_textView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            tools:text="Players join into Tuesday group." />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <TextView
-                    android:id="@+id/sync_players_label_textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="Joined players (3)" />
+                    android:textIsSelectable="true"
+                    android:textSize="34sp"
+                    android:textStyle="bold"
+                    tools:text="K7QX4M" />
 
                 <LinearLayout
-                    android:id="@+id/sync_players_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
-                <Button
-                    android:id="@+id/sync_stop_button"
-                    style="@style/Widget.Rekijan.Button.Tonal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:text="@string/sync_stop" />
-            </LinearLayout>
-
-            <!-- ================= Join ================= -->
-            <LinearLayout
-                android:id="@+id/sync_join_section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/sync_join_intro_textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:text="@string/sync_join_intro"
-                    android:textAppearance="@style/TextAppearance.Rekijan.Body"
-                    android:textColor="?attr/colorOnSurface" />
-
-                <LinearLayout
-                    android:id="@+id/sync_join_row"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:gravity="center_vertical"
                     android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/sync_code_layout"
-                        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
-                        android:layout_marginEnd="@dimen/space_2"
-                        android:layout_weight="1"
-                        android:hint="@string/sync_code_hint">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/sync_code_editText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:imeOptions="actionGo"
-                            android:importantForAutofill="no"
-                            android:inputType="textCapCharacters|textNoSuggestions"
-                            android:maxLength="8" />
-                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Button
-                        android:id="@+id/sync_join_button"
-                        style="@style/Widget.Rekijan.Button"
+                        android:id="@+id/sync_copy_button"
+                        style="@style/Widget.Rekijan.Button.Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_1"
-                        android:text="@string/sync_join" />
-                </LinearLayout>
+                        android:text="@string/sync_copy" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/sync_joined_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <Button
+                        android:id="@+id/sync_share_button"
+                        style="@style/Widget.Rekijan.Button.Text"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/sync_joined_textView"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textAppearance="@style/TextAppearance.Rekijan.Body"
-                            android:textColor="?attr/colorOnSurface"
-                            tools:text="Joined K7QX4M\nLast sent 20:14" />
-
-                        <Button
-                            android:id="@+id/sync_leave_button"
-                            style="@style/Widget.Rekijan.Button.Text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/sync_leave" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                        android:text="@string/sync_share" />
+                </LinearLayout>
 
                 <TextView
+                    android:id="@+id/sync_host_party_textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:text="@string/sync_your_character"
-                    android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/sync_name_layout"
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_name">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_name_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textPersonName|textCapWords"
-                        android:maxLength="50" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/sync_initiative_layout"
-                        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
-                        android:layout_marginEnd="@dimen/space_1"
-                        android:layout_weight="1"
-                        android:hint="@string/sync_field_initiative">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/sync_initiative_editText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:importantForAutofill="no"
-                            android:inputType="numberSigned"
-                            android:maxLength="6"
-                            android:selectAllOnFocus="true" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/sync_initiative_bonus_layout"
-                        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/space_1"
-                        android:layout_marginTop="@dimen/space_2"
-                        android:layout_weight="1"
-                        android:hint="@string/sync_field_initiative_bonus">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/sync_initiative_bonus_editText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:importantForAutofill="no"
-                            android:inputType="numberSigned"
-                            android:maxLength="6"
-                            android:selectAllOnFocus="true" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/sync_hp_layout"
-                        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
-                        android:layout_marginEnd="@dimen/space_1"
-                        android:layout_weight="1"
-                        android:hint="@string/sync_field_hp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/sync_hp_editText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:importantForAutofill="no"
-                            android:inputType="numberSigned"
-                            android:maxLength="7"
-                            android:selectAllOnFocus="true" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/sync_max_hp_layout"
-                        style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/space_1"
-                        android:layout_marginTop="@dimen/space_2"
-                        android:layout_weight="1"
-                        android:hint="@string/sync_field_max_hp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/sync_max_hp_editText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:importantForAutofill="no"
-                            android:inputType="number"
-                            android:maxLength="6"
-                            android:selectAllOnFocus="true" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_ac">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_ac_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLength="200" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_saves">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_saves_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLength="200" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_maneuvers">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_maneuvers_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLength="200" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_skills">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_skills_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLength="1000" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_attack_routine">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_attack_routine_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLength="1000" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_2"
-                    android:hint="@string/sync_field_notes">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sync_notes_editText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLength="2000" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <Button
-                    android:id="@+id/sync_send_button"
-                    style="@style/Widget.Rekijan.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    android:text="@string/sync_send" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_1"
-                    android:gravity="center_horizontal"
-                    android:text="@string/sync_send_hint"
                     android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Players join into Tuesday group." />
             </LinearLayout>
-        </FrameLayout>
-    </androidx.core.widget.NestedScrollView>
-</LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/sync_players_label_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Joined players (3)" />
+
+        <LinearLayout
+            android:id="@+id/sync_players_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/sync_stop_button"
+            style="@style/Widget.Rekijan.Button.Tonal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="@string/sync_stop" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

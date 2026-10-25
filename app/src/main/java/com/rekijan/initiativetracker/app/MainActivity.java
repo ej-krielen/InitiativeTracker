@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
@@ -26,35 +27,39 @@ import com.rekijan.initiativetracker.BuildConfig;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.feature.character.CharacterDefaults;
 import com.rekijan.initiativetracker.feature.character.CharacterDetailFragment;
+import com.rekijan.initiativetracker.feature.encounter.CharacterDialogs;
 import com.rekijan.initiativetracker.feature.encounter.Encounter;
 import com.rekijan.initiativetracker.feature.encounter.EncounterFragment;
 import com.rekijan.initiativetracker.feature.encounter.TurnDialogs;
 import com.rekijan.initiativetracker.feature.info.InfoDialogs;
 import com.rekijan.initiativetracker.feature.order.EditOrderFragment;
-import com.rekijan.initiativetracker.feature.party.Party;
 import com.rekijan.initiativetracker.feature.party.PartyBook;
 import com.rekijan.initiativetracker.feature.party.PartyDialogs;
-import com.rekijan.initiativetracker.feature.party.PartyNames;
 import com.rekijan.initiativetracker.feature.party.PartySlots;
+import com.rekijan.initiativetracker.feature.player.PlayerFragment;
+import com.rekijan.initiativetracker.feature.profile.ProfilesFragment;
 import com.rekijan.initiativetracker.feature.sync.SyncFragment;
 import com.rekijan.initiativetracker.monetization.BillingManager;
-
-import java.util.List;
 
 import nl.rekijan.ads.AdConsentManager;
 import nl.rekijan.ads.RekijanBannerAdView;
 
 /**
- * The only activity. Hosts the encounter list and, in portrait, swaps it for the character
- * details or the Edit Order screen; in landscape (layout-land) the details sit next to the list.
- * The toolbar holds the encounter actions; the navigation drawer ({@link NavDrawer}) holds the
- * parties and the app items. It also runs the party actions, the ad consent flow and the ad bar,
- * billing (tips, Remove Ads, party packs), opens Table sync and tells who joined through it, and saves the fight when the app goes to the background.
+ * The only activity. Opens the profile that was used last: a party's encounter (the GM) or a
+ * player character ({@link PlayerFragment}). Back from there, or Switch profile in the drawer,
+ * goes to the profile list ({@link ProfilesFragment}); back on the list closes the app.
+ * <p>
+ * For the GM, the encounter list is swapped in portrait for the character details, Edit order or
+ * Table sync; in landscape (layout-land) the details sit next to the list. The toolbar holds Next
+ * turn and Sort; the navigation drawer ({@link NavDrawer}) holds Add character, Delete
+ * characters, Edit order and Table sync, and the app items. It also runs the ad consent flow and
+ * the ad bar, billing (tips, Remove Ads, party packs), tells who joined through Table sync, and
+ * saves the fight when the app goes to the background.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
  */
-public class MainActivity extends AppCompatActivity implements NavDrawer.Listener {
+public class MainActivity extends AppCompatActivity implements NavDrawer.Listener, ProfilesFragment.Host {
 
     private static final String LOG_TAG = "MainActivity";
 
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     private MaterialToolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavDrawer navDrawer;
+    private OnBackPressedCallback profileRootBack;
     private boolean isTwoPane;
 
     /**
@@ -103,13 +109,21 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         encounter = app.getEncounter();
         isTwoPane = findViewById(R.id.second_fragment_container) != null;
 
+        // Back callbacks: the one added last wins, so the drawer (close first) comes after this one
+        setUpProfileRootBack();
         setUpDrawer();
         applySystemBarInsets();
 
         setUpPanes(savedInstanceState);
-        getSupportFragmentManager().addOnBackStackChangedListener(this::onBackStackChanged);
-        onBackStackChanged();
-        showActiveParty();
+        getSupportFragmentManager().addOnBackStackChangedListener(this::onScreenChanged);
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                                              @NonNull View v, @Nullable Bundle savedInstanceState) {
+                // Root screens are swapped without the back stack, so follow the views instead
+                if (f.getId() == R.id.main_fragment_container) onScreenChanged();
+            }
+        }, false);
 
         adBar = findViewById(R.id.bottomAdBar);
         if (!app.isAdsRemoved()) {
@@ -134,7 +148,8 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
                 Toast.makeText(this, getString(R.string.billing_party_pack_thanks,
                         app.getParties().getLimit()), Toast.LENGTH_LONG).show();
             }
-            refreshDrawer();
+            Fragment main = mainPane();
+            if (main instanceof ProfilesFragment) ((ProfilesFragment) main).refresh();
         });
         billingManager.start();
 
@@ -171,9 +186,9 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        Fragment mainPane = getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        boolean otherScreen = mainPane instanceof EditOrderFragment || mainPane instanceof SyncFragment;
-        menu.setGroupVisible(R.id.group_encounter, !otherScreen);
+        Fragment main = mainPane();
+        boolean onEncounter = main instanceof EncounterFragment || main instanceof CharacterDetailFragment;
+        menu.setGroupVisible(R.id.group_encounter, onEncounter);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -186,85 +201,37 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         } else if (id == R.id.action_settings_sort) {
             closeDetailsInOnePane();
             TurnDialogs.askSort(this, encounter);
-        } else if (id == R.id.action_settings_add_character) {
-            closeDetailsInOnePane();
-            encounter.add(CharacterDefaults.newCharacter(this));
-        } else if (id == R.id.action_settings_delete_character) {
-            InfoDialogs.howToDeleteCharacter(this);
-        } else if (id == R.id.action_settings_set_pcs_max_hp) {
-            showSkippedPcs(encounter.setPcsToMaxHp());
         } else {
             return super.onOptionsItemSelected(item);
         }
         return true;
     }
 
-    // ---------------------------------------------------------------- Drawer: parties
+    // ---------------------------------------------------------------- Profiles
 
     @Override
-    public void onSwitchParty(String id) {
-        if (id.equals(app.getParties().getActiveId())) return;
-        app.switchParty(id);
-        onActivePartyChanged();
+    public void openParty(String id) {
+        app.openParty(id);
+        showRoot(EncounterFragment.newInstance());
     }
 
     @Override
-    public void onNewParty() {
+    public void openPlayer(String id) {
+        app.openPlayer(id);
+        showRoot(PlayerFragment.newInstance(id));
+    }
+
+    @Override
+    public void showPartyLimit() {
         PartyBook parties = app.getParties();
-        if (!parties.canCreate()) {
-            showPartyLimit();
-            return;
-        }
-        String suggestion = PartyNames.newName(getString(R.string.party_new_name_prefix), parties.getParties());
-        PartyDialogs.askName(this, R.string.dialog_party_new_title, R.string.dialog_party_create,
-                suggestion, parties, null, name -> {
-                    Party party = app.createParty(name);
-                    if (party != null) onSwitchParty(party.getId());
-                });
+        int level = PartySlots.nextPackLevel(parties.getPackLevel());
+        String price = level > 0 ? billingManager.getPartyPackPrice(level) : null;
+        PartyDialogs.showLimit(this, parties.getUsed(), parties.getLimit(), price,
+                () -> billingManager.purchasePartyPack(this, level));
     }
 
     @Override
-    public void onRenameParty(String id) {
-        Party party = app.getParties().get(id);
-        if (party == null) return;
-        PartyDialogs.askName(this, R.string.dialog_party_rename_title, R.string.dialog_party_save,
-                party.getName(), app.getParties(), id, name -> {
-                    app.getParties().rename(id, name);
-                    showActiveParty();
-                    refreshDrawer();
-                });
-    }
-
-    @Override
-    public void onDuplicateParty(String id) {
-        if (!app.getParties().canCreate()) {
-            showPartyLimit();
-            return;
-        }
-        if (app.duplicateParty(id) != null) refreshDrawer();
-    }
-
-    @Override
-    public void onDeleteParty(String id) {
-        Party party = app.getParties().get(id);
-        if (party == null) return;
-        if (app.getParties().getUsed() <= 1) {
-            Toast.makeText(this, R.string.toast_party_last, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        PartyDialogs.confirmDelete(this, party.getName(), app.characterCount(id), () -> {
-            boolean wasActive = id.equals(app.getParties().getActiveId());
-            if (!app.deleteParty(id)) return;
-            if (wasActive) {
-                onActivePartyChanged();
-            } else {
-                refreshDrawer();
-            }
-        });
-    }
-
-    @Override
-    public void onGetMoreParties() {
+    public void offerMoreParties() {
         PartyBook parties = app.getParties();
         int level = PartySlots.nextPackLevel(parties.getPackLevel());
         String price = level > 0 ? billingManager.getPartyPackPrice(level) : null;
@@ -276,16 +243,51 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
                 () -> billingManager.purchasePartyPack(this, level));
     }
 
+    @Nullable
+    @Override
+    public String nextPackPrice() {
+        int level = PartySlots.nextPackLevel(app.getParties().getPackLevel());
+        return level > 0 && billingManager != null ? billingManager.getPartyPackPrice(level) : null;
+    }
+
+    // ---------------------------------------------------------------- Drawer
+
+    @Override
+    public void onSwitchProfile() {
+        showRoot(ProfilesFragment.newInstance());
+    }
+
+    @Override
+    public void onAddCharacter() {
+        closeDetailsInOnePane();
+        encounter.add(CharacterDefaults.newCharacter(this));
+    }
+
+    @Override
+    public void onDeleteCharacters() {
+        closeDetailsInOnePane();
+        CharacterDialogs.askDeleteCharacters(this, encounter, this::showFirstCharacterInTwoPanes);
+    }
+
+    @Override
+    public void onEditOrder() {
+        if (mainPane() instanceof EditOrderFragment) return;
+        closeDetailsInOnePane();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_fragment_container, EditOrderFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+    }
+
     @Override
     public void onTableSync() {
-        if (getSupportFragmentManager().findFragmentById(R.id.main_fragment_container) instanceof SyncFragment) return;
+        if (mainPane() instanceof SyncFragment) return;
+        closeDetailsInOnePane();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_fragment_container, SyncFragment.newInstance())
                 .addToBackStack(null)
                 .commit();
     }
-
-    // ---------------------------------------------------------------- Drawer: app items
 
     @Override
     public void onRemoveAds() {
@@ -328,24 +330,19 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         }
     }
 
-    public void showEditOrder() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_fragment_container, EditOrderFragment.newInstance())
-                .addToBackStack(null)
-                .commit();
-    }
-
     /**
-     * Puts the encounter in the main pane and, in landscape, the details of the first character
-     * next to it. Rotating switches between one and two panes, so the details move along.
+     * First start: the profile used last. After rotating, the screens are restored; only the
+     * details move between one and two panes.
      */
     private void setUpPanes(Bundle savedInstanceState) {
         FragmentManager fm = getSupportFragmentManager();
         if (savedInstanceState == null) {
+            String playerId = app.getOpenPlayerId();
             fm.beginTransaction()
-                    .add(R.id.main_fragment_container, EncounterFragment.newInstance())
+                    .add(R.id.main_fragment_container, playerId != null
+                            ? PlayerFragment.newInstance(playerId) : EncounterFragment.newInstance())
                     .commit();
-            if (isTwoPane && encounter.size() > 0) showCharacterDetail(0);
+            if (playerId == null) showFirstCharacterInTwoPanes();
             return;
         }
 
@@ -361,30 +358,36 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             int position = ((CharacterDetailFragment) mainPane).getPosition();
             fm.popBackStackImmediate();
             showCharacterDetail(position);
-        } else if (detailPane == null && encounter.size() > 0) {
-            showCharacterDetail(0);
+        } else if (detailPane == null && isGmScreen(mainPane)) {
+            showFirstCharacterInTwoPanes();
         }
     }
 
     /**
-     * Another party is in the fight now: back to the list (the open details or Edit Order belong to
-     * the old party), the details of its first character in landscape, and the new name on top.
+     * Puts a root screen (encounter, player or profile list) in the main pane: the back stack and
+     * the details pane are cleared, and in landscape the encounter gets its first character's details.
      */
-    private void onActivePartyChanged() {
+    private void showRoot(Fragment root) {
         FragmentManager fm = getSupportFragmentManager();
         if (fm.getBackStackEntryCount() > 0) {
             fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
-        if (isTwoPane) {
-            Fragment detailPane = fm.findFragmentById(R.id.second_fragment_container);
-            if (encounter.size() > 0) {
-                showCharacterDetail(0);
-            } else if (detailPane != null) {
-                fm.beginTransaction().remove(detailPane).commit();
-            }
+        fm.beginTransaction().replace(R.id.main_fragment_container, root).commitNow();
+        Fragment detailPane = fm.findFragmentById(R.id.second_fragment_container);
+        if (detailPane != null) fm.beginTransaction().remove(detailPane).commitNow();
+        if (root instanceof EncounterFragment) showFirstCharacterInTwoPanes();
+        onScreenChanged();
+    }
+
+    /** In landscape: the details of the first character, or nothing when the party is empty. */
+    private void showFirstCharacterInTwoPanes() {
+        if (!isTwoPane) return;
+        if (encounter.size() > 0) {
+            showCharacterDetail(0);
+        } else {
+            Fragment detailPane = getSupportFragmentManager().findFragmentById(R.id.second_fragment_container);
+            if (detailPane != null) getSupportFragmentManager().beginTransaction().remove(detailPane).commit();
         }
-        showActiveParty();
-        refreshDrawer();
     }
 
     private void nextTurn() {
@@ -395,19 +398,23 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         if (isTwoPane) showCharacterDetail(0);
     }
 
-    /** Encounter actions from the menu go back to the list first when there is one pane. */
+    /** Encounter actions go back to the list first when there is one pane. */
     private void closeDetailsInOnePane() {
         FragmentManager fm = getSupportFragmentManager();
-        if (!isTwoPane && fm.getBackStackEntryCount() > 0) fm.popBackStack();
+        if (!isTwoPane && fm.getBackStackEntryCount() > 0) fm.popBackStackImmediate();
     }
 
-    private void showSkippedPcs(List<String> names) {
-        if (names.isEmpty()) return;
-        String message = getString(R.string.toast_max_hp, TextUtils.join("\n", names));
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    @Nullable
+    private Fragment mainPane() {
+        return getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
     }
 
-    // ---------------------------------------------------------------- Drawer, toolbar, ads
+    /** @return True for the GM's screens: the encounter and what opens from it. */
+    private static boolean isGmScreen(@Nullable Fragment f) {
+        return f != null && !(f instanceof PlayerFragment) && !(f instanceof ProfilesFragment);
+    }
+
+    // ---------------------------------------------------------------- Drawer, toolbar, back, ads
 
     private void setUpDrawer() {
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -425,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerStateChanged(int newState) {
-                // Fresh counts and round before it slides in, also when swiped open
+                // Fresh round and code before it slides in, also when swiped open
                 if (newState != DrawerLayout.STATE_IDLE && !drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     refreshDrawer();
                 }
@@ -441,10 +448,20 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
                 closeDrawerOnBack.setEnabled(false);
             }
         });
-        refreshDrawer();
     }
 
-    /** Fills the drawer: parties, slots, the next pack (only when it exists in Play), app items. */
+    /** Back on a profile's main screen (encounter or character) goes to the profile list. */
+    private void setUpProfileRootBack() {
+        profileRootBack = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                showRoot(ProfilesFragment.newInstance());
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, profileRootBack);
+    }
+
+    /** Fills the drawer for the screen that is open. */
     private void refreshDrawer() {
         if (navDrawer == null) return;
         boolean adsRemoved = app.isAdsRemoved();
@@ -456,24 +473,25 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         // Only when Google's consent SDK says users must be able to change their choice (usually EEA/UK)
         boolean showPrivacySettings = !adsRemoved
                 && adConsentManager != null && adConsentManager.isPrivacyOptionsRequired();
-        int nextLevel = PartySlots.nextPackLevel(app.getParties().getPackLevel());
-        String nextPackPrice = nextLevel > 0 && billingManager != null
-                ? billingManager.getPartyPackPrice(nextLevel) : null;
-        navDrawer.refresh(app, new NavDrawer.State(removeAdsPrice, showPrivacySettings, nextPackPrice));
+        Fragment main = mainPane();
+        NavDrawer.Mode mode;
+        String line;
+        if (main instanceof ProfilesFragment) {
+            mode = NavDrawer.Mode.PROFILES;
+            line = null;
+        } else if (main instanceof PlayerFragment) {
+            mode = NavDrawer.Mode.PLAYER;
+            line = getString(R.string.nav_player_line, playerName(((PlayerFragment) main).getCharacterId()));
+        } else {
+            mode = NavDrawer.Mode.GM;
+            line = getString(R.string.nav_active_party, app.getParties().getActive().getName(), encounter.getRound());
+        }
+        navDrawer.refresh(app, new NavDrawer.State(mode, line, removeAdsPrice, showPrivacySettings));
     }
 
-    /** All slots used: offers the next pack when it exists in Play, else says to delete one. */
-    private void showPartyLimit() {
-        PartyBook parties = app.getParties();
-        int level = PartySlots.nextPackLevel(parties.getPackLevel());
-        String price = level > 0 ? billingManager.getPartyPackPrice(level) : null;
-        PartyDialogs.showLimit(this, parties.getUsed(), parties.getLimit(), price,
-                () -> billingManager.purchasePartyPack(this, level));
-    }
-
-    /** The active party's name under the app name in the toolbar. */
-    private void showActiveParty() {
-        toolbar.setSubtitle(app.getParties().getActive().getName());
+    private String playerName(String id) {
+        String name = app.getPlayers().getName(id);
+        return name.isEmpty() ? getString(R.string.empty_character_name) : name;
     }
 
     /** No ads (consent failed, or Remove Ads bought): the bar goes away and the drawer updates. */
@@ -483,22 +501,44 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         refreshDrawer();
     }
 
-    /** The menu icon opens the drawer on the list; on details or Edit Order it is a back arrow. */
-    private void onBackStackChanged() {
-        boolean canGoBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+    /**
+     * Another screen is open: the toolbar subtitle, the menu or back arrow, which back goes to the
+     * profile list, the second pane (only for the GM) and the drawer follow.
+     */
+    private void onScreenChanged() {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment main = mainPane();
+        boolean canGoBack = fm.getBackStackEntryCount() > 0;
+
+        if (main instanceof ProfilesFragment) {
+            toolbar.setSubtitle(null);
+        } else if (main instanceof PlayerFragment) {
+            toolbar.setSubtitle(getString(R.string.nav_player_line, playerName(((PlayerFragment) main).getCharacterId())));
+        } else {
+            toolbar.setSubtitle(app.getParties().getActive().getName());
+        }
+
         if (canGoBack) {
             toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
             toolbar.setNavigationContentDescription(R.string.nav_back);
-            toolbar.setNavigationOnClickListener(v -> getSupportFragmentManager().popBackStack());
+            toolbar.setNavigationOnClickListener(v -> fm.popBackStack());
         } else {
             toolbar.setNavigationIcon(R.drawable.ic_menu);
             toolbar.setNavigationContentDescription(R.string.nav_drawer_open);
             toolbar.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
         }
-        // The drawer only swipes open on the list, so a swipe on the details doesn't open it
+        // The drawer only swipes open on a root screen, so a swipe on the details doesn't open it
         drawerLayout.setDrawerLockMode(canGoBack
                 ? DrawerLayout.LOCK_MODE_LOCKED_CLOSED : DrawerLayout.LOCK_MODE_UNLOCKED);
+        profileRootBack.setEnabled(!canGoBack && !(main instanceof ProfilesFragment));
+
+        if (isTwoPane) {
+            int visibility = isGmScreen(main) ? View.VISIBLE : View.GONE;
+            findViewById(R.id.second_fragment_container).setVisibility(visibility);
+            findViewById(R.id.pane_divider).setVisibility(visibility);
+        }
         invalidateOptionsMenu();
+        refreshDrawer();
     }
 
     /**

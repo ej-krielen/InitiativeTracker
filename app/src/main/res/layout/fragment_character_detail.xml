@@ -1,258 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The details of one character: PC or not, the numbers, the free-text stat lines, notes and the
-     (de)buffs. CharacterDetailFragment binds it. -->
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!-- The details of one character in the GM's encounter: the name, then the sheet with the Stats
+     and Conditions tabs (view_character_sheet). CharacterDetailFragment binds it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:paddingBottom="@dimen/space_3">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/character_detail_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:paddingStart="@dimen/space_3"
-        android:paddingEnd="@dimen/space_3">
+        android:paddingTop="@dimen/space_2"
+        android:paddingEnd="@dimen/space_3"
+        android:paddingBottom="@dimen/space_1"
+        android:textAppearance="?attr/textAppearanceTitleLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold"
+        tools:text="Merisiel" />
 
-        <TextView
-            android:id="@+id/character_detail_textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/space_2"
-            android:paddingBottom="@dimen/space_1"
-            android:textAppearance="?attr/textAppearanceTitleLarge"
-            android:textColor="?attr/colorOnSurface"
-            android:textStyle="bold"
-            tools:text="Character details for: Valeros" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/is_pc_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/touch_target"
-            android:text="@string/char_detail_switch_pc_on"
-            android:textAppearance="?attr/textAppearanceBodyLarge" />
-
-        <!-- Numbers, two per row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/space_1"
-                android:layout_weight="1"
-                android:hint="@string/char_detail_initiative_bonus">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/initiative_bonus_editText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:imeOptions="actionDone"
-                    android:importantForAutofill="no"
-                    android:inputType="numberSigned"
-                    android:selectAllOnFocus="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/space_1"
-                android:layout_weight="1"
-                android:hint="@string/char_detail_max_hp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/max_hp_editText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:imeOptions="actionDone"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:selectAllOnFocus="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/space_1"
-                android:layout_weight="1"
-                android:hint="@string/char_detail_fast_healing">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/fast_healing_editText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:imeOptions="actionDone"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:selectAllOnFocus="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/space_1"
-                android:layout_weight="1"
-                android:hint="@string/char_detail_regeneration">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/regeneration_editText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:imeOptions="actionDone"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:selectAllOnFocus="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
-        <!-- Free-text stat lines -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:hint="@string/char_detail_skills">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/skills_editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:hint="@string/char_detail_attack_routine"
-            app:placeholderText="@string/char_detail_attack_routine_hint">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/attack_routine_editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:hint="@string/char_detail_ac">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/ac_editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:hint="@string/char_detail_maneuvers">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/maneuvers_editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:hint="@string/char_detail_saves">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/saves_editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_2"
-            android:hint="@string/char_detail_notes">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/notes_editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="top|start"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine|textCapSentences"
-                android:minLines="4" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- (De)buffs: heading with Clear all and Add, then the list -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3"
-            android:layout_marginBottom="@dimen/space_2"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/char_detail_debuffs"
-                android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/clear_all_debuffs_button"
-                style="@style/Widget.Rekijan.Button.Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/char_detail_clear_button" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/add_debuff_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/char_detail_add_button"
-                app:icon="@drawable/ic_add" />
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/debuff_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    <include
+        android:id="@+id/character_sheet"
+        layout="@layout/view_character_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One row in the profile list: name, a line under it (characters in the party, or the session
+     with a status light), the role (GM or Player) and the three dots for its options. The open
+     profile is marked. ProfilesFragment fills it. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_1"
+    android:layout_marginBottom="@dimen/space_1"
+    android:clickable="true"
+    android:focusable="true"
+    app:contentPaddingBottom="@dimen/space_2"
+    app:contentPaddingLeft="@dimen/space_3"
+    app:contentPaddingRight="0dp"
+    app:contentPaddingTop="@dimen/space_2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/touch_target"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/profile_name_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Rekijan.Body"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                tools:text="Curse of Strahd" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/profile_status_lamp"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="@dimen/space_1"
+                    android:background="@drawable/bg_status_lamp"
+                    android:backgroundTint="@color/rk_status_on"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/profile_detail_textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="6 characters · hosting K7QX4M" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/profile_role_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_2"
+            android:paddingTop="2dp"
+            android:paddingEnd="@dimen/space_2"
+            android:paddingBottom="2dp"
+            android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+            tools:background="@color/rk_npc_container"
+            tools:text="GM" />
+
+        <ImageButton
+            android:id="@+id/profile_more_button"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            app:tint="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

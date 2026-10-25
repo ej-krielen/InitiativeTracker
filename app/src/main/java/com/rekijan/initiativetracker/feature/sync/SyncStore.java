@@ -14,8 +14,8 @@ import java.util.Map;
  * <ul>
  *     <li>GM side: the code of the hosted session, the party it sends to, and per player the
  *     sentAt of the sheet last applied (see {@link SyncMerge}).</li>
- *     <li>Player side: the code of the joined session, the character form, and when it was last
- *     sent.</li>
+ *     <li>Player side, per player character: the code of the joined session, and when it was
+ *     last sent and last synced. The character itself is kept by PlayerBook.</li>
  * </ul>
  * Plain Java on top of {@link KeyValueStore}, so it is unit tested.
  *
@@ -27,9 +27,9 @@ public class SyncStore {
     static final String KEY_HOST_CODE = "sync_host_code";
     static final String KEY_HOST_PARTY = "sync_host_party_id";
     static final String KEY_HOST_APPLIED = "sync_host_applied";
-    static final String KEY_PLAYER_CODE = "sync_player_code";
-    static final String KEY_PLAYER_SHEET = "sync_player_sheet";
-    static final String KEY_PLAYER_SENT_AT = "sync_player_sent_at";
+    static final String KEY_PLAYER_CODE_PREFIX = "sync_player_code_";
+    static final String KEY_PLAYER_SENT_AT_PREFIX = "sync_player_sent_at_";
+    static final String KEY_PLAYER_SYNCED_AT_PREFIX = "sync_player_synced_at_";
 
     private static final Gson GSON = new Gson();
     private static final Type APPLIED_TYPE = new TypeToken<HashMap<String, Long>>() {
@@ -86,47 +86,28 @@ public class SyncStore {
         values.edit().putString(KEY_HOST_APPLIED, GSON.toJson(applied, APPLIED_TYPE)).apply();
     }
 
-    // ---------------------------------------------------------------- Player
+    // ---------------------------------------------------------------- Player (per character)
 
-    /** @return The joined session's code, or null when not joined. */
-    public String getPlayerCode() {
-        return values.getString(KEY_PLAYER_CODE, null);
+    /** @return The code of the session this player character joined, or null when not joined. */
+    public String getPlayerCode(String characterId) {
+        return values.getString(KEY_PLAYER_CODE_PREFIX + characterId, null);
     }
 
-    public void setPlayerCode(String code) {
+    /** Joins (code) or leaves (null); leaving also forgets when it was last sent and synced. */
+    public void setPlayerCode(String characterId, String code) {
         if (code == null) {
-            values.edit().remove(KEY_PLAYER_CODE).apply();
+            values.edit()
+                    .remove(KEY_PLAYER_CODE_PREFIX + characterId)
+                    .remove(KEY_PLAYER_SYNCED_AT_PREFIX + characterId)
+                    .apply();
         } else {
-            values.edit().putString(KEY_PLAYER_CODE, code).apply();
+            values.edit().putString(KEY_PLAYER_CODE_PREFIX + characterId, code).apply();
         }
     }
 
-    /** @return The saved character form, or an empty one. */
-    public PlayerSheet loadPlayerSheet() {
-        String json = values.getString(KEY_PLAYER_SHEET, null);
-        if (json != null) {
-            try {
-                PlayerSheet sheet = GSON.fromJson(json, PlayerSheet.class);
-                if (sheet != null) return sheet.cleaned();
-            } catch (JsonParseException e) {
-                // Unreadable: start with an empty form
-            }
-        }
-        return new PlayerSheet();
-    }
-
-    public void savePlayerSheet(PlayerSheet sheet) {
-        values.edit().putString(KEY_PLAYER_SHEET, GSON.toJson(sheet.cleaned())).apply();
-    }
-
-    /** @return When the form was last sent, in ms, or 0 when never. */
-    public long getPlayerSentAt() {
-        String text = values.getString(KEY_PLAYER_SENT_AT, null);
-        try {
-            return text != null ? Long.parseLong(text) : 0;
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    /** @return When this character was last sent, in ms, or 0 when never. */
+    public long getPlayerSentAt(String characterId) {
+        return readLong(KEY_PLAYER_SENT_AT_PREFIX + characterId);
     }
 
     /**
@@ -136,11 +117,38 @@ public class SyncStore {
      * @param now The current time in ms.
      * @return The sentAt to use; not saved until {@link #setPlayerSentAt}.
      */
-    public long nextSentAt(long now) {
-        return Math.max(now, getPlayerSentAt() + 1);
+    public long nextSentAt(String characterId, long now) {
+        return Math.max(now, getPlayerSentAt(characterId) + 1);
     }
 
-    public void setPlayerSentAt(long sentAt) {
-        values.edit().putString(KEY_PLAYER_SENT_AT, Long.toString(sentAt)).apply();
+    public void setPlayerSentAt(String characterId, long sentAt) {
+        values.edit().putString(KEY_PLAYER_SENT_AT_PREFIX + characterId, Long.toString(sentAt)).apply();
+    }
+
+    /** @return When the GM's copy was last pulled with Sync, in ms, or 0 when never. */
+    public long getPlayerSyncedAt(String characterId) {
+        return readLong(KEY_PLAYER_SYNCED_AT_PREFIX + characterId);
+    }
+
+    public void setPlayerSyncedAt(String characterId, long syncedAt) {
+        values.edit().putString(KEY_PLAYER_SYNCED_AT_PREFIX + characterId, Long.toString(syncedAt)).apply();
+    }
+
+    /** Forgets everything about a deleted player character. */
+    public void forgetPlayer(String characterId) {
+        values.edit()
+                .remove(KEY_PLAYER_CODE_PREFIX + characterId)
+                .remove(KEY_PLAYER_SENT_AT_PREFIX + characterId)
+                .remove(KEY_PLAYER_SYNCED_AT_PREFIX + characterId)
+                .apply();
+    }
+
+    private long readLong(String key) {
+        String text = values.getString(key, null);
+        try {
+            return text != null ? Long.parseLong(text) : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

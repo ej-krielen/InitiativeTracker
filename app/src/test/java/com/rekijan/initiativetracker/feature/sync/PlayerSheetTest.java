@@ -58,6 +58,28 @@ public class PlayerSheetTest {
     }
 
     @Test
+    public void ofTakesTheStatsOfAPlayersCharacter() {
+        CharacterModel c = new CharacterModel();
+        c.setCharacterName(" Seoni ");
+        c.setInitiative(14);
+        c.setInitiativeBonus(3);
+        c.setHp(21);
+        c.setMaxHp(26);
+        c.setAc("15");
+        c.setCharacterNotes("Arcane bond");
+        c.getDebuffList().add(new DebuffModel("Shield", 10, "+4 AC"));
+        PlayerSheet s = PlayerSheet.of(c);
+        assertEquals("Seoni", s.name);
+        assertEquals(14, s.initiative);
+        assertEquals(3, s.initiativeBonus);
+        assertEquals(21, s.hp);
+        assertEquals(26, s.maxHp);
+        assertEquals("15", s.ac);
+        assertEquals("Arcane bond", s.notes);
+        assertEquals(0, s.sentAt);
+    }
+
+    @Test
     public void numbersAreSentAsLong() {
         Map<String, Object> map = valeros().toMap();
         assertTrue(map.get(PlayerSheet.KEY_HP) instanceof Long);

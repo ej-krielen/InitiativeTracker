@@ -1,31 +1,24 @@
 package com.rekijan.initiativetracker.feature.character;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
-import com.rekijan.initiativetracker.core.util.TextBinding;
 import com.rekijan.initiativetracker.feature.encounter.Encounter;
 
-import java.util.function.Consumer;
-
 /**
- * The details of one character: PC or not, initiative bonus, max hp, fast healing,
- * regeneration, the free-text stat lines, notes and the (de)buffs. In portrait it replaces the
- * list; in landscape it is shown next to it.
+ * The details of one character in the GM's encounter: the name on top, then the sheet with the
+ * Stats and Conditions tabs ({@link CharacterSheet}). In portrait it replaces the list; in
+ * landscape it is shown next to it. The open tab survives rotation.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 1-6-2019
@@ -33,6 +26,9 @@ import java.util.function.Consumer;
 public class CharacterDetailFragment extends Fragment {
 
     private static final String ARG_POSITION = "POSITION";
+    private static final String STATE_TAB = "sheet_tab";
+
+    private CharacterSheet sheet;
 
     public static CharacterDetailFragment newInstance(int position) {
         CharacterDetailFragment fragment = new CharacterDetailFragment();
@@ -65,53 +61,19 @@ public class CharacterDetailFragment extends Fragment {
         CharacterModel character = encounter.get(position);
 
         TextView titleTextView = view.findViewById(R.id.character_detail_textView);
-        titleTextView.setText(getString(R.string.character_details_name_title, character.getCharacterName()));
+        String name = character.getCharacterName();
+        titleTextView.setText(TextUtils.isEmpty(name) ? getString(R.string.empty_character_name) : name);
 
-        CompoundButton pcSwitch = view.findViewById(R.id.is_pc_switch);
-        pcSwitch.setChecked(character.isPC());
-        pcSwitch.setOnCheckedChangeListener((button, isChecked) -> {
-            character.setPC(isChecked);
-            encounter.notifyChanged();
-        });
-
-        TextBinding.bindInt(view.findViewById(R.id.initiative_bonus_editText), character.getInitiativeBonus(),
-                CharacterModel.MIN_INITIATIVE, CharacterModel.MAX_INITIATIVE, character::setInitiativeBonus);
-        TextBinding.bindInt(view.findViewById(R.id.max_hp_editText), character.getMaxHp(),
-                0, CharacterModel.MAX_HP, character::setMaxHp);
-        TextBinding.bindInt(view.findViewById(R.id.fast_healing_editText), character.getFastHealing(),
-                0, CharacterModel.MAX_HEALING, character::setFastHealing);
-        TextBinding.bindInt(view.findViewById(R.id.regeneration_editText), character.getRegeneration(),
-                0, CharacterModel.MAX_HEALING, character::setRegeneration);
-        bindText(view, R.id.skills_editText, character.getSkills(), character::setSkills);
-        bindText(view, R.id.attack_routine_editText, character.getAttackRoutine(), character::setAttackRoutine);
-        bindText(view, R.id.ac_editText, character.getAc(), character::setAc);
-        bindText(view, R.id.maneuvers_editText, character.getManeuvers(), character::setManeuvers);
-        bindText(view, R.id.saves_editText, character.getSaves(), character::setSaves);
-        bindText(view, R.id.notes_editText, character.getCharacterNotes(), character::setCharacterNotes);
-
-        RecyclerView debuffRecyclerView = view.findViewById(R.id.debuff_recyclerView);
-        debuffRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        DebuffAdapter adapter = new DebuffAdapter(character);
-        debuffRecyclerView.setAdapter(adapter);
-
-        view.findViewById(R.id.clear_all_debuffs_button).setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onClick(View v) {
-                character.getDebuffList().clear();
-                adapter.notifyDataSetChanged();
-                encounter.notifyChanged();
-            }
-        });
-        view.findViewById(R.id.add_debuff_button).setOnClickListener(v -> {
-            character.getDebuffList().add(new DebuffModel());
-            adapter.notifyItemInserted(character.getDebuffList().size() - 1);
-            encounter.notifyChanged();
-        });
+        sheet = new CharacterSheet(view.findViewById(R.id.character_sheet), false, encounter::notifyChanged);
+        sheet.bind(character);
+        if (savedInstanceState != null) {
+            sheet.selectTab(savedInstanceState.getInt(STATE_TAB, CharacterSheet.TAB_STATS));
+        }
     }
 
-    private static void bindText(View root, int id, String value, Consumer<String> onChanged) {
-        EditText editText = root.findViewById(id);
-        TextBinding.bindText(editText, value, onChanged);
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (sheet != null) outState.putInt(STATE_TAB, sheet.getSelectedTab());
     }
 }

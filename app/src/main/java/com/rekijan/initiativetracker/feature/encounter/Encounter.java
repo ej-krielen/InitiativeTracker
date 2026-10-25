@@ -4,6 +4,7 @@ import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.DebuffModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -94,15 +95,31 @@ public class Encounter {
      */
     public void remove(int position) {
         if (!isValidPosition(position)) return;
-        CharacterModel removed = characters.remove(position);
-        if (removed.isFirstInRound() && !characters.isEmpty()) {
-            characters.get(position % characters.size()).setFirstInRound(true);
-        }
+        removeSilently(position);
         notifyChanged();
     }
 
     public void remove(CharacterModel character) {
         remove(characters.indexOf(character));
+    }
+
+    /** Removes several characters (Delete characters in the drawer), with one change notice. */
+    public void removeAll(Collection<CharacterModel> toRemove) {
+        boolean changed = false;
+        for (CharacterModel c : toRemove) {
+            int position = characters.indexOf(c);
+            if (position < 0) continue;
+            removeSilently(position);
+            changed = true;
+        }
+        if (changed) notifyChanged();
+    }
+
+    private void removeSilently(int position) {
+        CharacterModel removed = characters.remove(position);
+        if (removed.isFirstInRound() && !characters.isEmpty()) {
+            characters.get(position % characters.size()).setFirstInRound(true);
+        }
     }
 
     /**

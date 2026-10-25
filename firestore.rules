@@ -5,11 +5,13 @@ rules_version = '2';
 // Firebase console under Firestore Database > Rules.
 //
 // Data:
-//   sessions/{code}               gmUid, createdAt, expiresAt          (written by the GM)
-//   sessions/{code}/players/{uid} the player's sheet, sentAt, expiresAt (written by that player)
+//   sessions/{code}                  gmUid, createdAt, expiresAt          (written by the GM)
+//   sessions/{code}/players/{docId}  a player character's sheet, sentAt, expiresAt (that player)
+//   sessions/{code}/gmCopies/{docId} the GM's copy: hp, maxHp, conditions, expiresAt (the GM)
+//   docId = "<player uid>_<character id>"
 //
-// Keep in sync with the app: SessionCodes (code pattern), PlayerSheet (field names and limits),
-// SyncRepository (30-day expiry, capped at 33 days here for clock margin).
+// Keep in sync with the app: SessionCodes (code pattern), SyncIds (docId), PlayerSheet and GmCopy
+// (field names and limits), SyncRepository (30-day expiry, capped at 33 days here for clock margin).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -43,6 +45,25 @@ service cloud.firestore {
 
     function whole(d, key, min, max) {
       return d[key] is int && d[key] >= min && d[key] <= max;
+    }
+
+    // The part of the document id before the underscore is the owner's uid
+    function ownsDoc(docId) {
+      return docId.split('_')[0] == request.auth.uid;
+    }
+
+    function validDocId(docId) {
+      return docId.matches('^[A-Za-z0-9]+_[A-Za-z0-9-]{1,64}$');
+    }
+
+    function validGmCopy(code, d) {
+      return d.keys().hasOnly(['hp', 'maxHp', 'conditions', 'expiresAt'])
+          && d.keys().hasAll(['hp', 'maxHp', 'conditions', 'expiresAt'])
+          && whole(d, 'hp', -99999, 99999)
+          && whole(d, 'maxHp', 0, 99999)
+          // Each condition is checked by the apps; here only the count (GmCopy.MAX_CONDITIONS)
+          && d.conditions is list && d.conditions.size() <= 50
+          && d.expiresAt == session(code).expiresAt;
     }
 
     function validSheet(code, d) {
@@ -86,13 +107,16 @@ service cloud.firestore {
 
       allow delete: if signedIn() && resource.data.gmUid == request.auth.uid;
 
-      match /players/{uid} {
-        // A player sees their own sheet; the GM sees everyone's
-        allow read: if signedIn() && (request.auth.uid == uid || isGm(code));
+      // A player character's sheet. The document id is "<uid>_<character id>" (SyncIds), so one
+      // phone can send several characters and only its owner can write it.
+      match /players/{docId} {
+        // A player sees their own sheets; the GM sees everyone's
+        allow read: if signedIn() && (ownsDoc(docId) || isGm(code));
 
         // A player writes only their own sheet, only while the session is live
         allow create, update: if signedIn()
-            && request.auth.uid == uid
+            && ownsDoc(docId)
+            && validDocId(docId)
             && isLive(code)
             && validSheet(code, request.resource.data);
 
@@ -102,7 +126,21 @@ service cloud.firestore {
             && request.resource.data.expiresAt == session(code).expiresAt;
 
         // The player may delete their own sheet (Leave); the GM any, while the session exists
-        allow delete: if signedIn() && (request.auth.uid == uid || isGm(code));
+        allow delete: if signedIn() && (ownsDoc(docId) || isGm(code));
+      }
+
+      // The GM's copy of a player character (hp, max hp, conditions), same document id. The GM
+      // leads: only the GM writes it, and only that player (and the GM) can read it, so a player
+      // never sees other characters or monsters.
+      match /gmCopies/{docId} {
+        allow read: if signedIn() && (ownsDoc(docId) || isGm(code));
+
+        allow create, update: if isGm(code)
+            && isLive(code)
+            && validDocId(docId)
+            && validGmCopy(code, request.resource.data);
+
+        allow delete: if isGm(code);
       }
     }
   }

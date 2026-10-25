@@ -55,6 +55,23 @@ public class PlayerSheet {
     /** When the player sent this, in ms; only compared with the same player's earlier sends. */
     public long sentAt;
 
+    /** @return The stats of a player's own character, ready to send (sentAt still 0). */
+    public static PlayerSheet of(CharacterModel character) {
+        PlayerSheet s = new PlayerSheet();
+        s.name = character.getCharacterName();
+        s.initiative = character.getInitiative();
+        s.initiativeBonus = character.getInitiativeBonus();
+        s.hp = character.getHp();
+        s.maxHp = character.getMaxHp();
+        s.ac = character.getAc();
+        s.saves = character.getSaves();
+        s.maneuvers = character.getManeuvers();
+        s.skills = character.getSkills();
+        s.attackRoutine = character.getAttackRoutine();
+        s.notes = character.getCharacterNotes();
+        return s.cleaned();
+    }
+
     /** @return True when there is a name to send; everything else may be left empty. */
     public boolean hasName() {
         return name != null && !name.trim().isEmpty();

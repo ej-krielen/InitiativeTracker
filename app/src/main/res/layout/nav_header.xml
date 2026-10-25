@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     The whole drawer content, used as the NavigationView header (like Secret Roller): app name,
-    active party, the party list (rows from item_nav_party, added by NavDrawer), New party, the
-    used slots and Get more parties, then Support and More. NavDrawer shows, hides and fills it.
+    the open profile and Switch profile, then for the GM Encounter (Add, Delete characters, Edit
+    order) and Table sync, then Support and More. NavDrawer shows, hides and fills it.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -26,7 +26,7 @@
         app:fontFamily="@font/cinzel" />
 
     <TextView
-        android:id="@+id/nav_active_party_textView"
+        android:id="@+id/nav_profile_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -38,65 +38,69 @@
         android:textSize="14sp"
         tools:text="Thursday group · round 4" />
 
-    <!-- Parties: first group, so no divider line above it -->
     <TextView
-        style="@style/Widget.Rekijan.NavCategory"
+        android:id="@+id/nav_switch_profile"
+        style="@style/Widget.Rekijan.NavItem.Action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:background="@null"
-        android:paddingTop="8dp"
-        android:text="@string/nav_category_parties" />
+        android:drawableStart="@drawable/ic_group"
+        android:text="@string/nav_switch_profile" />
 
+    <!-- Encounter: GM only -->
     <LinearLayout
-        android:id="@+id/nav_party_list"
+        android:id="@+id/nav_group_encounter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/nav_new_party"
-        style="@style/Widget.Rekijan.NavItem.Action"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_add"
-        android:text="@string/nav_new_party" />
+        <TextView
+            style="@style/Widget.Rekijan.NavCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_category_encounter" />
 
-    <TextView
-        android:id="@+id/nav_party_slots_textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="24dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="24dp"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="13sp"
-        tools:text="3 of 5 parties used" />
+        <TextView
+            android:id="@+id/nav_add_character"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_add"
+            android:text="@string/action_add_character"
+            android:textStyle="normal" />
 
-    <TextView
-        android:id="@+id/nav_get_more_parties"
-        style="@style/Widget.Rekijan.NavItem.Action"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_shopping_bag"
-        android:text="@string/nav_get_more_parties"
-        android:textStyle="normal" />
+        <TextView
+            android:id="@+id/nav_delete_characters"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_delete"
+            android:text="@string/nav_delete_characters"
+            android:textStyle="normal" />
 
-    <!-- Table sync -->
-    <TextView
-        style="@style/Widget.Rekijan.NavCategory"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/nav_category_table" />
+        <TextView
+            android:id="@+id/nav_edit_order"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_swap_vert"
+            android:text="@string/edit_order_button_label"
+            android:textStyle="normal" />
 
-    <TextView
-        android:id="@+id/nav_table_sync"
-        style="@style/Widget.Rekijan.NavItem.Action"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_sync"
-        android:text="@string/nav_table_sync"
-        android:textStyle="normal" />
+        <TextView
+            style="@style/Widget.Rekijan.NavCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_category_table" />
+
+        <TextView
+            android:id="@+id/nav_table_sync"
+            style="@style/Widget.Rekijan.NavItem.Action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_sync"
+            android:text="@string/nav_table_sync"
+            android:textStyle="normal" />
+    </LinearLayout>
 
     <!-- Support -->
     <TextView

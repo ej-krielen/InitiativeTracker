@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The profile list, like Secret Roller's start screen: your parties (GM) with the used slots
+     and Get more parties, then your characters (Player), and New. Rows come from item_profile,
+     added by ProfilesFragment. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="96dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_3"
+            android:paddingEnd="@dimen/space_3">
+
+            <TextView
+                android:id="@+id/profiles_parties_label_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/space_3"
+                android:paddingBottom="@dimen/space_1"
+                android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:id="@+id/profiles_party_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <Button
+                android:id="@+id/profiles_more_parties_button"
+                style="@style/Widget.Rekijan.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_get_more_parties"
+                app:icon="@drawable/ic_shopping_bag"
+                app:iconTint="?attr/colorSecondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/space_3"
+                android:paddingBottom="@dimen/space_1"
+                android:text="@string/profiles_characters_label"
+                android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:id="@+id/profiles_player_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/profiles_players_empty_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/space_1"
+                android:text="@string/profiles_characters_empty"
+                android:textAppearance="@style/TextAppearance.Rekijan.Body"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/profiles_new_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/space_3"
+        android:text="@string/profiles_new"
+        android:textColor="@color/rk_on_primary"
+        app:backgroundTint="?attr/colorPrimary"
+        app:icon="@drawable/ic_add"
+        app:iconTint="@color/rk_on_primary" />
+</FrameLayout>
