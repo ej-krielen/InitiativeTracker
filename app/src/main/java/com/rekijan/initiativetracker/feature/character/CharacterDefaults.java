@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  * Creates new characters with the default stat lines (AC 10, saves 10, CMB +0 CMD 10) in the
- * user's language, and the starting party of five PCs for a fresh install.
+ * user's language, and the starting party of four PCs for a fresh install and a new party
+ * (most groups have four or five players; adding one is easier than deleting one).
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -18,7 +19,7 @@ public final class CharacterDefaults {
 
     private static final int DEFAULT_HP = 6;
     private static final int DEFAULT_AC_AND_SAVES = 10;
-    private static final int STARTING_PARTY_SIZE = 5;
+    private static final int STARTING_PARTY_SIZE = 4;
 
     private CharacterDefaults() {
     }

@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Holds the saved parties ({@link PartyBook}) and the fight of the active party for the whole
  * app, so it survives screen rotation. The active party is the {@link Encounter}: it is loaded on
- * first use (a party without saved characters starts with five PCs), saved when the app goes to
+ * first use (a party without saved characters starts with four PCs), saved when the app goes to
  * the background, and swapped in place when the user switches parties. On the first start of 2.0
  * the 1.x save becomes the first party (see PartyStore). It also remembers whether Remove Ads was
  * bought.
@@ -69,7 +69,7 @@ public class InitiativeTrackerApp extends Application {
         getEncounter().replace(charactersOf(id), parties.loadRound(id));
     }
 
-    /** @return The new party (five PCs, round 0), or null when the limit or the name says no. */
+    /** @return The new party (four PCs, round 0), or null when the limit or the name says no. */
     public Party createParty(String name) {
         return parties.create(name, CharacterDefaults.startingParty(this));
     }
