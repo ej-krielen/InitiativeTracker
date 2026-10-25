@@ -36,6 +36,7 @@ import com.rekijan.initiativetracker.feature.party.PartyBook;
 import com.rekijan.initiativetracker.feature.party.PartyDialogs;
 import com.rekijan.initiativetracker.feature.party.PartyNames;
 import com.rekijan.initiativetracker.feature.party.PartySlots;
+import com.rekijan.initiativetracker.feature.sync.SyncFragment;
 import com.rekijan.initiativetracker.monetization.BillingManager;
 
 import java.util.List;
@@ -48,7 +49,7 @@ import nl.rekijan.ads.RekijanBannerAdView;
  * details or the Edit Order screen; in landscape (layout-land) the details sit next to the list.
  * The toolbar holds the encounter actions; the navigation drawer ({@link NavDrawer}) holds the
  * parties and the app items. It also runs the party actions, the ad consent flow and the ad bar,
- * billing (tips, Remove Ads, party packs), and saves the fight when the app goes to the background.
+ * billing (tips, Remove Ads, party packs), opens Table sync and tells who joined through it, and saves the fight when the app goes to the background.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
@@ -136,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             refreshDrawer();
         });
         billingManager.start();
+
+        app.getSync().setJoinListener(names -> Toast.makeText(this,
+                getString(R.string.sync_players_joined, TextUtils.join(", ", names)), Toast.LENGTH_LONG).show());
     }
 
     @Override
@@ -153,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     @Override
     protected void onDestroy() {
+        app.getSync().setJoinListener(null);
         billingManager.endConnection();
         adBar.destroyCurrentAd();
         super.onDestroy();
@@ -166,9 +171,9 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean editingOrder = getSupportFragmentManager()
-                .findFragmentById(R.id.main_fragment_container) instanceof EditOrderFragment;
-        menu.setGroupVisible(R.id.group_encounter, !editingOrder);
+        Fragment mainPane = getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        boolean otherScreen = mainPane instanceof EditOrderFragment || mainPane instanceof SyncFragment;
+        menu.setGroupVisible(R.id.group_encounter, !otherScreen);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -269,6 +274,15 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         }
         PartyDialogs.offerPack(this, parties.getUsed(), parties.getLimit(), price,
                 () -> billingManager.purchasePartyPack(this, level));
+    }
+
+    @Override
+    public void onTableSync() {
+        if (getSupportFragmentManager().findFragmentById(R.id.main_fragment_container) instanceof SyncFragment) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_fragment_container, SyncFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
     }
 
     // ---------------------------------------------------------------- Drawer: app items

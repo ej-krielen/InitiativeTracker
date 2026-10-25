@@ -82,6 +82,22 @@
         android:text="@string/nav_get_more_parties"
         android:textStyle="normal" />
 
+    <!-- Table sync -->
+    <TextView
+        style="@style/Widget.Rekijan.NavCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/nav_category_table" />
+
+    <TextView
+        android:id="@+id/nav_table_sync"
+        style="@style/Widget.Rekijan.NavItem.Action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_sync"
+        android:text="@string/nav_table_sync"
+        android:textStyle="normal" />
+
     <!-- Support -->
     <TextView
         android:id="@+id/nav_category_support"

@@ -40,6 +40,8 @@ public class CharacterModel {
     private String characterName;
     private String characterNotes;
     private ArrayList<DebuffModel> debuffList = new ArrayList<>();
+    /** Firebase uid of the player who sent this character with Table sync; null for everyone else. */
+    private String syncId;
 
     /** Empty character; also used by Gson when loading saved data. */
     public CharacterModel() {
@@ -203,6 +205,14 @@ public class CharacterModel {
 
     public void setRegeneration(int regeneration) {
         this.regeneration = NumberInput.clamp(regeneration, 0, MAX_HEALING);
+    }
+
+    public String getSyncId() {
+        return syncId;
+    }
+
+    public void setSyncId(String syncId) {
+        this.syncId = syncId;
     }
 
     public List<DebuffModel> getDebuffList() {

@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    // Reads app/google-services.json (Firebase config for Table sync)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -70,6 +72,11 @@ dependencies {
     implementation libs.gson
     implementation libs.billing
     implementation libs.rekijan.ads
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.firestore
+    implementation libs.firebase.auth
+    debugImplementation libs.firebase.appcheck.debug
+    releaseImplementation libs.firebase.appcheck.playintegrity
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

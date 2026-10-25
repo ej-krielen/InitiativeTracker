@@ -184,7 +184,7 @@
     <string name="billing_ads_already_removed">Ads are already removed.</string>
 
     <!--Privacy Policy dialog    -->
-    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
+    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, unless you use Table sync.\n\n<b>Table sync</b>\nOnly when you start or join a session, the app signs in to Google Firebase with an anonymous ID (no name, email or account). A player\'s character (name, initiative, hp, AC, saves, maneuvers, skills, attack routine and notes) is sent to Firebase so the GM\'s app can receive it. Sessions and the characters sent to them are deleted when the GM stops the session, or at the latest about 31 days after the GM last used it. Firebase App Check is used to block requests that don\'t come from this app.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
     <string name="dialog_privacy_info_title">Privacy Policy</string>
     <string name="dialog_privacy_ok">Go to website</string>
 
@@ -196,4 +196,58 @@
     <string name="auto_healing_dialog_max_exceeded_title">Max Hp Exceeded</string>
     <string name="auto_healing_dialog_max_exceeded_message">Looks like the automatic healing exceeded the max hp value for this creature, do you want to reset it to its max hp?</string>
 
+    <!-- Table sync (feature/sync) -->
+    <string name="nav_category_table">Table</string>
+    <string name="nav_table_sync">Table sync</string>
+    <string name="nav_table_sync_hosting">Table sync · hosting %1$s</string>
+    <string name="nav_table_sync_joined">Table sync · joined %1$s</string>
+    <string name="sync_tab_host">Host</string>
+    <string name="sync_tab_join">Join</string>
+    <string name="sync_host_intro">Start a session and give your players the code. Each player sends their character from their own phone, and it is added to %1$s as a PC. When they send again, their character is updated.</string>
+    <string name="sync_start">Start session</string>
+    <string name="sync_code_label">Session code</string>
+    <string name="sync_copy">Copy</string>
+    <string name="sync_copied">Code copied</string>
+    <string name="sync_share">Share</string>
+    <string name="sync_share_text">Join my table in Initiative Tracker: open Table sync, tap Join and enter %1$s</string>
+    <string name="sync_host_party">Players join into %1$s.</string>
+    <string name="sync_host_other_party">Switch to %1$s to receive their characters.</string>
+    <string name="sync_players_none">No players yet</string>
+    <string name="sync_players_count">Joined players (%1$d)</string>
+    <string name="sync_player_stats">Init %1$d · HP %2$d/%3$d</string>
+    <string name="sync_stop">Stop session</string>
+    <string name="sync_stop_title">Stop session?</string>
+    <string name="sync_stop_message">The code stops working and the characters sent to it are deleted online. Characters already in your party stay.</string>
+    <string name="sync_stop_offline">Stopped here. The session couldn\'t be deleted online and expires on its own.</string>
+    <string name="sync_join_intro">Ask your GM for the session code. Your character goes straight into their party, and you can send again any time, for example after taking damage.</string>
+    <string name="sync_code_hint">Session code</string>
+    <string name="sync_code_invalid">Enter the %1$d-character code</string>
+    <string name="sync_code_not_found">No session with this code. Check it with your GM.</string>
+    <string name="sync_join">Join</string>
+    <string name="sync_joined">Joined %1$s</string>
+    <string name="sync_last_sent">Last sent %1$s</string>
+    <string name="sync_leave">Leave</string>
+    <string name="sync_your_character">Your character</string>
+    <string name="sync_field_name">Name</string>
+    <string name="sync_field_initiative">Initiative</string>
+    <string name="sync_field_initiative_bonus">Initiative bonus</string>
+    <string name="sync_field_hp">HP</string>
+    <string name="sync_field_max_hp">Max HP</string>
+    <string name="sync_field_ac">AC</string>
+    <string name="sync_field_saves">Saves</string>
+    <string name="sync_field_maneuvers">Maneuvers</string>
+    <string name="sync_field_skills">Skills</string>
+    <string name="sync_field_attack_routine">Attack routine</string>
+    <string name="sync_field_notes">Notes</string>
+    <string name="sync_name_missing">Enter a name</string>
+    <string name="sync_number_range">Between %1$d and %2$d</string>
+    <string name="sync_send">Send to GM</string>
+    <string name="sync_send_hint">Send again any time to update your character</string>
+    <string name="sync_join_first">Join a session first</string>
+    <string name="sync_sent">Sent to your GM</string>
+    <string name="sync_session_gone">That session has ended. Ask your GM for a new code.</string>
+    <string name="sync_error_offline">No connection. Try again when you\'re online.</string>
+    <string name="sync_error_denied">Table sync was refused. Update the app, or try again later.</string>
+    <string name="sync_error_generic">Something went wrong with Table sync. Try again.</string>
+    <string name="sync_players_joined">Joined: %1$s</string>
 </resources>

@@ -1,0 +1,109 @@
+rules_version = '2';
+
+// Firestore security rules for Initiative Tracker's Table sync.
+// Deploy: firebase deploy --only firestore:rules (see firebase.json), or paste this file into the
+// Firebase console under Firestore Database > Rules.
+//
+// Data:
+//   sessions/{code}               gmUid, createdAt, expiresAt          (written by the GM)
+//   sessions/{code}/players/{uid} the player's sheet, sentAt, expiresAt (written by that player)
+//
+// Keep in sync with the app: SessionCodes (code pattern), PlayerSheet (field names and limits),
+// SyncRepository (30-day expiry, capped at 33 days here for clock margin).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function sessionPath(code) {
+      return /databases/$(database)/documents/sessions/$(code);
+    }
+
+    function session(code) {
+      return get(sessionPath(code)).data;
+    }
+
+    function isGm(code) {
+      return signedIn() && exists(sessionPath(code)) && session(code).gmUid == request.auth.uid;
+    }
+
+    function isLive(code) {
+      return exists(sessionPath(code)) && session(code).expiresAt > request.time;
+    }
+
+    function validExpiry(t) {
+      return t is timestamp && t > request.time && t <= request.time + duration.value(33, 'd');
+    }
+
+    function text(d, key, max) {
+      return d[key] is string && d[key].size() <= max;
+    }
+
+    function whole(d, key, min, max) {
+      return d[key] is int && d[key] >= min && d[key] <= max;
+    }
+
+    function validSheet(code, d) {
+      return d.keys().hasOnly(['name', 'initiative', 'initiativeBonus', 'hp', 'maxHp', 'ac', 'saves',
+                               'maneuvers', 'skills', 'attackRoutine', 'notes', 'sentAt', 'expiresAt'])
+          && d.keys().hasAll(['name', 'initiative', 'initiativeBonus', 'hp', 'maxHp', 'ac', 'saves',
+                              'maneuvers', 'skills', 'attackRoutine', 'notes', 'sentAt', 'expiresAt'])
+          && text(d, 'name', 50) && d.name.size() > 0
+          && whole(d, 'initiative', -99, 999)
+          && whole(d, 'initiativeBonus', -99, 999)
+          && whole(d, 'hp', -99999, 99999)
+          && whole(d, 'maxHp', 0, 99999)
+          && text(d, 'ac', 200)
+          && text(d, 'saves', 200)
+          && text(d, 'maneuvers', 200)
+          && text(d, 'skills', 1000)
+          && text(d, 'attackRoutine', 1000)
+          && text(d, 'notes', 2000)
+          && d.sentAt is int && d.sentAt >= 0
+          // A player's sheet expires together with the session
+          && d.expiresAt == session(code).expiresAt;
+    }
+
+    match /sessions/{code} {
+      // Anyone signed in may look up a session by its code (to join); only its GM may list theirs
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.gmUid == request.auth.uid;
+
+      allow create: if signedIn()
+          && code.matches('^[A-HJ-NP-Z2-9]{6}$')
+          && request.resource.data.keys().hasOnly(['gmUid', 'createdAt', 'expiresAt'])
+          && request.resource.data.gmUid == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && validExpiry(request.resource.data.expiresAt);
+
+      // The GM may only renew the expiry
+      allow update: if signedIn()
+          && resource.data.gmUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expiresAt'])
+          && validExpiry(request.resource.data.expiresAt);
+
+      allow delete: if signedIn() && resource.data.gmUid == request.auth.uid;
+
+      match /players/{uid} {
+        // A player sees their own sheet; the GM sees everyone's
+        allow read: if signedIn() && (request.auth.uid == uid || isGm(code));
+
+        // A player writes only their own sheet, only while the session is live
+        allow create, update: if signedIn()
+            && request.auth.uid == uid
+            && isLive(code)
+            && validSheet(code, request.resource.data);
+
+        // The GM may renew the expiry of a sheet to the session's new expiry
+        allow update: if isGm(code)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expiresAt'])
+            && request.resource.data.expiresAt == session(code).expiresAt;
+
+        // The player may delete their own sheet (Leave); the GM any, while the session exists
+        allow delete: if signedIn() && (request.auth.uid == uid || isGm(code));
+      }
+    }
+  }
+}

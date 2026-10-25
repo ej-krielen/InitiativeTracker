@@ -13,6 +13,9 @@ import com.rekijan.initiativetracker.feature.encounter.Encounter;
 import com.rekijan.initiativetracker.feature.party.Party;
 import com.rekijan.initiativetracker.feature.party.PartyBook;
 import com.rekijan.initiativetracker.feature.party.PartyStore;
+import com.rekijan.initiativetracker.feature.sync.SyncManager;
+import com.rekijan.initiativetracker.feature.sync.SyncRepository;
+import com.rekijan.initiativetracker.feature.sync.SyncStore;
 
 import java.util.List;
 
@@ -22,16 +25,18 @@ import java.util.List;
  * first use (a party without saved characters starts with four PCs), saved when the app goes to
  * the background, and swapped in place when the user switches parties. On the first start of 2.0
  * the 1.x save becomes the first party (see PartyStore). It also remembers whether Remove Ads was
- * bought.
+ * bought, and runs Table sync ({@link SyncManager}), which merges players' sends into the active
+ * party through the same Encounter.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 16-5-2019
  */
-public class InitiativeTrackerApp extends Application {
+public class InitiativeTrackerApp extends Application implements SyncManager.Host {
 
     private EncounterStore store;
     private PartyBook parties;
     private Encounter encounter;
+    private SyncManager sync;
 
     @Override
     public void onCreate() {
@@ -41,12 +46,26 @@ public class InitiativeTrackerApp extends Application {
         store = new EncounterStore(values);
         String firstName = getString(R.string.party_first_name);
         parties = new PartyBook(new PartyStore(values, firstName), firstName);
+
+        sync = new SyncManager(this, new SyncRepository(), new SyncStore(values),
+                () -> AppCheckInstaller.install(this));
+        sync.resumeOnStartup();
     }
 
     public PartyBook getParties() {
         return parties;
     }
 
+    public SyncManager getSync() {
+        return sync;
+    }
+
+    @Override
+    public String getActivePartyId() {
+        return parties.getActiveId();
+    }
+
+    @Override
     public Encounter getEncounter() {
         if (encounter == null) {
             String id = parties.getActiveId();
@@ -55,6 +74,7 @@ public class InitiativeTrackerApp extends Application {
         return encounter;
     }
 
+    @Override
     public void saveEncounter() {
         if (encounter != null) {
             parties.save(parties.getActiveId(), encounter.getCharacters(), encounter.getRound());
@@ -67,6 +87,7 @@ public class InitiativeTrackerApp extends Application {
         saveEncounter();
         parties.setActive(id);
         getEncounter().replace(charactersOf(id), parties.loadRound(id));
+        sync.onActivePartyChanged();
     }
 
     /** @return The new party (four PCs, round 0), or null when the limit or the name says no. */
@@ -91,6 +112,8 @@ public class InitiativeTrackerApp extends Application {
         String newActive = parties.delete(id);
         if (newActive == null) return false;
         if (wasActive) getEncounter().replace(charactersOf(newActive), parties.loadRound(newActive));
+        sync.onPartyDeleted(id);
+        if (wasActive) sync.onActivePartyChanged();
         return true;
     }
 

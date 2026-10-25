@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One joined player on the Table sync Host tab: PC colors (gold stripe on the PC card color),
+     name, and the initiative and hp they last sent. SyncFragment adds and fills these rows. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_1"
+    android:background="@color/rk_pc_container"
+    android:minHeight="@dimen/touch_target"
+    android:orientation="horizontal">
+
+    <View
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/rk_pc_marker" />
+
+    <TextView
+        android:id="@+id/sync_player_name_textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="@dimen/space_3"
+        android:paddingEnd="@dimen/space_2"
+        android:textAppearance="@style/TextAppearance.Rekijan.Body"
+        android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold"
+        tools:text="Valeros" />
+
+    <TextView
+        android:id="@+id/sync_player_stats_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingEnd="@dimen/space_3"
+        android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:ignore="RtlSymmetry"
+        tools:text="Init 18 · HP 34/34" />
+</LinearLayout>

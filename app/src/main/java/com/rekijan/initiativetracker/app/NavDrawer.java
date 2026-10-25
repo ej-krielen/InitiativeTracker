@@ -18,7 +18,7 @@ import com.rekijan.initiativetracker.feature.party.PartyBook;
 /**
  * Fills the navigation drawer (layout nav_header) and passes taps to the {@link Listener}: the
  * party list (tap to switch, the three dots for Rename, Duplicate, Delete), New party, the used
- * slots and Get more parties, then Remove Ads, Tip the dev, About, Privacy Policy and Privacy
+ * slots and Get more parties, Table sync (with the hosted or joined code), then Remove Ads, Tip the dev, About, Privacy Policy and Privacy
  * Settings. Call {@link #refresh} after anything it shows has changed.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
@@ -39,6 +39,8 @@ public class NavDrawer {
         void onDeleteParty(String id);
 
         void onGetMoreParties();
+
+        void onTableSync();
 
         void onRemoveAds();
 
@@ -81,6 +83,7 @@ public class NavDrawer {
 
         bind(R.id.nav_new_party, listener::onNewParty);
         bind(R.id.nav_get_more_parties, listener::onGetMoreParties);
+        bind(R.id.nav_table_sync, listener::onTableSync);
         bind(R.id.nav_remove_ads, listener::onRemoveAds);
         bind(R.id.nav_tip, listener::onTip);
         bind(R.id.nav_about, listener::onAbout);
@@ -107,6 +110,13 @@ public class NavDrawer {
         slots.setText(context.getString(R.string.nav_party_slots, parties.getUsed(), parties.getLimit()));
         header.findViewById(R.id.nav_get_more_parties)
                 .setVisibility(state.nextPackPrice != null ? View.VISIBLE : View.GONE);
+
+        TextView tableSync = header.findViewById(R.id.nav_table_sync);
+        String hostCode = app.getSync().getHostCode();
+        String playerCode = app.getSync().getPlayerCode();
+        tableSync.setText(hostCode != null ? context.getString(R.string.nav_table_sync_hosting, hostCode)
+                : playerCode != null ? context.getString(R.string.nav_table_sync_joined, playerCode)
+                : context.getString(R.string.nav_table_sync));
 
         TextView removeAds = header.findViewById(R.id.nav_remove_ads);
         removeAds.setVisibility(state.removeAdsPrice != null ? View.VISIBLE : View.GONE);

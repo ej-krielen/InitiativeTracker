@@ -81,6 +81,13 @@ public class Encounter {
         notifyChanged();
     }
 
+    /** Adds several characters at the end, with one change notice (used by Table sync). */
+    public void addAll(List<CharacterModel> newCharacters) {
+        if (newCharacters.isEmpty()) return;
+        characters.addAll(newCharacters);
+        notifyChanged();
+    }
+
     /**
      * Removes a character. When it was first in round, the next character in the order takes
      * that over, so the round counter keeps going up at the right moment.
