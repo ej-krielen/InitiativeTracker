@@ -2,12 +2,14 @@ package com.rekijan.initiativetracker.app;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.rekijan.initiativetracker.BuildConfig;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.feature.character.CharacterDefaults;
 import com.rekijan.initiativetracker.feature.character.CharacterDetailFragment;
@@ -28,20 +31,50 @@ import com.rekijan.initiativetracker.monetization.BillingManager;
 
 import java.util.List;
 
+import nl.rekijan.ads.AdConsentManager;
+import nl.rekijan.ads.RekijanBannerAdView;
+
 /**
  * The only activity. Hosts the encounter list and, in portrait, swaps it for the character
  * details or the Edit Order screen; in landscape (layout-land) the details sit next to the list.
- * It also handles the toolbar menu and saves the fight when the app goes to the background.
+ * It also handles the toolbar menu, runs the ad consent flow and the ad bar, billing (tips and
+ * Remove Ads), and saves the fight when the app goes to the background.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
  */
 public class MainActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = "MainActivity";
+
     private InitiativeTrackerApp app;
     private Encounter encounter;
     private BillingManager billingManager;
+    private RekijanBannerAdView adBar;
+    private AdConsentManager adConsentManager;
     private boolean isTwoPane;
+
+    /**
+     * Reacts to the consent outcome, at startup and after the user changed their choice in the
+     * privacy settings form. Updates the menu so "Privacy Settings" appears when required.
+     */
+    private final AdConsentManager.Callback adCallback = new AdConsentManager.Callback() {
+        @Override
+        public void onReady() {
+            if (isFinishing() || isDestroyed()) return;
+            if (!app.isAdsRemoved()) { // may have been bought while consent was loading
+                adBar.load(BuildConfig.ADMOB_BANNER_ID);
+            }
+            invalidateOptionsMenu();
+        }
+
+        @Override
+        public void onFailure(@NonNull String reason) {
+            if (isFinishing() || isDestroyed()) return;
+            Log.d(LOG_TAG, "No ads: " + reason);
+            hideAds();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,19 +94,44 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().addOnBackStackChangedListener(this::onBackStackChanged);
         onBackStackChanged();
 
+        adBar = findViewById(R.id.bottomAdBar);
+        if (!app.isAdsRemoved()) {
+            adConsentManager = new AdConsentManager(this);
+            adConsentManager.requestConsentThenInit(adCallback);
+        }
+
         billingManager = new BillingManager(getApplication());
+        billingManager.setRemoveAdsListener(new BillingManager.RemoveAdsListener() {
+            @Override
+            public void onAdsRemoved() {
+                hideAds();
+            }
+
+            @Override
+            public void onPriceLoaded() {
+                invalidateOptionsMenu();
+            }
+        });
         billingManager.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adBar.resume();
     }
 
     @Override
     protected void onPause() {
         app.saveEncounter();
+        adBar.pause();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         billingManager.endConnection();
+        adBar.destroyCurrentAd();
         super.onDestroy();
     }
 
@@ -88,6 +146,19 @@ public class MainActivity extends AppCompatActivity {
         boolean editingOrder = getSupportFragmentManager()
                 .findFragmentById(R.id.main_fragment_container) instanceof EditOrderFragment;
         menu.setGroupVisible(R.id.group_encounter, !editingOrder);
+
+        // Hidden once owned; the price shows once Google Play has answered
+        boolean adsRemoved = app.isAdsRemoved();
+        MenuItem removeAds = menu.findItem(R.id.action_settings_remove_ads);
+        removeAds.setVisible(!adsRemoved);
+        String price = billingManager != null ? billingManager.getRemoveAdsPrice() : null;
+        removeAds.setTitle(price == null
+                ? getString(R.string.action_remove_ads)
+                : getString(R.string.action_remove_ads_price, price));
+
+        // Only when Google's consent SDK says users must be able to change their choice (usually EEA/UK)
+        menu.findItem(R.id.action_settings_privacy_settings).setVisible(!adsRemoved
+                && adConsentManager != null && adConsentManager.isPrivacyOptionsRequired());
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -113,6 +184,10 @@ public class MainActivity extends AppCompatActivity {
             InfoDialogs.privacyPolicy(this);
         } else if (id == R.id.action_settings_tip) {
             billingManager.openTipDialog(this);
+        } else if (id == R.id.action_settings_remove_ads) {
+            billingManager.purchaseRemoveAds(this);
+        } else if (id == R.id.action_settings_privacy_settings) {
+            if (adConsentManager != null) adConsentManager.showPrivacyOptionsForm(adCallback);
         } else {
             return super.onOptionsItemSelected(item);
         }
@@ -195,6 +270,13 @@ public class MainActivity extends AppCompatActivity {
         if (names.isEmpty()) return;
         String message = getString(R.string.toast_max_hp, TextUtils.join("\n", names));
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    /** No ads (consent failed, or Remove Ads bought): the bar goes away and the menu updates. */
+    private void hideAds() {
+        adBar.destroyCurrentAd();
+        adBar.setVisibility(View.GONE);
+        invalidateOptionsMenu();
     }
 
     private void onBackStackChanged() {

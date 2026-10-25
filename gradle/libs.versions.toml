@@ -2,6 +2,7 @@
 # Same AGP as Secret Roller, Mook Roller and RekijanAds (compileSdk 37 needs 9.1.1+)
 agp = "9.2.1"
 billing = "9.1.0"
+rekijanAds = "v1.2.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -13,6 +14,7 @@ gson = "2.14.0"
 
 [libraries]
 billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
+rekijan-ads = { module = "com.github.ej-krielen:RekijanAds", version.ref = "rekijanAds" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

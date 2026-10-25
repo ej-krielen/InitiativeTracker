@@ -10,7 +10,8 @@ import java.util.List;
 
 /**
  * Saves and loads the current fight in SharedPreferences. Uses the same file and keys as 1.x,
- * so users keep their characters and round counter after updating.
+ * so users keep their characters and round counter after updating. The Remove Ads flag lives in
+ * the same file.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -21,6 +22,8 @@ public class EncounterStore {
     private static final String PREFS_NAME = "SHARED_PREF_TAG";
     private static final String KEY_CHARACTERS = "GSON_TAG";
     private static final String KEY_ROUND = "ROUND_COUNTER";
+    // New in 2.0, same key as Mook Roller and Secret Roller
+    private static final String KEY_ADS_REMOVED = "ads_removed";
 
     private final SharedPreferences prefs;
 
@@ -42,5 +45,13 @@ public class EncounterStore {
                 .putString(KEY_CHARACTERS, EncounterJson.toJson(encounter.getCharacters()))
                 .putInt(KEY_ROUND, encounter.getRound())
                 .apply();
+    }
+
+    public boolean isAdsRemoved() {
+        return prefs.getBoolean(KEY_ADS_REMOVED, false);
+    }
+
+    public void setAdsRemoved(boolean removed) {
+        prefs.edit().putBoolean(KEY_ADS_REMOVED, removed).apply();
     }
 }

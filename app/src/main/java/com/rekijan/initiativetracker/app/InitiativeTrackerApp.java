@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Holds the current fight for the whole app, so it survives screen rotation. It is loaded from
  * {@link EncounterStore} on first use (a fresh install starts with five PCs) and saved when the
- * app goes to the background.
+ * app goes to the background. It also remembers whether Remove Ads was bought.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 16-5-2019
@@ -39,5 +39,14 @@ public class InitiativeTrackerApp extends Application {
 
     public void saveEncounter() {
         if (encounter != null) store.save(encounter);
+    }
+
+    /** @return True once Remove Ads was bought (set by BillingManager, restored on every start). */
+    public boolean isAdsRemoved() {
+        return store.isAdsRemoved();
+    }
+
+    public void setAdsRemoved(boolean removed) {
+        store.setAdsRemoved(removed);
     }
 }

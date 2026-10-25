@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Main screen: toolbar and one pane (the encounter, or the details / Edit Order in its place).
+    Main screen: toolbar, one pane (the encounter, or the details / Edit Order in its place)
+    and the ad bar.
     layout-land puts the details next to the list. Edge-to-edge: MainActivity pads the root for
     the status bar, navigation bar and keyboard, so nothing here uses fitsSystemWindows.
 -->
@@ -24,4 +25,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <!-- Ad bar: stays GONE (zero height) until an ad has loaded, and for Remove Ads owners -->
+    <nl.rekijan.ads.RekijanBannerAdView
+        android:id="@+id/bottomAdBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:visibility="gone" />
 </LinearLayout>

@@ -40,7 +40,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Google's sample IDs, safe to tap while testing
+            manifestPlaceholders = [admobAppId: "ca-app-pub-3940256099942544~3347511713"]
+            buildConfigField "String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/6300978111\""
+        }
         release {
+            // Initiative Tracker's AdMob app and banner ad unit
+            manifestPlaceholders = [admobAppId: "ca-app-pub-8520752189469314~6982015700"]
+            buildConfigField "String", "ADMOB_BANNER_ID", "\"ca-app-pub-8520752189469314/6231483302\""
             if (project.hasProperty("REKIJAN_UPLOAD_STORE_FILE")) {
                 signingConfig signingConfigs.release
             }
@@ -61,6 +69,7 @@ dependencies {
     implementation libs.recyclerview
     implementation libs.gson
     implementation libs.billing
+    implementation libs.rekijan.ads
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

@@ -42,4 +42,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1" />
     </LinearLayout>
+
+    <!-- Ad bar under both panes: stays GONE until an ad has loaded, and for Remove Ads owners -->
+    <nl.rekijan.ads.RekijanBannerAdView
+        android:id="@+id/bottomAdBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:visibility="gone" />
 </LinearLayout>

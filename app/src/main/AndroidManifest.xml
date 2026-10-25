@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
         android:name=".app.InitiativeTrackerApp"
@@ -11,6 +12,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.InitiativeTracker">
+
+        <!-- AdMob App ID: set per build type in app/build.gradle (debug = Google's sample ID) -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
+
         <!-- The launch theme shows the system splash on Android 12+ (values-v31) -->
         <activity
             android:name=".app.MainActivity"
