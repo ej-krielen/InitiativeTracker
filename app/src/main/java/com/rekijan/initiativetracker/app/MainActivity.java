@@ -1,7 +1,6 @@
 package com.rekijan.initiativetracker.app;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +11,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
@@ -38,8 +39,13 @@ import com.rekijan.initiativetracker.feature.party.PartyDialogs;
 import com.rekijan.initiativetracker.feature.party.PartySlots;
 import com.rekijan.initiativetracker.feature.player.PlayerFragment;
 import com.rekijan.initiativetracker.feature.profile.ProfilesFragment;
+import com.rekijan.initiativetracker.feature.sync.ApprovalDialogs;
+import com.rekijan.initiativetracker.feature.sync.SyncDiff;
 import com.rekijan.initiativetracker.feature.sync.SyncFragment;
+import com.rekijan.initiativetracker.feature.sync.SyncManager;
 import com.rekijan.initiativetracker.monetization.BillingManager;
+
+import java.util.List;
 
 import nl.rekijan.ads.AdConsentManager;
 import nl.rekijan.ads.RekijanBannerAdView;
@@ -53,8 +59,8 @@ import nl.rekijan.ads.RekijanBannerAdView;
  * Table sync; in landscape (layout-land) the details sit next to the list. The toolbar holds Next
  * turn and Sort; the navigation drawer ({@link NavDrawer}) holds Add character, Delete
  * characters, Edit order and Table sync, and the app items. It also runs the ad consent flow and
- * the ad bar, billing (tips, Remove Ads, party packs), tells who joined through Table sync, and
- * saves the fight when the app goes to the background.
+ * the ad bar, billing (tips, Remove Ads, party packs), shows the GM's Table sync requests
+ * ({@link ApprovalDialogs}) one at a time, and saves the fight when the app goes to the background.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
@@ -73,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     private NavDrawer navDrawer;
     private OnBackPressedCallback profileRootBack;
     private boolean isTwoPane;
+    @Nullable
+    private AlertDialog requestDialog;
 
     /**
      * Reacts to the consent outcome, at startup and after the user changed their choice in the
@@ -152,19 +160,19 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             if (main instanceof ProfilesFragment) ((ProfilesFragment) main).refresh();
         });
         billingManager.start();
-
-        app.getSync().setJoinListener(names -> Toast.makeText(this,
-                getString(R.string.sync_players_joined, TextUtils.join(", ", names)), Toast.LENGTH_LONG).show());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         adBar.resume();
+        app.getSync().setRequestListener(this::showNextRequest);
+        showNextRequest();
     }
 
     @Override
     protected void onPause() {
+        app.getSync().setRequestListener(null);
         app.saveEncounter();
         adBar.pause();
         super.onPause();
@@ -172,7 +180,6 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
 
     @Override
     protected void onDestroy() {
-        app.getSync().setJoinListener(null);
         billingManager.endConnection();
         adBar.destroyCurrentAd();
         super.onDestroy();
@@ -539,6 +546,38 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         }
         invalidateOptionsMenu();
         refreshDrawer();
+        showNextRequest();
+    }
+
+    /**
+     * Shows the next Table sync request for the GM, one at a time and only on the GM's screens
+     * while this screen is in front. After an answer the next one in the queue follows.
+     */
+    private void showNextRequest() {
+        if (requestDialog != null && requestDialog.isShowing()) return;
+        if (!getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED) || !isGmScreen(mainPane())) return;
+        SyncManager sync = app.getSync();
+        SyncManager.Request request = sync.nextRequest();
+        if (request == null) return;
+        ApprovalDialogs.Listener answer = new ApprovalDialogs.Listener() {
+            @Override
+            public void onApprove(List<SyncDiff.Change> accepted) {
+                sync.approve(request, accepted);
+            }
+
+            @Override
+            public void onRefuse() {
+                sync.refuse(request);
+            }
+        };
+        String name = request.sheet.name.isEmpty() ? getString(R.string.empty_character_name) : request.sheet.name;
+        requestDialog = request.join
+                ? ApprovalDialogs.showJoin(this, request.sheet, app.getParties().getActive().getName(), answer)
+                : ApprovalDialogs.showChanges(this, name, request.changes, answer);
+        requestDialog.setOnDismissListener(d -> {
+            requestDialog = null;
+            showNextRequest();
+        });
     }
 
     /**

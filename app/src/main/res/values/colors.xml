@@ -36,6 +36,8 @@
 
     <!-- Session status light: joined or hosting -->
     <color name="rk_status_on">#3B6D11</color>
+    <!-- Session status light: waiting for the GM -->
+    <color name="rk_status_wait">#B7791F</color>
 
     <!-- ============ Material 3 roles ============ -->
     <color name="md_primary">@color/rk_primary</color>

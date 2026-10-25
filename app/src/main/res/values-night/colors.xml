@@ -24,6 +24,7 @@
     <color name="rk_npc_marker">#C4505F</color>
 
     <color name="rk_status_on">#97C459</color>
+    <color name="rk_status_wait">#E0A84A</color>
 
     <!-- ============ Material 3 roles ============ -->
     <color name="md_primary">@color/rk_primary</color>

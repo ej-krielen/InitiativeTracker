@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One change in the GM's approval popup, ticked by default. ApprovalDialogs sets the text:
+     the change, and a smaller line for a long value or a description. -->
+<com.google.android.material.checkbox.MaterialCheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/touch_target"
+    android:paddingTop="@dimen/space_1"
+    android:paddingBottom="@dimen/space_1"
+    android:textAppearance="@style/TextAppearance.Rekijan.Body"
+    android:textColor="?attr/colorOnSurface" />

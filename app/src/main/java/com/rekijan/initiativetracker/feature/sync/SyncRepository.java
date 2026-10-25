@@ -34,7 +34,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * All Firestore access for Table sync, following Secret Roller's SessionRepository. A session is
  * sessions/{code} (owner gmUid, createdAt, expiresAt); each player character's sheet is
- * sessions/{code}/players/{docId}, and the GM's copy of it (hp, max hp, conditions) is
+ * sessions/{code}/players/{docId}, and the GM's copy of it (the GM's version of the whole sheet) is
  * sessions/{code}/gmCopies/{docId}, with docId from {@link SyncIds}. The rules in
  * firestore.rules decide who may do what.
  * <p>
@@ -91,12 +91,12 @@ public class SyncRepository {
         void onFailure(Exception e);
     }
 
-    /** Result of reading the GM's copy of a player character. */
-    public interface GmCopyCallback {
+    /** Live updates of the GM's copy of one player character. */
+    public interface GmCopyListener {
         /** @param copy Null when the GM's app hasn't uploaded one yet. */
-        void onResult(@Nullable GmCopy copy);
+        void onGmCopy(@Nullable GmCopy copy);
 
-        void onFailure(Exception e);
+        void onError(FirebaseFirestoreException error);
     }
 
     /** Live updates of the players in a session. */
@@ -167,14 +167,22 @@ public class SyncRepository {
                 Log.w(TAG, "saveGmCopy failed for " + docId, e));
     }
 
-    /** Reads the GM's copy of this player character, from the server; null when there is none yet. */
-    public void fetchGmCopy(@NonNull String code, @NonNull String docId, @NonNull GmCopyCallback callback) {
-        withTimeout(gmCopyRef(code, docId).get(Source.SERVER), "fetchGmCopy " + code)
-                .addOnSuccessListener(doc -> callback.onResult(doc.exists() ? GmCopy.fromMap(doc.getData()) : null))
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "fetchGmCopy failed for " + code, e);
-                    callback.onFailure(e);
-                });
+    /**
+     * Listens to the GM's copy of one player character; the player's screen follows it live.
+     * The caller removes the returned registration when done.
+     */
+    @NonNull
+    public ListenerRegistration listenToGmCopy(@NonNull String code, @NonNull String docId,
+                                               @NonNull GmCopyListener listener) {
+        return gmCopyRef(code, docId).addSnapshotListener((doc, error) -> {
+            if (error != null) {
+                listener.onError(error);
+                return;
+            }
+            // Skip the local echo of a write still on its way; the server's version follows
+            if (doc == null || doc.getMetadata().hasPendingWrites()) return;
+            listener.onGmCopy(doc.exists() ? GmCopy.fromMap(doc.getData()) : null);
+        });
     }
 
     /**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- A player's own character, like Secret Roller's character screen: the session card on top
-     (code and Join, or a status light with Sync and Leave once joined), the sheet with the Stats
+     (code and Join, or a status light and Leave once joined), the sheet with the Stats
      and Conditions tabs (view_character_sheet), and Send to GM. PlayerFragment fills it. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -72,7 +72,7 @@
                     android:text="@string/sync_join" />
             </LinearLayout>
 
-            <!-- Joined: code, last sent and synced, Sync and Leave -->
+            <!-- Joined: code, the state (not sent, waiting for the GM, up to date) and Leave -->
             <LinearLayout
                 android:id="@+id/player_joined_row"
                 android:layout_width="0dp"
@@ -91,16 +91,6 @@
                     android:textAppearance="@style/TextAppearance.Rekijan.BodySmall"
                     android:textColor="?attr/colorOnSurface"
                     tools:text="Joined K7QX4M\nSent 20:14 · synced 20:31" />
-
-                <Button
-                    android:id="@+id/player_sync_button"
-                    style="@style/Widget.Rekijan.Button.Text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="0dp"
-                    android:text="@string/player_sync"
-                    app:icon="@drawable/ic_sync"
-                    app:iconTint="?attr/colorSecondary" />
 
                 <Button
                     android:id="@+id/player_leave_button"

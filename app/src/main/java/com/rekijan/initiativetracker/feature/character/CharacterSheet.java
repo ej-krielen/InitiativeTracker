@@ -1,18 +1,24 @@
 package com.rekijan.initiativetracker.feature.character;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.TextBinding;
 
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -26,6 +32,8 @@ import java.util.function.IntConsumer;
  * own character is always a PC.
  * <p>
  * Add puts a new condition at the end and scrolls it into view, with its name field focused.
+ * On the player's sheet, fields that differ from the GM's version can be marked as not sent yet
+ * ({@link #markUnsent}).
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -34,6 +42,13 @@ public class CharacterSheet {
 
     public static final int TAB_STATS = 0;
     public static final int TAB_CONDITIONS = 1;
+
+    /** The edit texts that can be marked as not sent yet on the player's sheet. */
+    private static final int[] MARKABLE_FIELDS = {
+            R.id.sheet_name_editText, R.id.sheet_initiative_editText, R.id.sheet_hp_editText,
+            R.id.initiative_bonus_editText, R.id.max_hp_editText, R.id.fast_healing_editText,
+            R.id.regeneration_editText, R.id.skills_editText, R.id.attack_routine_editText,
+            R.id.ac_editText, R.id.maneuvers_editText, R.id.saves_editText, R.id.notes_editText};
 
     private final View root;
     private final boolean playerMode;
@@ -45,6 +60,7 @@ public class CharacterSheet {
     private final TextView conditionsEmpty;
     private CharacterModel character;
     private DebuffAdapter adapter;
+    private boolean conditionsUnsent;
 
     /**
      * @param root       The inflated view_character_sheet.
@@ -172,12 +188,42 @@ public class CharacterSheet {
         onChanged.run();
     }
 
+    /**
+     * Marks the player's fields that differ from their GM's version: a gold outline and "Not sent
+     * yet" under the field, and a dot on the Conditions tab. Fields not listed lose their mark.
+     *
+     * @param editTextIds The ids of the edit texts of the unsent fields.
+     * @param conditions  True when the conditions are not sent yet.
+     */
+    public void markUnsent(Set<Integer> editTextIds, boolean conditions) {
+        Context context = root.getContext();
+        ColorStateList gold = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.rk_pc_marker));
+        ColorStateList normal = ContextCompat.getColorStateList(context, R.color.text_input_stroke);
+        for (int id : MARKABLE_FIELDS) {
+            TextInputLayout layout = layoutOf(root.findViewById(id));
+            if (layout == null) continue;
+            boolean unsent = editTextIds.contains(id);
+            layout.setHelperText(unsent ? context.getString(R.string.sheet_not_sent) : null);
+            if (unsent) layout.setHelperTextColor(gold);
+            if (normal != null) layout.setBoxStrokeColorStateList(unsent ? gold : normal);
+        }
+        conditionsUnsent = conditions;
+        updateConditionCount();
+    }
+
+    private static TextInputLayout layoutOf(View view) {
+        ViewParent parent = view != null ? view.getParent() : null;
+        while (parent != null && !(parent instanceof TextInputLayout)) parent = parent.getParent();
+        return (TextInputLayout) parent;
+    }
+
     private void updateConditionCount() {
         int count = character.getDebuffList().size();
         TabLayout.Tab tab = tabs.getTabAt(TAB_CONDITIONS);
         if (tab != null) {
-            tab.setText(count == 0 ? root.getContext().getString(R.string.sheet_tab_conditions)
-                    : root.getContext().getString(R.string.sheet_tab_conditions_count, count));
+            String text = count == 0 ? root.getContext().getString(R.string.sheet_tab_conditions)
+                    : root.getContext().getString(R.string.sheet_tab_conditions_count, count);
+            tab.setText(conditionsUnsent ? root.getContext().getString(R.string.sheet_tab_unsent, text) : text);
         }
         conditionsEmpty.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
     }

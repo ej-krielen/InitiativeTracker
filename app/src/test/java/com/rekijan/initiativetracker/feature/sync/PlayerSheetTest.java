@@ -142,19 +142,39 @@ public class PlayerSheetTest {
     }
 
     @Test
-    public void applyToKeepsDebuffsAndTurnOrder() {
+    public void applyToReplacesSharedFieldsAndKeepsTurnOrder() {
         CharacterModel c = new CharacterModel();
         c.getDebuffList().add(new DebuffModel());
         c.setFirstInRound(true);
         c.setFastHealing(2);
-        valeros().applyTo(c);
+        c.setSyncId("uid_abc");
+        PlayerSheet s = valeros();
+        s.regeneration = 5;
+        s.conditions.add(new DebuffModel("Haste", 3, "+1 attack"));
+        s.conditions.add(new DebuffModel("Bless", 5, ""));
+        s.applyTo(c);
         assertEquals("Valeros", c.getCharacterName());
         assertEquals(30, c.getHp());
         assertEquals("Power attack", c.getCharacterNotes());
-        assertTrue(c.isPC());
+        assertEquals(0, c.getFastHealing());
+        assertEquals(5, c.getRegeneration());
+        assertEquals(2, c.getDebuffList().size());
+        assertEquals("Haste", c.getDebuffList().get(0).getName());
+        // Not shared: stays as it was
+        assertFalse(c.isPC());
         assertTrue(c.isFirstInRound());
-        assertEquals(1, c.getDebuffList().size());
-        assertEquals(2, c.getFastHealing());
+        assertEquals("uid_abc", c.getSyncId());
+    }
+
+    @Test
+    public void conditionsSurviveTheRoundTripAndAreLimited() {
+        PlayerSheet s = valeros();
+        for (int i = 0; i < 80; i++) s.conditions.add(new DebuffModel("c" + i, i, "d" + i));
+        PlayerSheet back = PlayerSheet.fromMap(s.toMap());
+        assertEquals(PlayerSheet.MAX_CONDITIONS, back.conditions.size());
+        assertEquals("c3", back.conditions.get(3).getName());
+        assertEquals(3, back.conditions.get(3).getDuration());
+        assertEquals("d3", back.conditions.get(3).getDescription());
     }
 
     private static String repeat(char c, int n) {

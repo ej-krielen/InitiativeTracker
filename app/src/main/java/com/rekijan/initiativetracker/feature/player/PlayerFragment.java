@@ -8,41 +8,45 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.CharacterSheet;
 import com.rekijan.initiativetracker.feature.sync.SessionCodes;
+import com.rekijan.initiativetracker.feature.sync.SyncDiff;
 import com.rekijan.initiativetracker.feature.sync.SyncFragment;
 import com.rekijan.initiativetracker.feature.sync.SyncManager;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A player's own character, like Secret Roller's character screen: the session card on top, the
  * sheet with the Stats and Conditions tabs ({@link CharacterSheet}), and Send to GM.
  * <p>
- * Not joined, the card has the session code and Join. Joined, it shows a status light, when the
- * character was last sent and synced, Sync (pull the GM's hp, max hp and conditions for this
- * character) and Leave. The sheet also works without a session, to track your own character.
- * Every edit is saved on the phone straight away.
+ * Not joined, the card has the session code and Join. Joined, the GM is the final arbiter: Send
+ * asks the GM for the changes, and while this screen is open the GM's version comes in by itself
+ * (their answer, damage, conditions). The card shows the state with a light: gold when there are
+ * changes not sent yet (marked on the fields), amber while waiting for the GM, green when up to
+ * date. The sheet also works without a session. Every edit is saved on the phone straight away.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
  */
-public class PlayerFragment extends Fragment implements SyncManager.StateListener {
+public class PlayerFragment extends Fragment implements SyncManager.StateListener, SyncManager.PlayerUpdateListener {
 
     private static final String ARG_ID = "PLAYER_ID";
     private static final String STATE_TAB = "sheet_tab";
@@ -87,7 +91,6 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
         }
 
         view.findViewById(R.id.player_join_button).setOnClickListener(v -> join());
-        view.findViewById(R.id.player_sync_button).setOnClickListener(v -> pull());
         view.findViewById(R.id.player_leave_button).setOnClickListener(v -> sync.leave(characterId));
         view.findViewById(R.id.player_send_button).setOnClickListener(v -> send());
         EditText codeText = view.findViewById(R.id.player_code_editText);
@@ -96,9 +99,24 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
             join();
             return true;
         });
+        render();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
         sync.addStateListener(this);
-        renderSession();
+        sync.setPlayerUpdateListener(this);
+        sync.watchPlayer(characterId);
+        render();
+    }
+
+    @Override
+    public void onStop() {
+        sync.unwatchPlayer(characterId);
+        sync.setPlayerUpdateListener(null);
+        sync.removeStateListener(this);
+        super.onStop();
     }
 
     @Override
@@ -108,40 +126,124 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
     }
 
     @Override
-    public void onDestroyView() {
-        sync.removeStateListener(this);
-        super.onDestroyView();
+    public void onSyncStateChanged() {
+        if (getView() == null) return;
+        // Just joined: start following the GM's version
+        sync.watchPlayer(characterId);
+        render();
     }
 
     @Override
-    public void onSyncStateChanged() {
-        if (getView() != null) renderSession();
+    public void onPlayerUpdated(String id, SyncManager.Answer answer, int kept) {
+        if (!id.equals(characterId) || getView() == null) return;
+        character = app.getPlayers().load(characterId);
+        sheet.bind(character);
+        render();
+        switch (answer) {
+            case ACCEPTED:
+                toast(getString(R.string.player_answer_accepted));
+                break;
+            case KEPT:
+                toast(getResources().getQuantityString(R.plurals.player_answer_kept, kept, kept));
+                break;
+            case REJECTED:
+                toast(getString(R.string.player_answer_rejected, character.getCharacterName()));
+                break;
+            default:
+                break;
+        }
     }
 
     private void onSheetChanged() {
         app.getPlayers().save(characterId, character);
+        render();
     }
 
-    private void renderSession() {
-        View view = requireView();
+    /** The session card, the Send button and the not-sent marks. */
+    private void render() {
+        View view = getView();
+        if (view == null) return;
         String code = sync.getPlayerCode(characterId);
         boolean joined = code != null;
         view.findViewById(R.id.player_join_row).setVisibility(joined ? View.GONE : View.VISIBLE);
         view.findViewById(R.id.player_joined_row).setVisibility(joined ? View.VISIBLE : View.GONE);
-        int lampColor = joined ? ContextCompat.getColor(requireContext(), R.color.rk_status_on)
-                : MaterialColors.getColor(view, com.google.android.material.R.attr.colorOutline);
-        view.findViewById(R.id.player_status_lamp).setBackgroundTintList(ColorStateList.valueOf(lampColor));
-        if (!joined) return;
+        Button send = view.findViewById(R.id.player_send_button);
 
-        StringBuilder text = new StringBuilder(getString(R.string.sync_joined, code));
-        long sentAt = sync.getPlayerSentAt(characterId);
-        long syncedAt = sync.getPlayerSyncedAt(characterId);
-        java.text.DateFormat time = DateFormat.getTimeFormat(requireContext());
-        if (sentAt > 0 || syncedAt > 0) text.append('\n');
-        if (sentAt > 0) text.append(getString(R.string.player_sent_at, time.format(new Date(sentAt))));
-        if (sentAt > 0 && syncedAt > 0) text.append(" · ");
-        if (syncedAt > 0) text.append(getString(R.string.player_synced_at, time.format(new Date(syncedAt))));
-        ((TextView) view.findViewById(R.id.player_joined_textView)).setText(text);
+        if (!joined) {
+            setLamp(view, R.color.md_outline);
+            sheet.markUnsent(new HashSet<>(), false);
+            send.setEnabled(true);
+            send.setText(R.string.sync_send);
+            return;
+        }
+
+        boolean waiting = sync.isWaitingForGm(characterId);
+        List<SyncDiff.Change> unsent = sync.getUnsentChanges(characterId, character);
+        String state;
+        if (waiting) {
+            setLamp(view, R.color.rk_status_wait);
+            state = getString(R.string.player_state_waiting);
+        } else if (unsent == null) {
+            setLamp(view, R.color.rk_pc_marker);
+            state = getString(R.string.player_state_not_added);
+        } else if (!unsent.isEmpty()) {
+            setLamp(view, R.color.rk_pc_marker);
+            state = getResources().getQuantityString(R.plurals.player_state_unsent, unsent.size(), unsent.size());
+        } else {
+            setLamp(view, R.color.rk_status_on);
+            long syncedAt = sync.getPlayerSyncedAt(characterId);
+            state = syncedAt > 0
+                    ? getString(R.string.player_state_up_to_date_at, DateFormat.getTimeFormat(requireContext()).format(new Date(syncedAt)))
+                    : getString(R.string.player_state_up_to_date);
+        }
+        ((TextView) view.findViewById(R.id.player_joined_textView))
+                .setText(getString(R.string.sync_joined, code) + "\n" + state);
+
+        // Marks only make sense once there is a GM's version to compare with
+        Set<Integer> ids = new HashSet<>();
+        boolean conditions = false;
+        if (unsent != null) {
+            for (SyncDiff.Change c : unsent) {
+                if (c.field == SyncDiff.Field.CONDITIONS) {
+                    conditions = true;
+                } else {
+                    ids.add(editTextOf(c.field));
+                }
+            }
+        }
+        sheet.markUnsent(ids, conditions);
+
+        send.setEnabled(!waiting);
+        if (waiting) {
+            send.setText(R.string.player_send_waiting);
+        } else if (unsent == null || unsent.isEmpty()) {
+            send.setText(R.string.sync_send);
+        } else {
+            send.setText(getResources().getQuantityString(R.plurals.player_send_count, unsent.size(), unsent.size()));
+        }
+    }
+
+    private void setLamp(View view, int colorRes) {
+        view.findViewById(R.id.player_status_lamp).setBackgroundTintList(
+                ColorStateList.valueOf(ContextCompat.getColor(requireContext(), colorRes)));
+    }
+
+    private static int editTextOf(SyncDiff.Field field) {
+        switch (field) {
+            case NAME: return R.id.sheet_name_editText;
+            case INITIATIVE: return R.id.sheet_initiative_editText;
+            case HP: return R.id.sheet_hp_editText;
+            case INITIATIVE_BONUS: return R.id.initiative_bonus_editText;
+            case MAX_HP: return R.id.max_hp_editText;
+            case FAST_HEALING: return R.id.fast_healing_editText;
+            case REGENERATION: return R.id.regeneration_editText;
+            case AC: return R.id.ac_editText;
+            case SAVES: return R.id.saves_editText;
+            case MANEUVERS: return R.id.maneuvers_editText;
+            case SKILLS: return R.id.skills_editText;
+            case ATTACK_ROUTINE: return R.id.attack_routine_editText;
+            default: return R.id.notes_editText;
+        }
     }
 
     private void join() {
@@ -172,7 +274,7 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
             @Override
             public void onFailure(Exception e) {
                 busy = false;
-                toast(SyncFragment.errorMessage(e));
+                toast(getString(SyncFragment.errorMessage(e)));
             }
         });
     }
@@ -180,12 +282,12 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
     private void send() {
         if (busy) return;
         if (sync.getPlayerCode(characterId) == null) {
-            toast(R.string.sync_join_first);
+            toast(getString(R.string.sync_join_first));
             return;
         }
         if (character.getCharacterName().trim().isEmpty()) {
             sheet.selectTab(CharacterSheet.TAB_STATS);
-            toast(R.string.sync_name_missing);
+            toast(getString(R.string.sync_name_missing));
             return;
         }
         busy = true;
@@ -193,57 +295,24 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
             @Override
             public void onSuccess() {
                 busy = false;
-                toast(R.string.sync_sent);
+                toast(getString(R.string.sync_sent));
             }
 
             @Override
             public void onNotFound() {
                 busy = false;
-                toast(R.string.sync_session_gone);
+                toast(getString(R.string.sync_session_gone));
             }
 
             @Override
             public void onFailure(Exception e) {
                 busy = false;
-                toast(SyncFragment.errorMessage(e));
+                toast(getString(SyncFragment.errorMessage(e)));
             }
         });
     }
 
-    /** Sync: the GM leads, so their hp, max hp and conditions replace the ones on this sheet. */
-    private void pull() {
-        if (busy) return;
-        busy = true;
-        sync.pull(characterId, character, new SyncManager.PullCallback() {
-            @Override
-            public void onPulled() {
-                busy = false;
-                app.getPlayers().save(characterId, character);
-                if (getView() != null) sheet.bind(character);
-                toast(R.string.player_synced);
-            }
-
-            @Override
-            public void onNoCopy() {
-                busy = false;
-                toast(R.string.player_no_copy);
-            }
-
-            @Override
-            public void onNotFound() {
-                busy = false;
-                toast(R.string.sync_session_gone);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                busy = false;
-                toast(SyncFragment.errorMessage(e));
-            }
-        });
-    }
-
-    private void toast(@StringRes int message) {
+    private void toast(String message) {
         Context context = getContext();
         if (context != null) Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }

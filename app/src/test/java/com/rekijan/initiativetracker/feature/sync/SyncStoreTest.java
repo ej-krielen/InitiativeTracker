@@ -101,4 +101,36 @@ public class SyncStoreTest {
         // Another character has its own count
         assertEquals(100, store.nextSentAt("b", 100));
     }
+
+    @Test
+    public void baseSentAndAnsweredAreKeptPerCharacter() {
+        PlayerSheet base = new PlayerSheet();
+        base.name = "Valeros";
+        base.hp = 20;
+        store.savePlayerBase("a", base);
+        PlayerSheet sent = base.cleaned();
+        sent.hp = 30;
+        sent.sentAt = 5000;
+        store.savePlayerSent("a", sent);
+        store.setPlayerAnswered("a", 4000);
+
+        SyncStore reopened = new SyncStore(values);
+        assertEquals(20, reopened.loadPlayerBase("a").hp);
+        assertEquals(30, reopened.loadPlayerSent("a").hp);
+        assertEquals(4000, reopened.getPlayerAnswered("a"));
+        assertNull(reopened.loadPlayerBase("b"));
+
+        reopened.clearPlayerSent("a");
+        assertNull(reopened.loadPlayerSent("a"));
+    }
+
+    @Test
+    public void leavingForgetsTheGmsVersionAndWhatWasSent() {
+        store.setPlayerCode("a", "K7QX4M");
+        store.savePlayerBase("a", new PlayerSheet());
+        store.savePlayerSent("a", new PlayerSheet());
+        store.setPlayerCode("a", null);
+        assertNull(store.loadPlayerBase("a"));
+        assertNull(store.loadPlayerSent("a"));
+    }
 }

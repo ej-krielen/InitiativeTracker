@@ -176,7 +176,7 @@
     <string name="billing_ads_already_removed">Ads are already removed.</string>
 
     <!--Privacy Policy dialog    -->
-    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, unless you use Table sync.\n\n<b>Table sync</b>\nOnly when you start or join a session, the app signs in to Google Firebase with an anonymous ID (no name, email or account). A player\'s character (name, initiative, hp, AC, saves, maneuvers, skills, attack routine and notes) is sent to Firebase so the GM\'s app can receive it. The GM\'s app stores its copy of that character\'s hp and conditions there too, so the player can sync them; a player only sees their own character. Sessions and the characters sent to them are deleted when the GM stops the session, or at the latest about 31 days after the GM last used it. Firebase App Check is used to block requests that don\'t come from this app.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
+    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters, unless you use Table sync.\n\n<b>Table sync</b>\nOnly when you start or join a session, the app signs in to Google Firebase with an anonymous ID (no name, email or account). A player\'s character (name, initiative, hp, healing, AC, saves, maneuvers, skills, attack routine, notes and conditions) is sent to Firebase so the GM can approve it. The GM\'s app stores its version of that character there too, so the player\'s app can follow it; a player only sees their own character. Sessions and the characters sent to them are deleted when the GM stops the session, or at the latest about 31 days after the GM last used it. Firebase App Check is used to block requests that don\'t come from this app.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
     <string name="dialog_privacy_info_title">Privacy Policy</string>
     <string name="dialog_privacy_ok">Go to website</string>
 
@@ -225,7 +225,6 @@
     <string name="sync_error_offline">No connection. Try again when you\'re online.</string>
     <string name="sync_error_denied">Table sync was refused. Update the app, or try again later.</string>
     <string name="sync_error_generic">Something went wrong with Table sync. Try again.</string>
-    <string name="sync_players_joined">Joined: %1$s</string>
 
     <!-- Character sheet tabs (view_character_sheet) -->
     <string name="sheet_tab_stats">Stats</string>
@@ -267,9 +266,52 @@
     <string name="profiles_delete_character_message">%1$s and its conditions are deleted from this phone. If it joined a session, it leaves it.</string>
 
     <!-- Player screen (feature/player) -->
-    <string name="player_sync">Sync</string>
-    <string name="player_sent_at">Sent %1$s</string>
-    <string name="player_synced_at">synced %1$s</string>
-    <string name="player_synced">Your GM\'s hp and conditions are on your sheet</string>
-    <string name="player_no_copy">Your GM doesn\'t have your character yet. Send it first.</string>
+    <string name="sheet_not_sent">Not sent yet</string>
+    <string name="sheet_tab_unsent">%1$s •</string>
+    <string name="player_state_waiting">Waiting for your GM…</string>
+    <string name="player_state_not_added">Not sent to your GM yet</string>
+    <plurals name="player_state_unsent">
+        <item quantity="one">%d change not sent yet</item>
+        <item quantity="other">%d changes not sent yet</item>
+    </plurals>
+    <string name="player_state_up_to_date">Up to date with your GM</string>
+    <string name="player_state_up_to_date_at">Up to date with your GM · %1$s</string>
+    <plurals name="player_send_count">
+        <item quantity="one">Send %d change to GM</item>
+        <item quantity="other">Send %d changes to GM</item>
+    </plurals>
+    <string name="player_send_waiting">Sent · waiting for your GM</string>
+    <string name="player_answer_accepted">Your GM accepted your changes</string>
+    <plurals name="player_answer_kept">
+        <item quantity="one">Your GM kept their version of %d value</item>
+        <item quantity="other">Your GM kept their version of %d values</item>
+    </plurals>
+    <string name="player_answer_rejected">Your GM didn\'t add %1$s to the party, so it left the session</string>
+
+    <!-- GM approval popups (ApprovalDialogs) -->
+    <string name="approval_join_title">New player</string>
+    <string name="approval_join_message">%1$s wants to join %2$s.</string>
+    <string name="approval_join_stats">Init %1$d · HP %2$d/%3$d · AC %4$s</string>
+    <plurals name="approval_join_conditions">
+        <item quantity="one">%d condition</item>
+        <item quantity="other">%d conditions</item>
+    </plurals>
+    <string name="approval_add">Add to party</string>
+    <string name="approval_reject">Reject</string>
+    <plurals name="approval_changes_title">
+        <item quantity="one">%1$s: %2$d change</item>
+        <item quantity="other">%1$s: %2$d changes</item>
+    </plurals>
+    <string name="approval_changes_intro">Untick what you don\'t accept; the player gets your version back.</string>
+    <string name="approval_refuse_all">Refuse all</string>
+    <string name="approval_apply">Apply</string>
+    <string name="approval_apply_count">Apply %1$d</string>
+    <string name="approval_field_change">%1$s %2$s → %3$s</string>
+    <string name="approval_field_changed">%1$s changed</string>
+    <string name="approval_field_ac">AC</string>
+    <string name="approval_field_saves">Saves</string>
+    <string name="approval_condition_added">+ %1$s, %2$d rounds</string>
+    <string name="approval_condition_removed">− %1$s</string>
+    <string name="approval_condition_changed">%1$s: %2$d rounds</string>
+    <string name="approval_condition_unnamed">Unnamed condition</string>
 </resources>

@@ -13,9 +13,11 @@ import java.util.Map;
  * Saves the Table sync state on the device, in the app's SharedPreferences:
  * <ul>
  *     <li>GM side: the code of the hosted session, the party it sends to, and per player the
- *     sentAt of the sheet last applied (see {@link SyncMerge}).</li>
- *     <li>Player side, per player character: the code of the joined session, and when it was
- *     last sent and last synced. The character itself is kept by PlayerBook.</li>
+ *     sentAt of the send the GM last approved or refused.</li>
+ *     <li>Player side, per player character: the code of the joined session; when it was last
+ *     sent and last updated from the GM; the GM's version it last got (the merge base); what it
+ *     last sent, until answered; and which answer it has seen. The character itself is kept by
+ *     PlayerBook.</li>
  * </ul>
  * Plain Java on top of {@link KeyValueStore}, so it is unit tested.
  *
@@ -30,6 +32,9 @@ public class SyncStore {
     static final String KEY_PLAYER_CODE_PREFIX = "sync_player_code_";
     static final String KEY_PLAYER_SENT_AT_PREFIX = "sync_player_sent_at_";
     static final String KEY_PLAYER_SYNCED_AT_PREFIX = "sync_player_synced_at_";
+    static final String KEY_PLAYER_BASE_PREFIX = "sync_player_base_";
+    static final String KEY_PLAYER_SENT_PREFIX = "sync_player_sent_";
+    static final String KEY_PLAYER_ANSWERED_PREFIX = "sync_player_answered_";
 
     private static final Gson GSON = new Gson();
     private static final Type APPLIED_TYPE = new TypeToken<HashMap<String, Long>>() {
@@ -99,6 +104,9 @@ public class SyncStore {
             values.edit()
                     .remove(KEY_PLAYER_CODE_PREFIX + characterId)
                     .remove(KEY_PLAYER_SYNCED_AT_PREFIX + characterId)
+                    .remove(KEY_PLAYER_BASE_PREFIX + characterId)
+                    .remove(KEY_PLAYER_SENT_PREFIX + characterId)
+                    .remove(KEY_PLAYER_ANSWERED_PREFIX + characterId)
                     .apply();
         } else {
             values.edit().putString(KEY_PLAYER_CODE_PREFIX + characterId, code).apply();
@@ -140,7 +148,52 @@ public class SyncStore {
                 .remove(KEY_PLAYER_CODE_PREFIX + characterId)
                 .remove(KEY_PLAYER_SENT_AT_PREFIX + characterId)
                 .remove(KEY_PLAYER_SYNCED_AT_PREFIX + characterId)
+                .remove(KEY_PLAYER_BASE_PREFIX + characterId)
+                .remove(KEY_PLAYER_SENT_PREFIX + characterId)
+                .remove(KEY_PLAYER_ANSWERED_PREFIX + characterId)
                 .apply();
+    }
+
+    /** @return The GM's version this character last got (the merge base), or null when none yet. */
+    public PlayerSheet loadPlayerBase(String characterId) {
+        return readSheet(KEY_PLAYER_BASE_PREFIX + characterId);
+    }
+
+    public void savePlayerBase(String characterId, PlayerSheet sheet) {
+        values.edit().putString(KEY_PLAYER_BASE_PREFIX + characterId, GSON.toJson(sheet.cleaned())).apply();
+    }
+
+    /** @return What this character last sent, until the GM answered it; null otherwise. */
+    public PlayerSheet loadPlayerSent(String characterId) {
+        return readSheet(KEY_PLAYER_SENT_PREFIX + characterId);
+    }
+
+    public void savePlayerSent(String characterId, PlayerSheet sheet) {
+        values.edit().putString(KEY_PLAYER_SENT_PREFIX + characterId, GSON.toJson(sheet.cleaned())).apply();
+    }
+
+    public void clearPlayerSent(String characterId) {
+        values.edit().remove(KEY_PLAYER_SENT_PREFIX + characterId).apply();
+    }
+
+    /** @return The sentAt of the last send whose answer from the GM this character has seen; 0 when none. */
+    public long getPlayerAnswered(String characterId) {
+        return readLong(KEY_PLAYER_ANSWERED_PREFIX + characterId);
+    }
+
+    public void setPlayerAnswered(String characterId, long sentAt) {
+        values.edit().putString(KEY_PLAYER_ANSWERED_PREFIX + characterId, Long.toString(sentAt)).apply();
+    }
+
+    private PlayerSheet readSheet(String key) {
+        String json = values.getString(key, null);
+        if (json == null) return null;
+        try {
+            PlayerSheet sheet = GSON.fromJson(json, PlayerSheet.class);
+            return sheet != null ? sheet.cleaned() : null;
+        } catch (JsonParseException e) {
+            return null;
+        }
     }
 
     private long readLong(String key) {

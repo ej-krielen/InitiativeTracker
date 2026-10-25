@@ -1,6 +1,7 @@
 package com.rekijan.initiativetracker.feature.sync;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -9,15 +10,12 @@ import com.rekijan.initiativetracker.feature.character.DebuffModel;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Tests {@link GmCopy}: the GM's hp, max hp and conditions survive the trip to Firestore and
- * back, replace those on the player's sheet without touching the rest, and broken or oversized
- * documents are cleaned up.
+ * Tests {@link GmCopy}: the GM's version of a character survives the trip to Firestore with the
+ * answered send, a rejection says so, and a broken document is cleaned up.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -29,83 +27,62 @@ public class GmCopyTest {
         c.setCharacterName("Valeros");
         c.setHp(12);
         c.setMaxHp(34);
+        c.setFastHealing(2);
+        c.setAc("18");
         c.getDebuffList().add(new DebuffModel("Shaken", 2, "-2 attacks"));
-        c.getDebuffList().add(new DebuffModel("Haste", 3, "+1 attack"));
         return c;
     }
 
     @Test
-    public void roundTripKeepsHpAndConditions() {
-        GmCopy back = GmCopy.fromMap(GmCopy.of(gmValeros()).toMap());
-        assertEquals(12, back.hp);
-        assertEquals(34, back.maxHp);
-        assertEquals(2, back.conditions.size());
-        assertEquals("Shaken", back.conditions.get(0).getName());
-        assertEquals(2, back.conditions.get(0).getDuration());
-        assertEquals("+1 attack", back.conditions.get(1).getDescription());
+    public void roundTripKeepsTheSheetAndTheAnswer() {
+        GmCopy back = GmCopy.fromMap(GmCopy.of(gmValeros(), 5000).toMap());
+        assertEquals("Valeros", back.sheet.name);
+        assertEquals(12, back.sheet.hp);
+        assertEquals(2, back.sheet.fastHealing);
+        assertEquals("18", back.sheet.ac);
+        assertEquals("Shaken", back.sheet.conditions.get(0).getName());
+        assertEquals(5000, back.answeredSentAt);
+        assertFalse(back.rejected);
     }
 
     @Test
-    public void applyReplacesOnlyHpAndConditions() {
-        CharacterModel player = new CharacterModel();
-        player.setCharacterName("Valeros");
-        player.setHp(34);
-        player.setMaxHp(30);
-        player.setAc("18");
-        player.setInitiative(15);
-        player.getDebuffList().add(new DebuffModel("Bless", 5, ""));
-
-        GmCopy.of(gmValeros()).applyTo(player);
-
-        assertEquals(12, player.getHp());
-        assertEquals(34, player.getMaxHp());
-        assertEquals(2, player.getDebuffList().size());
-        assertEquals("Shaken", player.getDebuffList().get(0).getName());
-        assertEquals("18", player.getAc());
-        assertEquals(15, player.getInitiative());
-        assertEquals("Valeros", player.getCharacterName());
+    public void copyHasNoSentAtButAnAnswerAndRejected() {
+        Map<String, Object> map = GmCopy.of(gmValeros(), 0).toMap();
+        assertFalse(map.containsKey(PlayerSheet.KEY_SENT_AT));
+        assertTrue(map.get(GmCopy.KEY_ANSWERED_SENT_AT) instanceof Long);
+        assertEquals(false, map.get(GmCopy.KEY_REJECTED));
     }
 
     @Test
-    public void tooManyConditionsAreCut() {
+    public void rejectionAnswersTheSend() {
+        PlayerSheet sent = PlayerSheet.of(gmValeros());
+        sent.sentAt = 7000;
+        GmCopy back = GmCopy.fromMap(GmCopy.rejection(sent).toMap());
+        assertTrue(back.rejected);
+        assertEquals(7000, back.answeredSentAt);
+    }
+
+    @Test
+    public void emptyNameIsAllowedInTheGmsCopy() {
         CharacterModel c = gmValeros();
-        for (int i = 0; i < 80; i++) c.getDebuffList().add(new DebuffModel("x" + i, 1, ""));
-        assertEquals(GmCopy.MAX_CONDITIONS, GmCopy.of(c).conditions.size());
+        c.setCharacterName("");
+        assertEquals("", GmCopy.fromMap(GmCopy.of(c, 0).toMap()).sheet.name);
     }
 
     @Test
     public void brokenDocumentIsCleaned() {
         Map<String, Object> map = new HashMap<>();
-        map.put(GmCopy.KEY_HP, 1e12);
-        map.put(GmCopy.KEY_MAX_HP, "lots");
-        List<Object> conditions = new ArrayList<>();
-        conditions.add("not a map");
-        Map<String, Object> long1 = new HashMap<>();
-        StringBuilder name = new StringBuilder();
-        for (int i = 0; i < 300; i++) name.append('n');
-        long1.put(GmCopy.KEY_CONDITION_NAME, name.toString());
-        long1.put(GmCopy.KEY_CONDITION_DURATION, -5L);
-        conditions.add(long1);
-        map.put(GmCopy.KEY_CONDITIONS, conditions);
-
+        map.put(PlayerSheet.KEY_HP, 1e12);
+        map.put(GmCopy.KEY_ANSWERED_SENT_AT, -5L);
+        map.put(GmCopy.KEY_REJECTED, "yes");
         GmCopy copy = GmCopy.fromMap(map);
-        assertEquals(CharacterModel.MAX_HP, copy.hp);
-        assertEquals(0, copy.maxHp);
-        assertEquals(1, copy.conditions.size());
-        assertEquals(GmCopy.MAX_CONDITION_NAME, copy.conditions.get(0).getName().length());
-        assertEquals(0, copy.conditions.get(0).getDuration());
-        assertEquals("", copy.conditions.get(0).getDescription());
+        assertEquals(CharacterModel.MAX_HP, copy.sheet.hp);
+        assertEquals(0, copy.answeredSentAt);
+        assertFalse(copy.rejected);
     }
 
     @Test
     public void noMapGivesNull() {
         assertNull(GmCopy.fromMap(null));
-    }
-
-    @Test
-    public void numbersAreSentAsLong() {
-        Map<String, Object> map = GmCopy.of(gmValeros()).toMap();
-        assertTrue(map.get(GmCopy.KEY_HP) instanceof Long);
-        assertTrue(map.get(GmCopy.KEY_CONDITIONS) instanceof List);
     }
 }

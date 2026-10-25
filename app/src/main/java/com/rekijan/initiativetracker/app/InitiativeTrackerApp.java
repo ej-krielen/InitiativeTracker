@@ -117,6 +117,16 @@ public class InitiativeTrackerApp extends Application implements SyncManager.Hos
     }
 
     @Override
+    public CharacterModel loadPlayer(String id) {
+        return players.load(id);
+    }
+
+    @Override
+    public void savePlayer(String id, CharacterModel character) {
+        players.save(id, character);
+    }
+
+    @Override
     public void saveEncounter() {
         if (encounter != null) {
             parties.save(parties.getActiveId(), encounter.getCharacters(), encounter.getRound());

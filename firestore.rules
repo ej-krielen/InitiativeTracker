@@ -7,7 +7,7 @@ rules_version = '2';
 // Data:
 //   sessions/{code}                  gmUid, createdAt, expiresAt          (written by the GM)
 //   sessions/{code}/players/{docId}  a player character's sheet, sentAt, expiresAt (that player)
-//   sessions/{code}/gmCopies/{docId} the GM's copy: hp, maxHp, conditions, expiresAt (the GM)
+//   sessions/{code}/gmCopies/{docId} the GM's version of that sheet, answeredSentAt, rejected (the GM)
 //   docId = "<player uid>_<character id>"
 //
 // Keep in sync with the app: SessionCodes (code pattern), SyncIds (docId), PlayerSheet and GmCopy
@@ -56,34 +56,47 @@ service cloud.firestore {
       return docId.matches('^[A-Za-z0-9]+_[A-Za-z0-9-]{1,64}$');
     }
 
-    function validGmCopy(code, d) {
-      return d.keys().hasOnly(['hp', 'maxHp', 'conditions', 'expiresAt'])
-          && d.keys().hasAll(['hp', 'maxHp', 'conditions', 'expiresAt'])
-          && whole(d, 'hp', -99999, 99999)
-          && whole(d, 'maxHp', 0, 99999)
-          // Each condition is checked by the apps; here only the count (GmCopy.MAX_CONDITIONS)
-          && d.conditions is list && d.conditions.size() <= 50
-          && d.expiresAt == session(code).expiresAt;
-    }
-
-    function validSheet(code, d) {
-      return d.keys().hasOnly(['name', 'initiative', 'initiativeBonus', 'hp', 'maxHp', 'ac', 'saves',
-                               'maneuvers', 'skills', 'attackRoutine', 'notes', 'sentAt', 'expiresAt'])
-          && d.keys().hasAll(['name', 'initiative', 'initiativeBonus', 'hp', 'maxHp', 'ac', 'saves',
-                              'maneuvers', 'skills', 'attackRoutine', 'notes', 'sentAt', 'expiresAt'])
-          && text(d, 'name', 50) && d.name.size() > 0
+    // The fields of a sheet (PlayerSheet), shared by a player's send and the GM's copy. Each
+    // condition is checked by the apps; here only their number (PlayerSheet.MAX_CONDITIONS).
+    function validSheetFields(d) {
+      return text(d, 'name', 50)
           && whole(d, 'initiative', -99, 999)
           && whole(d, 'initiativeBonus', -99, 999)
           && whole(d, 'hp', -99999, 99999)
           && whole(d, 'maxHp', 0, 99999)
+          && whole(d, 'fastHealing', 0, 999)
+          && whole(d, 'regeneration', 0, 999)
           && text(d, 'ac', 200)
           && text(d, 'saves', 200)
           && text(d, 'maneuvers', 200)
           && text(d, 'skills', 1000)
           && text(d, 'attackRoutine', 1000)
           && text(d, 'notes', 2000)
+          && d.conditions is list && d.conditions.size() <= 50;
+    }
+
+    function sheetKeys() {
+      return ['name', 'initiative', 'initiativeBonus', 'hp', 'maxHp', 'fastHealing', 'regeneration',
+              'ac', 'saves', 'maneuvers', 'skills', 'attackRoutine', 'notes', 'conditions', 'expiresAt'];
+    }
+
+    // A player's send: the sheet with a name, and when it was sent
+    function validSheet(code, d) {
+      return d.keys().hasOnly(sheetKeys().concat(['sentAt']))
+          && d.keys().hasAll(sheetKeys().concat(['sentAt']))
+          && validSheetFields(d)
+          && d.name.size() > 0
           && d.sentAt is int && d.sentAt >= 0
-          // A player's sheet expires together with the session
+          && d.expiresAt == session(code).expiresAt;
+    }
+
+    // The GM's copy: the sheet (a name may be empty), the send it answers, and a rejected join
+    function validGmCopy(code, d) {
+      return d.keys().hasOnly(sheetKeys().concat(['answeredSentAt', 'rejected']))
+          && d.keys().hasAll(sheetKeys().concat(['answeredSentAt', 'rejected']))
+          && validSheetFields(d)
+          && d.answeredSentAt is int && d.answeredSentAt >= 0
+          && d.rejected is bool
           && d.expiresAt == session(code).expiresAt;
     }
 
@@ -129,8 +142,8 @@ service cloud.firestore {
         allow delete: if signedIn() && (ownsDoc(docId) || isGm(code));
       }
 
-      // The GM's copy of a player character (hp, max hp, conditions), same document id. The GM
-      // leads: only the GM writes it, and only that player (and the GM) can read it, so a player
+      // The GM's version of a player character, same document id. The GM is the final arbiter:
+      // only the GM writes it, and only that player (and the GM) can read it, so a player
       // never sees other characters or monsters.
       match /gmCopies/{docId} {
         allow read: if signedIn() && (ownsDoc(docId) || isGm(code));

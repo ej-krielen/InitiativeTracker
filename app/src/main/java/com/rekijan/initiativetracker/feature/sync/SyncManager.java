@@ -26,18 +26,20 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Runs Table sync for the whole app, so it keeps working whichever screen is open. Follows
- * Secret Roller's SessionManager.
+ * Secret Roller's SessionManager. The GM is the final arbiter of every player character.
  * <p>
- * GM side: starts a session tied to the active party, listens to the players' sheets and merges
- * new sends into that party ({@link SyncMerge}) while it is the active one; after switching back
- * to it, the latest sheets are merged again. The GM leads: a few seconds after a synced character
- * changes in that party, the GM's copy of it ({@link GmCopy}: hp, max hp, conditions) is uploaded,
- * so the player can pull it. The session survives an app restart. Firestore drops a listener
- * after an error; it is attached again after a delay that doubles up to five minutes, and a
- * session that turns out to be gone is ended.
+ * GM side: starts a session tied to the active party and listens to the players' sends. A send
+ * becomes a request ({@link #nextRequest}): a new player asks to join, a known one asks for the
+ * changes in {@link SyncDiff}. The GM approves (some of) them or refuses; a send that changes
+ * nothing is answered silently. Requests only show while the hosted party is the active one. A
+ * few seconds after a synced character changes in that party, and right after every answer, the
+ * GM's copy ({@link GmCopy}) is uploaded. Firestore drops a listener after an error; it is
+ * attached again after a delay that doubles up to five minutes, and a session that turns out to
+ * be gone is ended.
  * <p>
- * Player side, per player character: joins a session by code, sends the character's stats, and
- * pulls the GM's copy with Sync. A player only ever reads their own character's copy.
+ * Player side, per player character: joins a session by code and sends the whole sheet. While
+ * its screen is open it follows the GM's copy live and merges it in ({@link SheetMerge}), so the
+ * GM's answer and later changes arrive by themselves and unsent edits are kept.
  * <p>
  * Signing in (anonymously) only happens when the user starts or joins a session, so users who
  * never use Table sync never get a Firebase account. Firebase itself (App Check, Firestore) is
@@ -56,13 +58,17 @@ public class SyncManager implements Encounter.Listener {
     /** The GM's copies go up this long after the last change, so typing doesn't write every key. */
     private static final long UPLOAD_DELAY_MS = TimeUnit.SECONDS.toMillis(3);
 
-    /** The app side Table sync needs: the active party and saving it. */
+    /** The app side Table sync needs: the active party, saving it, and the player characters. */
     public interface Host {
         String getActivePartyId();
 
         Encounter getEncounter();
 
         void saveEncounter();
+
+        CharacterModel loadPlayer(String id);
+
+        void savePlayer(String id, CharacterModel character);
     }
 
     /** Told when anything Table sync shows has changed: state, players, a merge. */
@@ -70,9 +76,48 @@ public class SyncManager implements Encounter.Listener {
         void onSyncStateChanged();
     }
 
-    /** Told about characters a merge added, to show who joined. */
-    public interface JoinListener {
-        void onPlayersAdded(List<String> names);
+    /** Told when there may be a request for the GM to answer. */
+    public interface RequestListener {
+        void onRequestsChanged();
+    }
+
+    /** Told when the GM's version was merged into a player character. */
+    public interface PlayerUpdateListener {
+        /**
+         * @param characterId The player character that changed (saved already).
+         * @param answer      What the GM decided about the last send, or {@link Answer#NONE}.
+         * @param kept        With {@link Answer#KEPT}: how many sent values the GM kept as they were.
+         */
+        void onPlayerUpdated(String characterId, Answer answer, int kept);
+    }
+
+    /** The GM's answer to a player's send, as the player sees it. */
+    public enum Answer {
+        /** No answer in this update, only a change by the GM. */
+        NONE,
+        /** Everything sent was accepted. */
+        ACCEPTED,
+        /** Some sent values are the GM's again. */
+        KEPT,
+        /** The GM didn't let the character join; it left the session. */
+        REJECTED
+    }
+
+    /** A player's send waiting for the GM. */
+    public static final class Request {
+        public final String docId;
+        public final PlayerSheet sheet;
+        /** True when the character isn't in the party: the player asks to join. */
+        public final boolean join;
+        /** For a known character: the changes from the GM's version to the send. */
+        public final List<SyncDiff.Change> changes;
+
+        Request(String docId, PlayerSheet sheet, boolean join, List<SyncDiff.Change> changes) {
+            this.docId = docId;
+            this.sheet = sheet;
+            this.join = join;
+            this.changes = changes;
+        }
     }
 
     /** Result of an action the user waits for. */
@@ -80,20 +125,6 @@ public class SyncManager implements Encounter.Listener {
         void onSuccess();
 
         /** The session code doesn't exist (any more). */
-        void onNotFound();
-
-        void onFailure(Exception e);
-    }
-
-    /** Result of a player's Sync. */
-    public interface PullCallback {
-        /** The GM's copy was put on the character (and saved by the caller). */
-        void onPulled();
-
-        /** The GM's app hasn't uploaded a copy of this character yet. */
-        void onNoCopy();
-
-        /** The session doesn't exist any more; the character has left it. */
         void onNotFound();
 
         void onFailure(Exception e);
@@ -110,11 +141,16 @@ public class SyncManager implements Encounter.Listener {
     private final Handler uploadHandler = new Handler(Looper.getMainLooper());
     private final Runnable upload = this::uploadGmCopies;
     private final List<StateListener> stateListeners = new ArrayList<>();
-    private JoinListener joinListener;
+    private RequestListener requestListener;
+    private PlayerUpdateListener playerUpdateListener;
     private ListenerRegistration playersRegistration;
     private Map<String, PlayerSheet> lastSheets = new LinkedHashMap<>();
+    /** Per document id, the latest send the GM hasn't answered yet. */
+    private final Map<String, PlayerSheet> requests = new LinkedHashMap<>();
     /** Per document id, the GM's copy last uploaded in this run, to skip unchanged ones. */
     private final Map<String, Map<String, Object>> uploaded = new HashMap<>();
+    /** Per player character id, the live listener on its GM's copy. */
+    private final Map<String, ListenerRegistration> playerWatches = new HashMap<>();
     private long retryDelayMs = RETRY_MIN_MS;
 
     /**
@@ -135,8 +171,12 @@ public class SyncManager implements Encounter.Listener {
         stateListeners.remove(listener);
     }
 
-    public void setJoinListener(@Nullable JoinListener listener) {
-        joinListener = listener;
+    public void setRequestListener(@Nullable RequestListener listener) {
+        requestListener = listener;
+    }
+
+    public void setPlayerUpdateListener(@Nullable PlayerUpdateListener listener) {
+        playerUpdateListener = listener;
     }
 
     // ---------------------------------------------------------------- GM
@@ -176,6 +216,7 @@ public class SyncManager implements Encounter.Listener {
                     public void onCreated(String code) {
                         store.startHosting(code, host.getActivePartyId());
                         lastSheets = new LinkedHashMap<>();
+                        requests.clear();
                         uploaded.clear();
                         startWatchingParty();
                         attachListener(code);
@@ -213,10 +254,10 @@ public class SyncManager implements Encounter.Listener {
         repository.deleteSession(code, callback);
     }
 
-    /** The active party changed: merge the latest sheets when it is the hosted party again. */
+    /** The active party changed: requests and uploads pick up again when it is the hosted party. */
     public void onActivePartyChanged() {
-        mergeIntoActiveParty();
         scheduleUpload();
+        notifyRequests();
     }
 
     /** A party was deleted: when it was the hosted one, the session ends. */
@@ -242,6 +283,88 @@ public class SyncManager implements Encounter.Listener {
         scheduleUpload();
     }
 
+    /**
+     * @return The next send for the GM to answer, or null when there is none or the hosted party
+     * isn't the active one. Sends that change nothing are answered on the way.
+     */
+    @Nullable
+    public Request nextRequest() {
+        if (!hostedPartyIsActive()) return null;
+        Request next = null;
+        boolean answeredAny = false;
+        for (Map.Entry<String, PlayerSheet> e : new ArrayList<>(requests.entrySet())) {
+            String docId = e.getKey();
+            PlayerSheet sheet = e.getValue();
+            CharacterModel character = find(docId);
+            if (character == null) {
+                next = new Request(docId, sheet, true, Collections.emptyList());
+                break;
+            }
+            List<SyncDiff.Change> changes = SyncDiff.changes(PlayerSheet.of(character), sheet);
+            if (!changes.isEmpty()) {
+                next = new Request(docId, sheet, false, changes);
+                break;
+            }
+            markAnswered(docId, sheet.sentAt);
+            answeredAny = true;
+        }
+        // The player waits for an answer, also when nothing changed
+        if (answeredAny) uploadNow();
+        return next;
+    }
+
+    /**
+     * The GM accepts a request: a new player is added as a PC, or the accepted changes are made.
+     * Changes not in {@code accepted} keep the GM's value; the player gets that back.
+     */
+    public void approve(@NonNull Request request, @NonNull List<SyncDiff.Change> accepted) {
+        if (!hostedPartyIsActive()) return;
+        Encounter encounter = host.getEncounter();
+        CharacterModel character = find(request.docId);
+        if (request.join || character == null) {
+            CharacterModel added = new CharacterModel();
+            added.setSyncId(request.docId);
+            request.sheet.applyTo(added);
+            added.setPC(true);
+            encounter.add(added);
+        } else {
+            SyncDiff.apply(PlayerSheet.of(character), request.sheet, accepted).applyTo(character);
+            encounter.notifyChanged();
+        }
+        host.saveEncounter();
+        markAnswered(request.docId, request.sheet.sentAt);
+        uploadNow();
+        notifyStateChanged();
+        notifyRequests();
+    }
+
+    /**
+     * The GM refuses a request: a new player isn't added (they are told), a known one gets the
+     * GM's version back.
+     */
+    public void refuse(@NonNull Request request) {
+        String code = store.getHostCode();
+        if (code == null) return;
+        markAnswered(request.docId, request.sheet.sentAt);
+        if (request.join && find(request.docId) == null) {
+            GmCopy rejection = GmCopy.rejection(request.sheet);
+            repository.fetchExpiry(code, new SyncRepository.ExpiryCallback() {
+                @Override
+                public void onResult(@Nullable Timestamp expiresAt) {
+                    if (expiresAt != null) repository.saveGmCopy(code, request.docId, rejection, expiresAt);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    // Logged by the repository; the player keeps waiting until they leave
+                }
+            });
+        } else {
+            uploadNow();
+        }
+        notifyRequests();
+    }
+
     // ---------------------------------------------------------------- Player
 
     /** @return The code of the session this player character joined, or null. */
@@ -255,9 +378,24 @@ public class SyncManager implements Encounter.Listener {
         return store.getPlayerSentAt(characterId);
     }
 
-    /** @return When the GM's copy was last pulled, in ms, or 0 when never (in this session). */
+    /** @return When the GM's version last came in, in ms, or 0 when never (in this session). */
     public long getPlayerSyncedAt(String characterId) {
         return store.getPlayerSyncedAt(characterId);
+    }
+
+    /** @return True when the character sent something the GM hasn't answered yet. */
+    public boolean isWaitingForGm(String characterId) {
+        return store.getPlayerCode(characterId) != null && store.loadPlayerSent(characterId) != null;
+    }
+
+    /**
+     * @return What the player changed since the GM's last version, or null when they never got
+     * one (not added yet), in which case the whole sheet is still to be sent.
+     */
+    @Nullable
+    public List<SyncDiff.Change> getUnsentChanges(String characterId, CharacterModel character) {
+        PlayerSheet base = store.loadPlayerBase(characterId);
+        return base == null ? null : SyncDiff.changes(base, PlayerSheet.of(character));
     }
 
     /**
@@ -296,8 +434,8 @@ public class SyncManager implements Encounter.Listener {
     }
 
     /**
-     * Sends the character's stats to the joined session. When the session is gone, the character
-     * leaves it and the caller is told.
+     * Sends the whole sheet to the joined session, as a request for the GM. When the session is
+     * gone, the character leaves it and the caller is told.
      */
     public void send(@NonNull String characterId, @NonNull CharacterModel character, @NonNull Callback callback) {
         String code = store.getPlayerCode(characterId);
@@ -323,6 +461,7 @@ public class SyncManager implements Encounter.Listener {
                             @Override
                             public void onSuccess() {
                                 store.setPlayerSentAt(characterId, sheet.sentAt);
+                                store.savePlayerSent(characterId, sheet);
                                 notifyStateChanged();
                                 callback.onSuccess();
                             }
@@ -349,63 +488,39 @@ public class SyncManager implements Encounter.Listener {
     }
 
     /**
-     * Sync: gets the GM's copy of this character and puts its hp, max hp and conditions on it.
-     * The caller saves the character and redraws the sheet.
+     * Follows the GM's copy of this character live, while its screen is open. Does nothing when
+     * it isn't in a session or is followed already.
      */
-    public void pull(@NonNull String characterId, @NonNull CharacterModel character, @NonNull PullCallback callback) {
+    public void watchPlayer(String characterId) {
         String code = store.getPlayerCode(characterId);
-        if (code == null) {
-            callback.onNotFound();
-            return;
-        }
-        signIn(new SignInCallback() {
+        if (code == null || playerWatches.containsKey(characterId)) return;
+        ensureFirebase();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        String docId = SyncIds.playerDocId(user.getUid(), characterId);
+        playerWatches.put(characterId, repository.listenToGmCopy(code, docId, new SyncRepository.GmCopyListener() {
             @Override
-            public void onSignedIn(String uid) {
-                repository.fetchExpiry(code, new SyncRepository.ExpiryCallback() {
-                    @Override
-                    public void onResult(@Nullable Timestamp expiresAt) {
-                        if (expiresAt == null) {
-                            leaveGoneSession(characterId);
-                            callback.onNotFound();
-                            return;
-                        }
-                        repository.fetchGmCopy(code, SyncIds.playerDocId(uid, characterId),
-                                new SyncRepository.GmCopyCallback() {
-                                    @Override
-                                    public void onResult(@Nullable GmCopy copy) {
-                                        if (copy == null) {
-                                            callback.onNoCopy();
-                                            return;
-                                        }
-                                        copy.applyTo(character);
-                                        store.setPlayerSyncedAt(characterId, System.currentTimeMillis());
-                                        notifyStateChanged();
-                                        callback.onPulled();
-                                    }
-
-                                    @Override
-                                    public void onFailure(Exception e) {
-                                        callback.onFailure(e);
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        callback.onFailure(e);
-                    }
-                });
+            public void onGmCopy(@Nullable GmCopy copy) {
+                if (copy != null && code.equals(store.getPlayerCode(characterId))) onGmCopyReceived(characterId, copy);
             }
 
             @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
+            public void onError(FirebaseFirestoreException error) {
+                Log.w(TAG, "GM copy listener error: " + error.getCode(), error);
+                // Firestore has removed the listener; the next time the screen opens it is attached again
+                playerWatches.remove(characterId);
             }
-        });
+        }));
+    }
+
+    public void unwatchPlayer(String characterId) {
+        ListenerRegistration registration = playerWatches.remove(characterId);
+        if (registration != null) registration.remove();
     }
 
     /** Leaves the joined session; the sheet sent to it is removed (best effort). */
     public void leave(String characterId) {
+        unwatchPlayer(characterId);
         String code = store.getPlayerCode(characterId);
         if (code != null) {
             ensureFirebase();
@@ -422,7 +537,57 @@ public class SyncManager implements Encounter.Listener {
         store.forgetPlayer(characterId);
     }
 
-    // ---------------------------------------------------------------- Private
+    // ---------------------------------------------------------------- Private: player
+
+    /**
+     * Merges the GM's version into the player character. When it answers the last send, the
+     * merge base is what was sent, so refused values go back to the GM's; otherwise it is the GM's
+     * previous version, so only what the GM changed comes in.
+     */
+    private void onGmCopyReceived(String characterId, GmCopy copy) {
+        Log.d(TAG, "GM copy received, answered " + copy.answeredSentAt);
+        PlayerSheet sent = store.loadPlayerSent(characterId);
+        long lastSentAt = store.getPlayerSentAt(characterId);
+        boolean answer = sent != null && copy.answeredSentAt >= lastSentAt;
+        if (answer && copy.rejected) {
+            store.clearPlayerSent(characterId);
+            leave(characterId);
+            if (playerUpdateListener != null) playerUpdateListener.onPlayerUpdated(characterId, Answer.REJECTED, 0);
+            return;
+        }
+        if (copy.rejected) return;
+
+        CharacterModel character = host.loadPlayer(characterId);
+        PlayerSheet local = PlayerSheet.of(character);
+        PlayerSheet base = store.loadPlayerBase(characterId);
+        PlayerSheet mergeBase = answer ? sent : base != null ? base : copy.sheet;
+        PlayerSheet merged = SheetMerge.merge(mergeBase, local, copy.sheet);
+
+        Answer result = Answer.NONE;
+        int kept = 0;
+        if (answer) {
+            kept = SyncDiff.changes(copy.sheet, sent).size();
+            result = kept == 0 ? Answer.ACCEPTED : Answer.KEPT;
+            store.setPlayerAnswered(characterId, lastSentAt);
+            store.clearPlayerSent(characterId);
+        }
+        store.savePlayerBase(characterId, copy.sheet);
+        store.setPlayerSyncedAt(characterId, System.currentTimeMillis());
+        if (!SyncDiff.changes(local, merged).isEmpty()) {
+            merged.applyTo(character);
+            host.savePlayer(characterId, character);
+        }
+        notifyStateChanged();
+        if (playerUpdateListener != null) playerUpdateListener.onPlayerUpdated(characterId, result, kept);
+    }
+
+    private void leaveGoneSession(String characterId) {
+        unwatchPlayer(characterId);
+        store.setPlayerCode(characterId, null);
+        notifyStateChanged();
+    }
+
+    // ---------------------------------------------------------------- Private: sign-in
 
     private interface SignInCallback {
         void onSignedIn(String uid);
@@ -469,10 +634,7 @@ public class SyncManager implements Encounter.Listener {
         firebaseReady = true;
     }
 
-    private void leaveGoneSession(String characterId) {
-        store.setPlayerCode(characterId, null);
-        notifyStateChanged();
-    }
+    // ---------------------------------------------------------------- Private: GM
 
     private void attachListener(String code) {
         cancelRetry();
@@ -483,8 +645,18 @@ public class SyncManager implements Encounter.Listener {
                 if (!code.equals(store.getHostCode())) return;
                 retryDelayMs = RETRY_MIN_MS;
                 lastSheets = new LinkedHashMap<>(sheets);
-                mergeIntoActiveParty();
+                Map<String, Long> answered = store.loadApplied();
+                requests.keySet().retainAll(sheets.keySet());
+                for (Map.Entry<String, PlayerSheet> e : sheets.entrySet()) {
+                    Long last = answered.get(e.getKey());
+                    if (last == null || e.getValue().sentAt > last) {
+                        requests.put(e.getKey(), e.getValue());
+                    } else {
+                        requests.remove(e.getKey());
+                    }
+                }
                 notifyStateChanged();
+                notifyRequests();
             }
 
             @Override
@@ -497,31 +669,31 @@ public class SyncManager implements Encounter.Listener {
         });
     }
 
+    /** Remembers that the GM answered this send; an older answer never overrides a newer one. */
+    private void markAnswered(String docId, long sentAt) {
+        Map<String, Long> answered = store.loadApplied();
+        Long last = answered.get(docId);
+        if (last == null || sentAt > last) {
+            answered.put(docId, sentAt);
+            store.saveApplied(answered);
+        }
+        PlayerSheet waiting = requests.get(docId);
+        if (waiting != null && waiting.sentAt <= sentAt) requests.remove(docId);
+    }
+
+    /** @return The first character in the active party sent by this player character, or null. */
+    @Nullable
+    private CharacterModel find(String docId) {
+        for (CharacterModel c : host.getEncounter().getCharacters()) {
+            if (docId.equals(c.getSyncId())) return c;
+        }
+        return null;
+    }
+
     /** @return True when hosting and the hosted party is the one in the encounter. */
     private boolean hostedPartyIsActive() {
         String partyId = store.getHostPartyId();
         return store.getHostCode() != null && partyId != null && partyId.equals(host.getActivePartyId());
-    }
-
-    /** Merges the latest sheets into the active party, only when it is the hosted party. */
-    private void mergeIntoActiveParty() {
-        if (!hostedPartyIsActive() || lastSheets.isEmpty()) return;
-        Encounter encounter = host.getEncounter();
-        Map<String, Long> applied = store.loadApplied();
-        SyncMerge.Result result = SyncMerge.merge(encounter.getCharacters(), applied, lastSheets);
-        if (!result.hasChanges()) return;
-        if (!result.added.isEmpty()) {
-            encounter.addAll(result.added);
-        } else {
-            encounter.notifyChanged();
-        }
-        store.saveApplied(applied);
-        host.saveEncounter();
-        if (!result.added.isEmpty() && joinListener != null) {
-            List<String> names = new ArrayList<>();
-            for (CharacterModel c : result.added) names.add(c.getCharacterName());
-            joinListener.onPlayersAdded(names);
-        }
     }
 
     private void startWatchingParty() {
@@ -534,28 +706,33 @@ public class SyncManager implements Encounter.Listener {
         uploadHandler.postDelayed(upload, UPLOAD_DELAY_MS);
     }
 
+    private void uploadNow() {
+        uploadHandler.removeCallbacks(upload);
+        uploadGmCopies();
+    }
+
     /** Uploads the GM's copy of every synced character in the hosted party that changed. */
     private void uploadGmCopies() {
         if (!hostedPartyIsActive()) return;
         String code = store.getHostCode();
-        Map<String, Map<String, Object>> changed = new HashMap<>();
-        Map<String, GmCopy> copies = new HashMap<>();
+        Map<String, Long> answered = store.loadApplied();
+        Map<String, GmCopy> changed = new HashMap<>();
         for (CharacterModel c : host.getEncounter().getCharacters()) {
             String docId = c.getSyncId();
-            if (docId == null || SyncIds.ownerUid(docId).isEmpty() || copies.containsKey(docId)) continue;
-            GmCopy copy = GmCopy.of(c);
-            Map<String, Object> map = copy.toMap();
-            copies.put(docId, copy);
-            if (!map.equals(uploaded.get(docId))) changed.put(docId, map);
+            if (docId == null || SyncIds.ownerUid(docId).isEmpty() || changed.containsKey(docId)) continue;
+            Long last = answered.get(docId);
+            GmCopy copy = GmCopy.of(c, last != null ? last : 0);
+            if (!copy.toMap().equals(uploaded.get(docId))) changed.put(docId, copy);
         }
         if (changed.isEmpty()) return;
         repository.fetchExpiry(code, new SyncRepository.ExpiryCallback() {
             @Override
             public void onResult(@Nullable Timestamp expiresAt) {
                 if (expiresAt == null || !code.equals(store.getHostCode())) return;
-                for (Map.Entry<String, Map<String, Object>> e : changed.entrySet()) {
-                    repository.saveGmCopy(code, e.getKey(), copies.get(e.getKey()), expiresAt);
-                    uploaded.put(e.getKey(), e.getValue());
+                for (Map.Entry<String, GmCopy> e : changed.entrySet()) {
+                    Log.d(TAG, "Uploading GM copy for " + e.getKey());
+                    repository.saveGmCopy(code, e.getKey(), e.getValue(), expiresAt);
+                    uploaded.put(e.getKey(), e.getValue().toMap());
                 }
             }
 
@@ -598,9 +775,11 @@ public class SyncManager implements Encounter.Listener {
         host.getEncounter().removeListener(this);
         store.stopHosting();
         lastSheets = new LinkedHashMap<>();
+        requests.clear();
         uploaded.clear();
         retryDelayMs = RETRY_MIN_MS;
         notifyStateChanged();
+        notifyRequests();
     }
 
     private void scheduleRetry(String code) {
@@ -627,5 +806,9 @@ public class SyncManager implements Encounter.Listener {
         for (StateListener l : new ArrayList<>(stateListeners)) {
             l.onSyncStateChanged();
         }
+    }
+
+    private void notifyRequests() {
+        if (requestListener != null) requestListener.onRequestsChanged();
     }
 }
