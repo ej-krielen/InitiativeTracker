@@ -1,53 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Landscape: the encounter on the left, the details of a character on the right.
+    Landscape: the navigation drawer over the encounter on the left, the details of a character on the right.
     MainActivity checks for second_fragment_container to know it has two panes.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
-    android:orientation="vertical">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/rk_wordmark" />
+    android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground"
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/main_fragment_container"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:title="@string/app_name"
+            app:titleTextColor="@color/rk_wordmark" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="?attr/colorOutlineVariant" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
-        <FrameLayout
-            android:id="@+id/second_fragment_container"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            <FrameLayout
+                android:id="@+id/main_fragment_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="?attr/colorOutlineVariant" />
+
+            <FrameLayout
+                android:id="@+id/second_fragment_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Ad bar under both panes: stays GONE until an ad has loaded, and for Remove Ads owners -->
+        <nl.rekijan.ads.RekijanBannerAdView
+            android:id="@+id/bottomAdBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/colorBackground"
+            android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Ad bar under both panes: stays GONE until an ad has loaded, and for Remove Ads owners -->
-    <nl.rekijan.ads.RekijanBannerAdView
-        android:id="@+id/bottomAdBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/colorBackground"
-        android:visibility="gone" />
-</LinearLayout>
+    <!-- The drawer: its whole content is the header (nav_header). MainActivity pads it for the
+         status bar and navigation bar, so no fitsSystemWindows and no inset scrims. -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:bottomInsetScrimEnabled="false"
+        app:headerLayout="@layout/nav_header"
+        app:topInsetScrimEnabled="false" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

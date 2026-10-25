@@ -2,4 +2,8 @@
 <resources>
     <!-- View tag holding the TextWatcher of a bound EditText (TextBinding) -->
     <item name="tag_text_watcher" type="id" />
+    <!-- Party row menu in the drawer (NavDrawer) -->
+    <item name="party_menu_rename" type="id" />
+    <item name="party_menu_duplicate" type="id" />
+    <item name="party_menu_delete" type="id" />
 </resources>

@@ -1,36 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Main screen: toolbar, one pane (the encounter, or the details / Edit Order in its place)
-    and the ad bar.
+    and the ad bar, with the navigation drawer (parties and app items) over it.
     layout-land puts the details next to the list. Edge-to-edge: MainActivity pads the root for
     the status bar, navigation bar and keyboard, so nothing here uses fitsSystemWindows.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/rk_wordmark" />
-
-    <FrameLayout
-        android:id="@+id/main_fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- Ad bar: stays GONE (zero height) until an ad has loaded, and for Remove Ads owners -->
-    <nl.rekijan.ads.RekijanBannerAdView
-        android:id="@+id/bottomAdBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="?android:attr/colorBackground"
-        android:visibility="gone" />
-</LinearLayout>
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:title="@string/app_name"
+            app:titleTextColor="@color/rk_wordmark" />
+
+        <FrameLayout
+            android:id="@+id/main_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Ad bar: stays GONE (zero height) until an ad has loaded, and for Remove Ads owners -->
+        <nl.rekijan.ads.RekijanBannerAdView
+            android:id="@+id/bottomAdBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/colorBackground"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- The drawer: its whole content is the header (nav_header). MainActivity pads it for the
+         status bar and navigation bar, so no fitsSystemWindows and no inset scrims. -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:bottomInsetScrimEnabled="false"
+        app:headerLayout="@layout/nav_header"
+        app:topInsetScrimEnabled="false" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -228,6 +228,47 @@
     </style>
 
 
+    <!-- ======================= 5b. NAVIGATION DRAWER ======================= -->
+
+    <!-- Drawer group title ("PARTIES", "SUPPORT"), with a divider line above it. Same as Secret Roller. -->
+    <style name="Widget.Rekijan.NavCategory" parent="">
+        <item name="android:background">@drawable/bg_nav_category</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <!-- Drawer row: a pill that shows a gold marker when selected (the active party) -->
+    <style name="Widget.Rekijan.NavItem" parent="">
+        <item name="android:layout_marginStart">12dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:background">@drawable/bg_nav_item</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- Gold drawer row with an icon: New party, Get more parties -->
+    <style name="Widget.Rekijan.NavItem.Action">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:drawablePadding">12dp</item>
+        <item name="android:drawableTint">?attr/colorSecondary</item>
+    </style>
+
+
     <!-- ======================= 6. DIALOGS ======================= -->
 
     <!-- Overlay for every MaterialAlertDialogBuilder: gold text buttons and a Cinzel title -->

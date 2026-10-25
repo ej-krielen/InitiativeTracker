@@ -17,6 +17,51 @@
     <string name="action_remove_ads_price">Remove Ads (%1$s)</string>
     <string name="action_privacy_settings">Privacy Settings</string>
 
+    <!-- Drawer -->
+    <string name="nav_drawer_open">Open menu</string>
+    <string name="nav_drawer_close">Close menu</string>
+    <string name="nav_back">Back</string>
+    <string name="nav_category_parties">Parties</string>
+    <string name="nav_category_support">Support</string>
+    <string name="nav_category_more">More</string>
+    <string name="nav_new_party">New party</string>
+    <string name="nav_party_slots">%1$d of %2$d parties used</string>
+    <string name="nav_get_more_parties">Get more parties</string>
+    <string name="nav_active_party">%1$s · round %2$d</string>
+    <string name="nav_party_options">Options for %1$s</string>
+
+    <!-- Parties -->
+    <!-- Name of the party made from the 1.x save, or the first party of a fresh install -->
+    <string name="party_first_name">My party</string>
+    <!-- New parties are suggested as "Party 2", "Party 3", ... -->
+    <string name="party_new_name_prefix">Party</string>
+    <string name="party_menu_rename">Rename</string>
+    <string name="party_menu_duplicate">Duplicate</string>
+    <string name="party_menu_delete">Delete</string>
+    <string name="dialog_party_new_title">New party</string>
+    <string name="dialog_party_rename_title">Rename party</string>
+    <string name="dialog_party_name_hint">Party name</string>
+    <string name="dialog_party_create">Create</string>
+    <string name="dialog_party_save">Save</string>
+    <string name="error_party_name_empty">Enter a name</string>
+    <string name="error_party_name_too_long">Use at most %1$d characters</string>
+    <string name="error_party_name_duplicate">You already have a party with this name</string>
+    <string name="dialog_party_delete_title">Delete party?</string>
+    <plurals name="dialog_party_delete_message">
+        <item quantity="one">%1$s, its %2$d character and its round counter will be deleted. This can\'t be undone.</item>
+        <item quantity="other">%1$s, its %2$d characters and its round counter will be deleted. This can\'t be undone.</item>
+    </plurals>
+    <string name="dialog_party_delete_button">Delete</string>
+    <string name="toast_party_last">You need at least one party</string>
+    <string name="dialog_party_limit_title">All party slots used</string>
+    <string name="dialog_party_limit_message">You use %1$d of %2$d parties. Delete a party you no longer use to make room.</string>
+    <string name="dialog_party_limit_buy_message">You use %1$d of %2$d parties. A party pack adds %3$d more, for %4$s. You can also delete a party you no longer use.</string>
+    <string name="dialog_party_more_title">Get more parties</string>
+    <string name="dialog_party_more_message">You use %1$d of %2$d parties. A party pack adds %3$d more, for %4$s.</string>
+    <string name="button_get_party_pack">Get %1$d more</string>
+    <string name="dialog_not_now">Not now</string>
+    <string name="billing_party_pack_thanks">You can now have %1$d parties</string>
+
     <string name="toast_max_hp">The following PCs did not get updated because their max hp was not higher then their current hp.\n\u0020\n%1$s</string>
 
     <!-- Character Cards-->
@@ -139,7 +184,7 @@
     <string name="billing_ads_already_removed">Ads are already removed.</string>
 
     <!--Privacy Policy dialog    -->
-    <string name="dialog_privacy_info">Everything you enter stays on your device, including your characters and the round counter.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips and Remove Ads are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
+    <string name="dialog_privacy_info">Everything you enter stays on your device, including your parties, their characters and round counters.\n\n<b>Ads</b>\nThe free version shows ads from Google AdMob. Google may use information such as your device\'s advertising ID to show and measure ads. If you are in the EEA or the UK, you choose whether ads may be personalised, and you can change that later under Privacy Settings.\n\n<b>Remove Ads</b>\nIf you buy Remove Ads, the app stops loading ads altogether.\n\n<b>Purchases</b>\nTips, Remove Ads and party packs are handled by Google Play. The app only learns that a purchase was made.\n\nThe full policy is on the website.</string>
     <string name="dialog_privacy_info_title">Privacy Policy</string>
     <string name="dialog_privacy_ok">Go to website</string>
 

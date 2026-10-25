@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The initiative order and round counter of the current fight. The character at the top of the
+ * The initiative order and round counter of the active party. The character at the top of the
  * list is the one whose turn it is. One character is marked "first in round"; when the turn comes
  * back to them a new round starts. Plain Java (no Android), so the turn rules are unit tested.
  * <p>
@@ -47,6 +47,17 @@ public class Encounter {
     public Encounter(List<CharacterModel> characters, int round) {
         this.characters.addAll(characters);
         this.round = Math.max(0, round);
+    }
+
+    /**
+     * Puts another party's characters and round counter in this fight, used when switching
+     * parties. Open screens keep the same Encounter and are told to redraw.
+     */
+    public void replace(List<CharacterModel> newCharacters, int newRound) {
+        characters.clear();
+        characters.addAll(newCharacters);
+        round = Math.max(0, newRound);
+        notifyChanged();
     }
 
     public List<CharacterModel> getCharacters() {

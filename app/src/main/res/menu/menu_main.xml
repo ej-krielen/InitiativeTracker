@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Toolbar: Next turn and Sort as icons, the rest in the overflow menu -->
+<!-- Toolbar: only the encounter actions. Next turn and Sort as icons, the rest in the overflow
+     menu. Parties and the app items (Remove Ads, Tip, About, ...) are in the navigation drawer. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -33,34 +34,5 @@
             android:title="@string/action_set_pcs_max_hp"
             app:showAsAction="never" />
     </group>
-
-    <!-- Same order as Mook Roller and Secret Roller. Remove Ads and Privacy Settings are shown
-         or hidden in MainActivity.onPrepareOptionsMenu. -->
-    <item
-        android:id="@+id/action_settings_remove_ads"
-        android:orderInCategory="6"
-        android:title="@string/action_remove_ads"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_settings_tip"
-        android:orderInCategory="7"
-        android:title="@string/action_tip"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_settings_about"
-        android:orderInCategory="8"
-        android:title="@string/action_about"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_settings_privacy"
-        android:orderInCategory="9"
-        android:title="@string/action_privacy"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_settings_privacy_settings"
-        android:orderInCategory="10"
-        android:title="@string/action_privacy_settings"
-        android:visible="false"
-        app:showAsAction="never" />
 
 </menu>

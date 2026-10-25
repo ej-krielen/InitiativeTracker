@@ -54,6 +54,19 @@ public class EncounterTest {
     }
 
     @Test
+    public void replacePutsInAnotherPartyAndTellsListeners() {
+        Encounter e = encounterOf(character("A", 5));
+        int[] calls = {0};
+        e.addListener(() -> calls[0]++);
+
+        e.replace(Arrays.asList(character("X", 1), character("Y", 2)), 6);
+
+        assertEquals(Arrays.asList("X", "Y"), names(e));
+        assertEquals(6, e.getRound());
+        assertEquals(1, calls[0]);
+    }
+
+    @Test
     public void sortReportsDuplicateInitiative() {
         Encounter e = encounterOf(character("A", 10), character("B", 10), character("C", 3));
         assertTrue(e.sortByInitiative());

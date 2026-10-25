@@ -38,11 +38,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles Google Play Billing (v9) for the app: the two tips ("Tip the dev") and Remove Ads. Same
- * structure as the BillingManager in Secret Roller and Mook Roller.
+ * Handles Google Play Billing (v9) for the app: the two tips ("Tip the dev"), Remove Ads and the
+ * party packs. Same structure as the BillingManager in Secret Roller and Mook Roller.
  * <p>
- * Tips are consumable: acknowledged, then consumed so they can be bought again. Remove Ads is a
- * one-time product: acknowledged, never consumed, and restored from Google Play on every start.
+ * Tips are consumable: acknowledged, then consumed so they can be bought again. Remove Ads and the
+ * party packs are one-time products: acknowledged, never consumed, and restored from Google Play
+ * on every start. The party packs work like the Spacious Pouches in Secret Roller: four products,
+ * each level adds room for five more parties (see PartySlots), and only the highest one owned
+ * counts. A pack is only offered once Google Play has returned its product details.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -52,6 +55,9 @@ public class BillingManager implements PurchasesUpdatedListener {
     private static final String ITEM_SKU_FIVE = "fiveeurodonation";
     private static final String ITEM_SKU_TEN = "teneurodonation";
     private static final String ITEM_SKU_REMOVE_ADS = "remove_ads";
+    /** Party pack levels 1 to 4, in order: index 0 is level 1. */
+    private static final String[] ITEM_SKUS_PARTY_PACK = {
+            "party_pack_1", "party_pack_2", "party_pack_3", "party_pack_4"};
     private static final String LOG_TAG = "BillingManager";
 
     private final Application app;
@@ -59,15 +65,25 @@ public class BillingManager implements PurchasesUpdatedListener {
     private final Map<String, ProductDetails> productDetailsMap = new HashMap<>();
     private BillingClient billingClient;
     private RemoveAdsListener removeAdsListener;
+    private PartyPackListener partyPackListener;
 
     /**
      * Notified when the Remove Ads purchase is confirmed (fresh purchase, or found on restore)
-     * and when its price has loaded, so the menu can update. Always called on the main thread.
+     * and when the prices have loaded, so the drawer can update. Always called on the main thread.
      */
     public interface RemoveAdsListener {
         void onAdsRemoved();
 
         void onPriceLoaded();
+    }
+
+    /**
+     * Notified when the owned party pack level changed: bought, found on restore, or lowered
+     * after a refund. Always called on the main thread.
+     */
+    public interface PartyPackListener {
+        /** @param fresh True right after buying, to thank the user. */
+        void onPartyPackLevelChanged(int level, boolean fresh);
     }
 
     public BillingManager(Application app) {
@@ -76,6 +92,10 @@ public class BillingManager implements PurchasesUpdatedListener {
 
     public void setRemoveAdsListener(RemoveAdsListener listener) {
         this.removeAdsListener = listener;
+    }
+
+    public void setPartyPackListener(PartyPackListener listener) {
+        this.partyPackListener = listener;
     }
 
     /** Connects to Google Play, then loads the products and restores earlier purchases. */
@@ -116,11 +136,11 @@ public class BillingManager implements PurchasesUpdatedListener {
         int code = billingResult.getResponseCode();
         if (code == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (Purchase p : purchases) {
-                handlePurchase(p);
+                handlePurchase(p, true);
             }
         } else if (code == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
-            // Remove Ads bought earlier (or on another device) but not known here yet, or an
-            // earlier tip that was never consumed: restore or finish it
+            // Remove Ads or a party pack bought earlier (or on another device) but not known here
+            // yet, or an earlier tip that was never consumed: restore or finish it
             Log.d(LOG_TAG, "Item already owned, restoring purchases.");
             queryPurchases();
         } else if (code != BillingClient.BillingResponseCode.USER_CANCELED) {
@@ -175,13 +195,37 @@ public class BillingManager implements PurchasesUpdatedListener {
         return formattedPrice(productDetailsMap.get(ITEM_SKU_REMOVE_ADS));
     }
 
+    /**
+     * @param level The party pack level, 1 to 4.
+     * @return Its Google Play price, or null when the product does not exist or has not loaded.
+     */
+    @Nullable
+    public String getPartyPackPrice(int level) {
+        String sku = partyPackSku(level);
+        return sku != null ? formattedPrice(productDetailsMap.get(sku)) : null;
+    }
+
+    /** Starts buying a party pack level, or says Play is not ready when its details are missing. */
+    public void purchasePartyPack(Activity activity, int level) {
+        String sku = partyPackSku(level);
+        ProductDetails details = sku != null ? productDetailsMap.get(sku) : null;
+        if (details == null) {
+            Toast.makeText(activity, R.string.billing_not_ready, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        launchBillingFlow(activity, details);
+    }
+
     private InitiativeTrackerApp store() {
         return (InitiativeTrackerApp) app;
     }
 
     private void queryProductDetails() {
+        List<String> skus = new ArrayList<>();
+        Collections.addAll(skus, ITEM_SKU_FIVE, ITEM_SKU_TEN, ITEM_SKU_REMOVE_ADS);
+        Collections.addAll(skus, ITEM_SKUS_PARTY_PACK);
         List<QueryProductDetailsParams.Product> productList = new ArrayList<>();
-        for (String sku : new String[]{ITEM_SKU_FIVE, ITEM_SKU_TEN, ITEM_SKU_REMOVE_ADS}) {
+        for (String sku : skus) {
             productList.add(QueryProductDetailsParams.Product.newBuilder()
                     .setProductId(sku)
                     .setProductType(BillingClient.ProductType.INAPP)
@@ -217,22 +261,33 @@ public class BillingManager implements PurchasesUpdatedListener {
 
         billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                int ownedPackLevel = 0;
                 for (Purchase p : purchases) {
-                    handlePurchase(p);
+                    handlePurchase(p, false);
+                    if (p.getPurchaseState() == PurchaseState.PURCHASED) {
+                        ownedPackLevel = Math.max(ownedPackLevel, partyPackLevelOf(p));
+                    }
                 }
+                // What Google Play reports is leading, so a refunded pack lowers the limit again
+                setPartyPackLevel(ownedPackLevel, false);
             }
         });
     }
 
-    private void handlePurchase(Purchase purchase) {
+    /** @param fresh True when it comes from a purchase just made, false for the restore. */
+    private void handlePurchase(Purchase purchase, boolean fresh) {
         if (purchase.getPurchaseState() != PurchaseState.PURCHASED) return;
         List<String> products = purchase.getProducts();
         boolean isRemoveAds = products.contains(ITEM_SKU_REMOVE_ADS);
-        if (!isRemoveAds && !products.contains(ITEM_SKU_FIVE) && !products.contains(ITEM_SKU_TEN)) return;
+        int packLevel = partyPackLevelOf(purchase);
+        boolean isTip = products.contains(ITEM_SKU_FIVE) || products.contains(ITEM_SKU_TEN);
+        if (!isRemoveAds && packLevel == 0 && !isTip) return;
 
         if (purchase.isAcknowledged()) {
             if (isRemoveAds) {
                 onRemoveAdsConfirmed(false);
+            } else if (packLevel > 0) {
+                onPartyPackConfirmed(packLevel, false);
             } else {
                 consumePurchase(purchase.getPurchaseToken());
             }
@@ -248,6 +303,8 @@ public class BillingManager implements PurchasesUpdatedListener {
             }
             if (isRemoveAds) {
                 onRemoveAdsConfirmed(true);
+            } else if (packLevel > 0) {
+                onPartyPackConfirmed(packLevel, fresh);
             } else {
                 consumePurchase(purchase.getPurchaseToken());
                 mainHandler.post(() -> Toast.makeText(app, R.string.billing_tip_thanks, Toast.LENGTH_LONG).show());
@@ -272,6 +329,39 @@ public class BillingManager implements PurchasesUpdatedListener {
                 removeAdsListener.onAdsRemoved();
             }
         });
+    }
+
+    /** A confirmed pack purchase only ever raises the level; lowering is left to the restore. */
+    private void onPartyPackConfirmed(int level, boolean fresh) {
+        mainHandler.post(() -> {
+            if (level > store().getParties().getPackLevel()) setPartyPackLevel(level, fresh);
+        });
+    }
+
+    /**
+     * Stores the owned pack level and tells the listener when it changed. Safe to call from a
+     * Billing background thread.
+     */
+    private void setPartyPackLevel(int level, boolean fresh) {
+        mainHandler.post(() -> {
+            if (store().getParties().getPackLevel() == level) return;
+            store().getParties().setPackLevel(level);
+            if (partyPackListener != null) partyPackListener.onPartyPackLevelChanged(level, fresh);
+        });
+    }
+
+    /** @return The pack level (1 to 4) this purchase is for, or 0 when it is not a pack. */
+    private static int partyPackLevelOf(Purchase purchase) {
+        int level = 0;
+        for (int i = 0; i < ITEM_SKUS_PARTY_PACK.length; i++) {
+            if (purchase.getProducts().contains(ITEM_SKUS_PARTY_PACK[i])) level = Math.max(level, i + 1);
+        }
+        return level;
+    }
+
+    @Nullable
+    private static String partyPackSku(int level) {
+        return level >= 1 && level <= ITEM_SKUS_PARTY_PACK.length ? ITEM_SKUS_PARTY_PACK[level - 1] : null;
     }
 
     private void consumePurchase(String token) {

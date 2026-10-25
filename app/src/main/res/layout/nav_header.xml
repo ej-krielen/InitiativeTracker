@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The whole drawer content, used as the NavigationView header (like Secret Roller): app name,
+    active party, the party list (rows from item_nav_party, added by NavDrawer), New party, the
+    used slots and Get more parties, then Support and More. NavDrawer shows, hides and fills it.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="2dp"
+        android:text="@string/app_name"
+        android:fontFamily="@font/cinzel"
+        android:textAppearance="@style/TextAppearance.Rekijan.Wordmark"
+        android:textColor="@color/rk_wordmark"
+        app:fontFamily="@font/cinzel" />
+
+    <TextView
+        android:id="@+id/nav_active_party_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        tools:text="Thursday group · round 4" />
+
+    <!-- Parties: first group, so no divider line above it -->
+    <TextView
+        style="@style/Widget.Rekijan.NavCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:background="@null"
+        android:paddingTop="8dp"
+        android:text="@string/nav_category_parties" />
+
+    <LinearLayout
+        android:id="@+id/nav_party_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <TextView
+        android:id="@+id/nav_new_party"
+        style="@style/Widget.Rekijan.NavItem.Action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_add"
+        android:text="@string/nav_new_party" />
+
+    <TextView
+        android:id="@+id/nav_party_slots_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="24dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="13sp"
+        tools:text="3 of 5 parties used" />
+
+    <TextView
+        android:id="@+id/nav_get_more_parties"
+        style="@style/Widget.Rekijan.NavItem.Action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_shopping_bag"
+        android:text="@string/nav_get_more_parties"
+        android:textStyle="normal" />
+
+    <!-- Support -->
+    <TextView
+        android:id="@+id/nav_category_support"
+        style="@style/Widget.Rekijan.NavCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/nav_category_support" />
+
+    <TextView
+        android:id="@+id/nav_remove_ads"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_remove_ads" />
+
+    <TextView
+        android:id="@+id/nav_tip"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_tip" />
+
+    <!-- More -->
+    <TextView
+        style="@style/Widget.Rekijan.NavCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/nav_category_more" />
+
+    <TextView
+        android:id="@+id/nav_about"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_about" />
+
+    <TextView
+        android:id="@+id/nav_privacy"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_privacy" />
+
+    <!-- Only when Google's consent SDK says users must be able to change their choice -->
+    <TextView
+        android:id="@+id/nav_privacy_settings"
+        style="@style/Widget.Rekijan.NavItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_privacy_settings"
+        android:visibility="gone" />
+</LinearLayout>
