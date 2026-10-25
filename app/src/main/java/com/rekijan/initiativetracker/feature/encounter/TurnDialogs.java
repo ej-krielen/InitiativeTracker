@@ -9,7 +9,8 @@ import com.rekijan.initiativetracker.feature.character.DebuffModel;
 
 /**
  * The questions the app asks when the turn moves on (remove an expired (de)buff? add fast
- * healing or regeneration? cap hp at max?) and after sorting (reset the round counter?).
+ * healing or regeneration? cap hp at max?) and around sorting (sort at all? reset the round
+ * counter?).
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -33,6 +34,20 @@ public final class TurnDialogs {
             askAutomaticHealing(context, encounter, active, active.getRegeneration(),
                     R.string.auto_healing_dialog_regeneration_title, R.string.auto_healing_dialog_regeneration_message);
         }
+    }
+
+    /**
+     * Asks before sorting by initiative, since it undoes any order set by hand. After sorting it
+     * asks about the round counter.
+     */
+    public static void askSort(Context context, Encounter encounter) {
+        Dialogs.builder(context)
+                .setTitle(R.string.dialog_sort_title)
+                .setMessage(R.string.dialog_sort_message)
+                .setPositiveButton(R.string.dialog_sort_ok, (d, w) ->
+                        askRoundReset(context, encounter, encounter.sortByInitiative()))
+                .setNegativeButton(R.string.dialog_cancel, null)
+                .show();
     }
 
     /**

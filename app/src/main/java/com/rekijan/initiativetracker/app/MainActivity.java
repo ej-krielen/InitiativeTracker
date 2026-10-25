@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             nextTurn();
         } else if (id == R.id.action_settings_sort) {
             closeDetailsInOnePane();
-            TurnDialogs.askRoundReset(this, encounter, encounter.sortByInitiative());
+            TurnDialogs.askSort(this, encounter);
         } else if (id == R.id.action_settings_add_character) {
             closeDetailsInOnePane();
             encounter.add(CharacterDefaults.newCharacter(this));

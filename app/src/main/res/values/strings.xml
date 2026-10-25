@@ -83,6 +83,9 @@
     <string name="licenses_button">Licenses</string>
     <string name="licenses_title">Licenses</string>
     <string name="error_no_such_value">The following value was not found:\u0020</string>
+    <string name="dialog_sort_title">Sort by initiative?</string>
+    <string name="dialog_sort_message">This puts everyone in initiative order, highest first. Changes made with Edit order are lost.</string>
+    <string name="dialog_sort_ok">Sort</string>
     <string name="dialog_reset_round_counter_title">Reset round counter?</string>
     <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
     <string name="dialog_reset_round_double_init">\n\nWARNING\n\nSome characters have the same initiative, you might want to edit the order and resolve this.\nPlease note this will not change who is first in the round for tracking turns (You will need to change numbers and sort again to do that).</string>
