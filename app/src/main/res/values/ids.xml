@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- View tag holding the TextWatcher of a bound EditText (TextBinding) -->
+    <item name="tag_text_watcher" type="id" />
+</resources>

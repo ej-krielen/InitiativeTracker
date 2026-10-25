@@ -59,7 +59,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
-                android:inputType="number"
+                android:inputType="numberSigned"
                 android:selectAllOnFocus="true"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50"
                 app:layout_constraintTop_toBottomOf="@+id/is_pc_switch" />
@@ -157,18 +157,19 @@
 
             <EditText
                 android:id="@+id/skills_editText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
                 app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fast_healing_editText" />
 
             <EditText
                 android:id="@+id/attack_routine_editText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
@@ -176,6 +177,7 @@
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
                 app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/skills_editText" />
 
             <TextView
@@ -191,13 +193,14 @@
 
             <EditText
                 android:id="@+id/ac_editText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
                 app:layout_constraintStart_toStartOf="@+id/guideline_50"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/attack_routine_editText" />
 
             <TextView
@@ -213,45 +216,49 @@
 
             <EditText
                 android:id="@+id/maneuvers_editText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline_50"
                 app:layout_constraintTop_toBottomOf="@+id/ac_editText" />
 
             <TextView
                 android:id="@+id/maneuvers_label_textView"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_maneuvers"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="@+id/maneuvers_editText"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
 
             <EditText
                 android:id="@+id/saves_editText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="textMultiLine"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline_50"
                 app:layout_constraintTop_toBottomOf="@+id/maneuvers_editText" />
 
             <TextView
                 android:id="@+id/saves_label_textView"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/char_detail_saves"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="@+id/saves_editText"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
 

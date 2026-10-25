@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <Button
-        android:id="@+id/up_edit_order_button"
+        android:id="@+id/plus_round_button"
         android:layout_width="32dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -23,9 +23,9 @@
         android:background="@color/text_background_color"
         android:gravity="center"
         android:textColor="@color/text_color"
-        app:layout_constraintBottom_toBottomOf="@+id/up_edit_order_button"
-        app:layout_constraintStart_toEndOf="@+id/up_edit_order_button"
-        app:layout_constraintTop_toTopOf="@+id/up_edit_order_button" />
+        app:layout_constraintBottom_toBottomOf="@+id/plus_round_button"
+        app:layout_constraintStart_toEndOf="@+id/plus_round_button"
+        app:layout_constraintTop_toTopOf="@+id/plus_round_button" />
 
     <Button
         android:id="@+id/minus_round_button"

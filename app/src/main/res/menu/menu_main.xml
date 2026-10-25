@@ -1,46 +1,49 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.rekijan.initiativetracker.ui.activities.MainActivity">
-    <item
-        android:id="@+id/action_settings_next_turn"
-        android:orderInCategory="1"
-        android:title="@string/action_next_turn"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_settings_sort"
-        android:orderInCategory="2"
-        android:title="@string/action_sort"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/action_settings_add_character"
-        android:orderInCategory="3"
-        android:title="@string/action_add_character"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/action_settings_delete_character"
-        android:orderInCategory="4"
-        android:title="@string/action_delete_character"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/action_settings_set_pcs_max_hp"
-        android:orderInCategory="5"
-        android:title="@string/action_set_pcs_max_hp"
-        app:showAsAction="ifRoom"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Hidden while the Edit Order screen is open -->
+    <group android:id="@+id/group_encounter">
+        <item
+            android:id="@+id/action_settings_next_turn"
+            android:orderInCategory="1"
+            android:title="@string/action_next_turn"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/action_settings_sort"
+            android:orderInCategory="2"
+            android:title="@string/action_sort"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/action_settings_add_character"
+            android:orderInCategory="3"
+            android:title="@string/action_add_character"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/action_settings_delete_character"
+            android:orderInCategory="4"
+            android:title="@string/action_delete_character"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/action_settings_set_pcs_max_hp"
+            android:orderInCategory="5"
+            android:title="@string/action_set_pcs_max_hp"
+            app:showAsAction="ifRoom" />
+    </group>
+
     <item
         android:id="@+id/action_settings_about"
-        android:orderInCategory="5"
+        android:orderInCategory="6"
         android:title="@string/action_about"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings_privacy"
+        android:orderInCategory="7"
+        android:title="@string/action_privacy"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings_tip"
-        android:orderInCategory="5"
+        android:orderInCategory="8"
         android:title="@string/action_tip"
-        app:showAsAction="ifRoom"/>
-    <!--<item
-        android:id="@+id/action_settings_select_party"
-        android:orderInCategory="200"
-        android:title="@string/action_party_select"
-        app:showAsAction="never" />-->
+        app:showAsAction="ifRoom" />
 
 </menu>
