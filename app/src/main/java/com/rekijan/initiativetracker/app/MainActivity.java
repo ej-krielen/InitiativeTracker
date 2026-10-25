@@ -401,6 +401,7 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         Encounter.Turn turn = encounter.nextTurn();
         if (turn == null) return;
         TurnDialogs.onTurnStarted(this, encounter, turn);
+        TurnDialogs.showTicks(findViewById(R.id.main_fragment_container), adBar, turn);
         // In two panes the details follow whoever's turn it is
         if (isTwoPane) showCharacterDetail(0);
     }

@@ -252,4 +252,26 @@ public class EncounterTest {
         assertEquals(1, e.size());
         assertEquals(0, calls[0]);
     }
+
+    @Test
+    public void nextTurnReportsTheConditionsThatCountedDown() {
+        CharacterModel a = character("A", 20);
+        CharacterModel b = character("B", 10);
+        b.getDebuffList().add(new DebuffModel("Haste", 3, ""));
+        b.getDebuffList().add(new DebuffModel("Sickened", 0, ""));
+        b.getDebuffList().add(new DebuffModel("Bless", 1, ""));
+        Encounter e = encounterOf(a, b);
+
+        Encounter.Turn turn = e.nextTurn();
+
+        assertSame(b, turn.active);
+        // Sickened has no duration, so it doesn't count down and isn't reported
+        assertEquals(2, turn.ticks.size());
+        assertEquals("Haste", turn.ticks.get(0).name);
+        assertEquals(3, turn.ticks.get(0).from);
+        assertEquals(2, turn.ticks.get(0).to);
+        assertEquals(0, turn.ticks.get(1).to);
+        assertEquals(1, turn.expiredDebuffs.size());
+        assertEquals(0, b.getDebuffList().get(1).getDuration());
+    }
 }

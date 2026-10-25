@@ -9,11 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rekijan.initiativetracker.R;
+import com.rekijan.initiativetracker.core.util.NumberInput;
 import com.rekijan.initiativetracker.core.util.TextBinding;
 
 /**
- * Edits the (de)buffs of one character: name, duration in rounds and description, each with a
- * remove button. Works directly on the character's own list and reports every change, so the
+ * Edits the conditions of one character: name, duration in rounds (empty for none) and
+ * description, each with a remove button. Works directly on the character's own list and reports every change, so the
  * sheet can update its count and the screen can save.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
@@ -59,8 +60,9 @@ public class DebuffAdapter extends RecyclerView.Adapter<DebuffAdapter.DebuffView
             debuff.setName(text);
             onChanged.run();
         });
-        TextBinding.bindInt(holder.durationEditText, debuff.getDuration(), 0, DebuffModel.MAX_DURATION, value -> {
-            debuff.setDuration(value);
+        // No duration (0) shows as an empty field
+        TextBinding.bindText(holder.durationEditText, debuff.getDuration() == 0 ? "" : String.valueOf(debuff.getDuration()), text -> {
+            debuff.setDuration(NumberInput.parseInt(text, 0, 0, DebuffModel.MAX_DURATION));
             onChanged.run();
         });
         TextBinding.bindText(holder.descriptionEditText, debuff.getDescription(), text -> {

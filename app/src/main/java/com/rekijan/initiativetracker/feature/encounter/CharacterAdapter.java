@@ -136,14 +136,15 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         return sb;
     }
 
-    /** E.g. "Haste (3) · Shaken (1)". */
+    /** E.g. "Haste (3) · Shaken (1) · Sickened"; a condition without a duration has no number. */
     private static String debuffSummary(List<DebuffModel> debuffs) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < debuffs.size(); i++) {
             DebuffModel d = debuffs.get(i);
             if (i > 0) sb.append(" · ");
-            sb.append(d.getName())
-                    .append(" (").append(d.getDuration()).append(")");
+            sb.append(d.getName());
+            // A condition without a duration shows just its name
+            if (d.getDuration() > 0) sb.append(" (").append(d.getDuration()).append(")");
         }
         return sb.toString();
     }

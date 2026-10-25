@@ -118,8 +118,10 @@ public final class ApprovalDialogs {
         String detail = null;
         switch (change.kind) {
             case CONDITION_ADDED:
-                title = context.getString(R.string.approval_condition_added, name(context, change.condition),
-                        change.condition.getDuration());
+                title = change.condition.getDuration() > 0
+                        ? context.getString(R.string.approval_condition_added, name(context, change.condition),
+                        change.condition.getDuration())
+                        : context.getString(R.string.approval_condition_added_no_duration, name(context, change.condition));
                 detail = change.condition.getDescription();
                 break;
             case CONDITION_REMOVED:
@@ -127,8 +129,10 @@ public final class ApprovalDialogs {
                         change.from.isEmpty() ? context.getString(R.string.approval_condition_unnamed) : change.from);
                 break;
             case CONDITION_CHANGED:
-                title = context.getString(R.string.approval_condition_changed, name(context, change.condition),
-                        change.condition.getDuration());
+                title = change.condition.getDuration() > 0
+                        ? context.getString(R.string.approval_condition_changed, name(context, change.condition),
+                        change.condition.getDuration())
+                        : context.getString(R.string.approval_condition_changed_no_duration, name(context, change.condition));
                 detail = change.condition.getDescription();
                 break;
             default: {

@@ -66,11 +66,11 @@
     <string name="char_card_npc">NPC</string>
     <string name="char_card_show_more">Show details</string>
 
-    <!--Debuff Cards-->
-    <string name="debuff_card_name">(De)buff name</string>
+    <!-- Condition rows (item_debuff) -->
+    <string name="debuff_card_name">Condition</string>
     <string name="debuff_card_duration_label">Duration</string>
-    <string name="debuff_card_description">(De)buff description</string>
-    <string name="debuff_card_remove_button">Remove</string>
+    <string name="debuff_card_description">Description</string>
+    <string name="debuff_card_remove_button">Remove condition</string>
 
     <!--Character detail fragment-->
     <string name="char_detail_switch_pc_on">Character is a PC</string>
@@ -85,7 +85,7 @@
     <string name="char_detail_maneuvers">Maneuvers</string>
     <string name="char_detail_saves">Saves (Fort, Ref, Will)</string>
     <string name="char_detail_notes">Notes</string>
-    <string name="char_detail_debuffs">Debuffs, buffs, spells</string>
+    <string name="char_detail_debuffs">Conditions</string>
     <string name="char_detail_add_button">Add</string>
     <string name="char_detail_clear_button">Clear all</string>
 
@@ -100,7 +100,7 @@
     <string name="EH_character_notes">Notes</string>
 
     <!--Toast debuffs-->
-    <string name="debuff_expired">Debuff %s expired</string>
+    <string name="debuff_expired">Condition %s ended</string>
     <string name="debuff_top_left">top left</string>
     <string name="debuff_middle_top">middle top</string>
     <string name="debuff_top_right">top right</string>
@@ -131,8 +131,8 @@
     <string name="dialog_reset_round_double_init">\n\nWARNING\n\nSome characters have the same initiative, you might want to edit the order and resolve this.\nPlease note this will not change who is first in the round for tracking turns (You will need to change numbers and sort again to do that).</string>
     <string name="dialog_reset_round_counter_cancel">No, keep current number</string>
 
-    <!-- Dialog debuff expired -->
-    <string name="dialog_debuff_expired_title">Debuff expired</string>
+    <!-- Dialog condition ended -->
+    <string name="dialog_debuff_expired_title">Condition ended</string>
     <string name="dialog_debuff_remove">Remove (after this turn)</string>
     <string name="dialog_debuff_keep">Keep anyway</string>
 
@@ -255,11 +255,11 @@
     <string name="profiles_role_player">Player</string>
     <string name="profiles_characters_label">Your characters</string>
     <string name="profiles_characters_empty">Playing in someone else\'s game? Make a character with New to join their table.</string>
-    <string name="profiles_new">New</string>
-    <string name="profiles_new_title">New</string>
-    <string name="profiles_new_party">Party (you\'re the GM)</string>
-    <string name="profiles_new_character">Character (you\'re a player)</string>
-    <string name="profiles_new_character_title">New character</string>
+    <string name="profiles_new">New profile</string>
+    <string name="profiles_new_title">New profile</string>
+    <string name="profiles_name_hint">Profile name</string>
+    <string name="profiles_role_label">This profile is for</string>
+    <string name="profiles_role_missing">Choose GM or Player</string>
     <string name="profiles_rename_character_title">Rename character</string>
     <string name="profiles_character_name_hint">Character name</string>
     <string name="profiles_delete_character_title">Delete character?</string>
@@ -311,7 +311,13 @@
     <string name="approval_field_ac">AC</string>
     <string name="approval_field_saves">Saves</string>
     <string name="approval_condition_added">+ %1$s, %2$d rounds</string>
+    <string name="approval_condition_added_no_duration">+ %1$s</string>
+    <string name="approval_condition_changed_no_duration">%1$s: no duration</string>
     <string name="approval_condition_removed">− %1$s</string>
     <string name="approval_condition_changed">%1$s: %2$d rounds</string>
     <string name="approval_condition_unnamed">Unnamed condition</string>
+
+    <!-- Snackbar at the start of a turn (TurnDialogs.showTicks) -->
+    <string name="turn_ticks">%1$s\'s turn · %2$s</string>
+    <string name="turn_tick">%1$s %2$d → %3$d</string>
 </resources>

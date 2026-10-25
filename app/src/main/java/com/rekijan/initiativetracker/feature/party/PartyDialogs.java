@@ -152,7 +152,7 @@ public final class PartyDialogs {
     }
 
     @Nullable
-    private static String errorFor(Context context, PartyNames.Check check) {
+    public static String errorFor(Context context, PartyNames.Check check) {
         switch (check) {
             case EMPTY:
                 return context.getString(R.string.error_party_name_empty);

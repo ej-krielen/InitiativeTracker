@@ -1,16 +1,25 @@
 package com.rekijan.initiativetracker.feature.encounter;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.view.View;
+
+import androidx.annotation.Nullable;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.DebuffModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * The questions the app asks when the turn moves on (remove an expired (de)buff? add fast
- * healing or regeneration? cap hp at max?) and around sorting (sort at all? reset the round
- * counter?).
+ * What the app shows when the turn moves on (which conditions counted down, as a snackbar;
+ * remove a condition that ended? add fast healing or regeneration? cap hp at max?) and the
+ * questions around sorting (sort at all? reset the round counter?).
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -34,6 +43,31 @@ public final class TurnDialogs {
             askAutomaticHealing(context, encounter, active, active.getRegeneration(),
                     R.string.auto_healing_dialog_regeneration_title, R.string.auto_healing_dialog_regeneration_message);
         }
+    }
+
+    /**
+     * Shows which conditions of the active character went down a round, as a snackbar at the
+     * bottom ("Rekijan's turn · Haste 3 → 2, Bless 5 → 4"), so it is seen without stopping play.
+     * Nothing shows when no condition has a duration. A condition that ended also gets its own
+     * dialog from {@link #onTurnStarted}.
+     *
+     * @param root   A view in the screen, for the snackbar.
+     * @param anchor The view to show it above (the ad bar), or null.
+     */
+    public static void showTicks(View root, @Nullable View anchor, Encounter.Turn turn) {
+        if (turn.ticks.isEmpty()) return;
+        Context context = root.getContext();
+        List<String> parts = new ArrayList<>();
+        for (Encounter.Tick tick : turn.ticks) {
+            String name = TextUtils.isEmpty(tick.name) ? context.getString(R.string.approval_condition_unnamed) : tick.name;
+            parts.add(context.getString(R.string.turn_tick, name, tick.from, tick.to));
+        }
+        String who = turn.active.getCharacterName();
+        if (TextUtils.isEmpty(who)) who = context.getString(R.string.empty_character_name);
+        Snackbar snackbar = Snackbar.make(root, context.getString(R.string.turn_ticks, who, TextUtils.join(", ", parts)),
+                Snackbar.LENGTH_LONG);
+        if (anchor != null && anchor.getVisibility() == View.VISIBLE) snackbar.setAnchorView(anchor);
+        snackbar.show();
     }
 
     /**

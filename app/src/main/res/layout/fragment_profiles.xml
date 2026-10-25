@@ -77,8 +77,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/space_3"
         android:text="@string/profiles_new"
-        android:textColor="@color/rk_on_primary"
-        app:backgroundTint="?attr/colorPrimary"
-        app:icon="@drawable/ic_add"
-        app:iconTint="@color/rk_on_primary" />
+        app:icon="@drawable/ic_add" />
 </FrameLayout>

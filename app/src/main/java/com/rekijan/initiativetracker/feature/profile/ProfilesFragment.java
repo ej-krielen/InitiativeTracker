@@ -2,9 +2,12 @@ package com.rekijan.initiativetracker.feature.profile;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -12,11 +15,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
 import com.rekijan.initiativetracker.core.util.Dialogs;
@@ -32,8 +38,8 @@ import java.util.Collections;
 /**
  * The profile list, like Secret Roller's start screen: the user's parties (GM) and their player
  * characters (Player) in one list. Tap a row to open it; the three dots hold Rename, Duplicate
- * (parties only) and Delete. New makes a party (within the party slots) or a character (free,
- * no limit). Opening and buying are passed to the {@link Host}.
+ * (parties only) and Delete. New profile asks for a name and GM or Player, like Secret Roller:
+ * GM makes a party (within the party slots), Player a character (free, no limit). Opening and buying are passed to the {@link Host}.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -72,7 +78,7 @@ public class ProfilesFragment extends Fragment implements SyncManager.StateListe
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         app = (InitiativeTrackerApp) requireActivity().getApplication();
-        view.findViewById(R.id.profiles_new_button).setOnClickListener(v -> askNewKind());
+        view.findViewById(R.id.profiles_new_button).setOnClickListener(v -> showNewProfile());
         view.findViewById(R.id.profiles_more_parties_button).setOnClickListener(v -> host().offerMoreParties());
         app.getSync().addStateListener(this);
         refresh();
@@ -156,42 +162,66 @@ public class ProfilesFragment extends Fragment implements SyncManager.StateListe
 
     // ---------------------------------------------------------------- New
 
-    private void askNewKind() {
-        String[] kinds = {getString(R.string.profiles_new_party), getString(R.string.profiles_new_character)};
-        Dialogs.builder(requireContext())
+    /**
+     * New profile, like Secret Roller: a name and GM (a party) or Player (a character) in one
+     * dialog. Create keeps the dialog open while the name or the role is missing or not allowed. A
+     * party needs a free party slot; a new profile opens right away.
+     */
+    private void showNewProfile() {
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_new_profile, null);
+        TextInputLayout nameLayout = content.findViewById(R.id.new_profile_name_layout);
+        EditText nameInput = content.findViewById(R.id.new_profile_name_editText);
+        MaterialButtonToggleGroup roleToggle = content.findViewById(R.id.new_profile_role_toggle);
+        View roleError = content.findViewById(R.id.new_profile_role_error_textView);
+        nameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Not needed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                nameLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Not needed
+            }
+        });
+        roleToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> roleError.setVisibility(View.GONE));
+
+        AlertDialog dialog = Dialogs.builder(requireContext())
                 .setTitle(R.string.profiles_new_title)
-                .setItems(kinds, (d, which) -> {
-                    if (which == 0) {
-                        newParty();
-                    } else {
-                        newCharacter();
-                    }
-                })
+                .setView(content)
                 .setNegativeButton(R.string.dialog_cancel, null)
+                // Listener set after show(), so a missing name or role keeps the dialog open
+                .setPositiveButton(R.string.dialog_party_create, null)
                 .show();
-    }
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = nameInput.getText() == null ? "" : nameInput.getText().toString();
+            int role = roleToggle.getCheckedButtonId();
+            boolean party = role == R.id.new_profile_role_gm;
+            PartyNames.Check check = party ? app.getParties().checkName(name, null)
+                    : PartyNames.check(name, Collections.emptyList(), null);
+            String nameError = PartyDialogs.errorFor(requireContext(), check);
+            if (nameError != null) nameLayout.setError(nameError);
+            if (role == View.NO_ID) roleError.setVisibility(View.VISIBLE);
+            if (nameError != null || role == View.NO_ID) return;
 
-    private void newParty() {
-        PartyBook parties = app.getParties();
-        if (!parties.canCreate()) {
-            host().showPartyLimit();
-            return;
-        }
-        String suggestion = PartyNames.newName(getString(R.string.party_new_name_prefix), parties.getParties());
-        PartyDialogs.askName(requireContext(), R.string.dialog_party_new_title, R.string.dialog_party_create,
-                suggestion, parties, null, name -> {
-                    Party party = app.createParty(name);
-                    if (party != null) host().openParty(party.getId());
-                });
-    }
-
-    private void newCharacter() {
-        PartyDialogs.askName(requireContext(), R.string.profiles_new_character_title, R.string.dialog_party_create,
-                R.string.profiles_character_name_hint, "",
-                name -> PartyNames.check(name, Collections.emptyList(), null), name -> {
-                    String id = app.getPlayers().create(name);
-                    if (id != null) host().openPlayer(id);
-                });
+            dialog.dismiss();
+            if (party) {
+                if (!app.getParties().canCreate()) {
+                    host().showPartyLimit();
+                    return;
+                }
+                Party created = app.createParty(name);
+                if (created != null) host().openParty(created.getId());
+            } else {
+                String id = app.getPlayers().create(name);
+                if (id != null) host().openPlayer(id);
+            }
+        });
     }
 
     // ---------------------------------------------------------------- Options

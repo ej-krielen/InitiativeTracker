@@ -32,12 +32,28 @@ public class Encounter {
     public static final class Turn {
         public final CharacterModel active;
         public final List<DebuffModel> expiredDebuffs;
+        /** The conditions with a duration that went down a round, in their order. */
+        public final List<Tick> ticks;
         public final boolean newRound;
 
-        Turn(CharacterModel active, List<DebuffModel> expiredDebuffs, boolean newRound) {
+        Turn(CharacterModel active, List<DebuffModel> expiredDebuffs, List<Tick> ticks, boolean newRound) {
             this.active = active;
             this.expiredDebuffs = expiredDebuffs;
+            this.ticks = ticks;
             this.newRound = newRound;
+        }
+    }
+
+    /** One condition that went down a round at the start of a turn. */
+    public static final class Tick {
+        public final String name;
+        public final int from;
+        public final int to;
+
+        Tick(String name, int from, int to) {
+            this.name = name;
+            this.from = from;
+            this.to = to;
         }
     }
 
@@ -150,7 +166,8 @@ public class Encounter {
 
     /**
      * Moves the turn on: the top character goes to the bottom, the next one becomes active, their
-     * (de)buffs tick down, and the round goes up when they are first in round.
+     * conditions with a duration count down (reported in Turn.ticks), and the round goes up when
+     * they are first in round.
      *
      * @return What happened, or null when there is nobody in the fight.
      */
@@ -158,11 +175,25 @@ public class Encounter {
         if (characters.isEmpty()) return null;
         Collections.rotate(characters, -1);
         CharacterModel active = characters.get(0);
+        // Conditions without a duration (0) don't count down, so they aren't reported
+        List<DebuffModel> counting = new ArrayList<>();
+        List<Integer> before = new ArrayList<>();
+        for (DebuffModel d : active.getDebuffList()) {
+            if (d.getDuration() > 0) {
+                counting.add(d);
+                before.add(d.getDuration());
+            }
+        }
         List<DebuffModel> expired = active.tickDebuffs();
+        List<Tick> ticks = new ArrayList<>();
+        for (int i = 0; i < counting.size(); i++) {
+            DebuffModel d = counting.get(i);
+            ticks.add(new Tick(d.getName(), before.get(i), d.getDuration()));
+        }
         boolean newRound = active.isFirstInRound();
         if (newRound) round++;
         notifyChanged();
-        return new Turn(active, expired, newRound);
+        return new Turn(active, expired, ticks, newRound);
     }
 
     /** Swaps a character with the one above it; the top one swaps with the bottom one. */
