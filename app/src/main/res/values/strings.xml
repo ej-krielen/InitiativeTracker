@@ -115,7 +115,7 @@
     <string name="dialog_yes">Yes</string>
     <string name="dialog_no">No</string>
     <string name="dialog_delete">Are you sure you want to delete\u0020</string>
-    <string name="empty_character_name">this character</string>
+    <string name="empty_character_name">Unnamed character</string>
     <string name="dialog_delete_title">Warning: Confirm delete</string>
     <string name="dialog_about_info">To learn more about the app, and its developer, please visit the website.</string>
     <string name="dialog_about_info_title">About</string>
