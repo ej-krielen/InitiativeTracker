@@ -1,64 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Content of the tip dialog (title and Cancel come from the dialog builder).
+     Each tip is one outlined, fully tappable row: label on the left, Google Play price on the right. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="@color/colorPrimaryLight">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="24dp">
 
     <TextView
-        android:id="@+id/select_tip_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/tip_dialog_select"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="16dp"
+        android:text="@string/tip_dialog_intro"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
 
-    <Button
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/five_btn"
-        android:layout_width="wrap_content"
+        style="@style/Widget.Rekijan.TipRow"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
-        android:text="@string/tip_dialog_five"
-        android:theme="@style/AppTheme.Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/select_tip_label" />
+        android:layout_marginBottom="8dp">
 
-    <TextView
-        android:id="@+id/five_full_price_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/five_btn"
-        app:layout_constraintStart_toEndOf="@+id/five_btn"
-        app:layout_constraintTop_toTopOf="@+id/five_btn" />
+        <LinearLayout
+            style="@style/Widget.Rekijan.TipRow.Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <Button
+            <TextView
+                style="@style/Widget.Rekijan.TipRow.Label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tip_small" />
+
+            <TextView
+                android:id="@+id/five_full_price_textView"
+                style="@style/Widget.Rekijan.TipRow.Price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/ten_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/tip_dialog_ten"
-        android:theme="@style/AppTheme.Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/five_btn" />
+        style="@style/Widget.Rekijan.TipRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            style="@style/Widget.Rekijan.TipRow.Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/Widget.Rekijan.TipRow.Label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tip_big" />
+
+            <TextView
+                android:id="@+id/ten_full_price_textView"
+                style="@style/Widget.Rekijan.TipRow.Price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
-        android:id="@+id/ten_full_price_textView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/ten_btn"
-        app:layout_constraintStart_toEndOf="@+id/ten_btn"
-        app:layout_constraintTop_toTopOf="@+id/ten_btn" />
+        android:layout_marginTop="12dp"
+        android:text="@string/tip_dialog_price_note"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant" />
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

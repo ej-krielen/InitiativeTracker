@@ -24,10 +24,9 @@ public final class CharacterDefaults {
     }
 
     public static CharacterModel newCharacter(Context context) {
-        boolean isTablet = context.getResources().getBoolean(R.bool.isTablet);
         CharacterModel c = new CharacterModel();
-        c.setAc(context.getString(isTablet ? R.string.standard_ac : R.string.standard_mobile_ac, DEFAULT_AC_AND_SAVES));
-        c.setSaves(context.getString(isTablet ? R.string.standard_saves : R.string.standard__mobile_saves, DEFAULT_AC_AND_SAVES));
+        c.setAc(context.getString(R.string.standard_ac, DEFAULT_AC_AND_SAVES));
+        c.setSaves(context.getString(R.string.standard_saves, DEFAULT_AC_AND_SAVES));
         c.setManeuvers(context.getString(R.string.maneuvers, 0, DEFAULT_AC_AND_SAVES));
         c.setHp(DEFAULT_HP);
         c.setMaxHp(DEFAULT_HP);

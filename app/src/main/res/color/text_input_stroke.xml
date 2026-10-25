@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Outlined text field border: gold when focused (bordeaux is too dark on the dark
+     background), muted when disabled, regular outline otherwise -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="?attr/colorSecondary" android:state_focused="true" />
+    <item android:alpha="0.38" android:color="?attr/colorOnSurface" android:state_enabled="false" />
+    <item android:color="?attr/colorOutline" />
+</selector>

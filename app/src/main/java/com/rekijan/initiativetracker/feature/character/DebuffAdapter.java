@@ -3,7 +3,6 @@ package com.rekijan.initiativetracker.feature.character;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -31,7 +30,7 @@ public class DebuffAdapter extends RecyclerView.Adapter<DebuffAdapter.DebuffView
         final EditText nameEditText;
         final EditText durationEditText;
         final EditText descriptionEditText;
-        final Button removeButton;
+        final View removeButton;
 
         DebuffViewHolder(View itemView) {
             super(itemView);

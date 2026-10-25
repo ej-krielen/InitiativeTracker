@@ -1,88 +1,83 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One (de)buff on the character details: name, duration in rounds, remove, and a description.
+     DebuffAdapter binds it. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/debuff_cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="@dimen/activity_vertical_margin"
-    android:layout_marginTop="2dp"
-    android:layout_marginRight="@dimen/activity_vertical_margin"
-    android:layout_marginBottom="2dp"
-    card_view:cardUseCompatPadding="true">
+    android:layout_marginBottom="@dimen/space_2"
+    app:contentPaddingBottom="@dimen/space_3"
+    app:contentPaddingEnd="@dimen/space_1"
+    app:contentPaddingStart="@dimen/space_3"
+    app:contentPaddingTop="@dimen/space_3">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorBackgroundLight">
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/debuff_name_editText"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:hint="@string/debuff_card_name"
-            android:imeOptions="actionDone"
-            android:inputType="textPersonName|textCapWords"
-            card_view:layout_constraintEnd_toStartOf="@+id/duration_textView"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/debuff_duration_editText"
-            android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/debuff_card_name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/debuff_name_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="96dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:hint="@string/debuff_card_duration_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/debuff_duration_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/remove_debuff_button"
+                style="@style/Widget.Rekijan.IconButton"
+                android:contentDescription="@string/debuff_card_remove_button"
+                android:src="@drawable/ic_delete" />
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="center"
-            android:hint="@string/debuff_card_duration"
-            android:imeOptions="actionDone"
-            android:inputType="number"
-            android:selectAllOnFocus="true"
-            card_view:layout_constraintEnd_toEndOf="@+id/duration_textView"
-            card_view:layout_constraintStart_toStartOf="@+id/duration_textView"
-            card_view:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginTop="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_3"
+            android:hint="@string/debuff_card_description">
 
-        <TextView
-            android:id="@+id/duration_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="center"
-            android:text="@string/debuff_card_duration_label"
-            android:textAllCaps="true"
-            card_view:layout_constraintEnd_toStartOf="@+id/remove_debuff_button"
-            card_view:layout_constraintTop_toBottomOf="@+id/debuff_duration_editText" />
-
-        <Button
-            android:id="@+id/remove_debuff_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/debuff_card_remove_button"
-            card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
-            android:id="@+id/debuff_description_editText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:hint="@string/debuff_card_description"
-            card_view:layout_constraintEnd_toStartOf="@+id/remove_debuff_button"
-            card_view:layout_constraintStart_toStartOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/duration_textView" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.cardview.widget.CardView>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/debuff_description_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textCapSentences" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

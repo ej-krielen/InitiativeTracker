@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 
 /**
  * The details of one character: PC or not, initiative bonus, max hp, fast healing,
- * regeneration, the free-text stat lines, notes and the (de)buffs. On a phone it replaces the
- * list; on a tablet it is shown next to it.
+ * regeneration, the free-text stat lines, notes and the (de)buffs. In portrait it replaces the
+ * list; in landscape it is shown next to it.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 1-6-2019
@@ -42,6 +42,11 @@ public class CharacterDetailFragment extends Fragment {
         return fragment;
     }
 
+    /** @return The position in the encounter of the character shown here. */
+    public int getPosition() {
+        return requireArguments().getInt(ARG_POSITION);
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_character_detail, container, false);
@@ -51,7 +56,7 @@ public class CharacterDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Encounter encounter = ((InitiativeTrackerApp) requireActivity().getApplication()).getEncounter();
-        int position = requireArguments().getInt(ARG_POSITION);
+        int position = getPosition();
         if (!encounter.isValidPosition(position)) {
             // The character was removed (e.g. before a rotation); show nothing
             view.setVisibility(View.INVISIBLE);

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launch theme; on Android 12+ values-v31 adds the bordeaux system splash. -->
+    <style name="Theme.InitiativeTracker.Launch" parent="Theme.InitiativeTracker" />
+</resources>

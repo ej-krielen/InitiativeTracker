@@ -1,22 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Initiative Tracker - Rekijan Apps "Bordeaux" theme (LIGHT).
+    Same structure and values as Secret Roller (the reference app) and Mook Roller.
+    The dark variant lives in values-night/colors.xml with identical names.
+-->
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF5722</color>
 
-    <color name="colorPrimaryLight">#7986CB</color>
-    <color name="colorBackground">#FAFAFA</color>
-    <color name="colorBackgroundLight">#FAFAFA</color>
+    <!-- ============ Palette (raw values, only reference these in this file and layouts) ============ -->
+    <color name="rk_background">#F5F0E8</color>
+    <color name="rk_surface">#FFFFFF</color>
+    <color name="rk_surface_high">#ECE4D8</color>
+    <color name="rk_surface_highest">#E4DACB</color>
+    <color name="rk_outline">#DCD1C2</color>
+    <color name="rk_primary">#7C2632</color>
+    <color name="rk_on_primary">#FFFFFF</color>
+    <color name="rk_accent">#8A661C</color>
+    <color name="rk_text">#1E191B</color>
+    <color name="rk_text_muted">#5C5350</color>
+    <!-- App name in the toolbar and dialog titles: bordeaux in light, gold in dark -->
+    <color name="rk_wordmark">@color/brand_bordeaux</color>
 
-    <color name="npcColor">#26F44336</color>
-    <color name="pcColor">#2603A9F4</color>
+    <!-- Brand: identical in both themes -->
+    <color name="brand_bordeaux">#7C2632</color>
+    <color name="brand_creme">#F6E7B8</color>
+    <!-- Gold on bordeaux (splash "by Rekijan Apps"): the dark-theme accent, fixed so it stays
+         readable on the bordeaux splash in light mode too (5.2:1) -->
+    <color name="brand_gold">#DDBB74</color>
 
-    <color name="text_background_color">#FFFFFF</color>
-    <color name="text_color">#000000</color>
+    <!-- ============ Initiative Tracker: PC and NPC cards ============ -->
+    <!-- PCs lean gold, NPCs lean bordeaux: a tinted card plus a solid marker stripe and label -->
+    <color name="rk_pc_container">#FBF3DC</color>
+    <color name="rk_pc_marker">@color/rk_accent</color>
+    <color name="rk_npc_container">#F8E6E8</color>
+    <color name="rk_npc_marker">@color/brand_bordeaux</color>
 
-    <color name="edit_text_color">?attr/editTextColor</color>
+    <!-- ============ Material 3 roles ============ -->
+    <color name="md_primary">@color/rk_primary</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#F4D3D7</color>
+    <color name="md_on_primary_container">#5A1A24</color>
 
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+    <color name="md_secondary">@color/rk_accent</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#F6E7B8</color>
+    <color name="md_on_secondary_container">#3D2C00</color>
+
+    <color name="md_background">@color/rk_background</color>
+    <color name="md_on_background">@color/rk_text</color>
+    <color name="md_surface">@color/rk_background</color>
+    <color name="md_on_surface">@color/rk_text</color>
+    <color name="md_surface_variant">@color/rk_surface_high</color>
+    <color name="md_on_surface_variant">@color/rk_text_muted</color>
+
+    <!-- Cards, dialogs, menus (M3 surface containers) -->
+    <color name="md_surface_container_lowest">@color/rk_surface</color>
+    <color name="md_surface_container_low">@color/rk_surface</color>
+    <color name="md_surface_container">@color/rk_surface</color>
+    <color name="md_surface_container_high">@color/rk_surface_high</color>
+    <color name="md_surface_container_highest">@color/rk_surface_highest</color>
+
+    <!-- Borders / dividers -->
+    <color name="md_outline">#8F847C</color>                  <!-- input fields: must reach 3:1 -->
+    <color name="md_outline_variant">@color/rk_outline</color> <!-- decorative borders/dividers -->
+
+    <color name="md_error">#8C1D2C</color>
+    <color name="md_on_error">#FFFFFF</color>
 
 </resources>

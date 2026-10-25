@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Copied from Secret Roller (the reference app), via Mook Roller.
+         Material 3 type scale in Manrope. Material widgets (buttons, dialogs, menus, inputs)
+         use these text appearances instead of the theme font, so every role is overridden. -->
+
+    <style name="TextAppearance.Rekijan.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <!-- Named M3BodySmall because BodySmall is this app's own 15sp body text (styles.xml) -->
+    <style name="TextAppearance.Rekijan.M3BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+        <!-- Button labels: bold, like the design -->
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <style name="TextAppearance.Rekijan.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/manrope</item>
+        <item name="android:fontFamily">@font/manrope</item>
+    </style>
+
+    <!-- App name and screen titles: Cinzel -->
+    <style name="TextAppearance.Rekijan.Wordmark" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/cinzel</item>
+        <item name="android:fontFamily">@font/cinzel</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+
+    <style name="TextAppearance.Rekijan.PopupMenu" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+</resources>

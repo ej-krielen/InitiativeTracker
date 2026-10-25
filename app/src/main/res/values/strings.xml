@@ -1,14 +1,7 @@
 <resources>
 
     <!-- App wide-->
-    <string name="app_name">InitiativeTracker</string>
-
-    <!-- SplashActivity-->
-    <string name="splash_title">Initiative\nTracker</string>
-    <string name="splash_site">More apps at\nwww.rekijan.nl</string>
-
-    <!-- MainActivity-->
-    <string name="title_activity_main">Initiative Tracker</string>
+    <string name="app_name">Initiative Tracker</string>
 
     <!-- Menu-->
     <string name="action_next_turn">Next turn</string>
@@ -26,19 +19,19 @@
     <!-- Character Cards-->
     <string name="char_card_initiative">Init</string>
     <string name="char_card_hp">HP</string>
-    <string name="char_card_buffs">Buffs or</string>
-    <string name="char_card_debuffs">(De)buffs:</string>
-    <string name="char_card_show_more">Show\nMore</string>
+    <string name="char_card_initiative_hint" translatable="false">0</string>
+    <string name="char_card_pc">PC</string>
+    <string name="char_card_npc">NPC</string>
+    <string name="char_card_show_more">Show details</string>
 
     <!--Debuff Cards-->
     <string name="debuff_card_name">(De)buff name</string>
-    <string name="debuff_card_duration">10</string>
     <string name="debuff_card_duration_label">Duration</string>
     <string name="debuff_card_description">(De)buff description</string>
     <string name="debuff_card_remove_button">Remove</string>
 
     <!--Character detail fragment-->
-    <string name="char_detail_switch_pc_on">Character is a  PC</string>
+    <string name="char_detail_switch_pc_on">Character is a PC</string>
     <string name="char_detail_initiative_bonus">Initiative bonus</string>
     <string name="char_detail_max_hp">Max hp</string>
     <string name="char_detail_fast_healing">Fast Healing</string>
@@ -46,17 +39,18 @@
     <string name="char_detail_skills">Skills</string>
     <string name="char_detail_attack_routine">Attack routine</string>
     <string name="char_detail_attack_routine_hint">to hit/damage</string>
-    <string name="char_detail_ac">AC touch AC ff AC</string>
+    <string name="char_detail_ac">AC (touch, flat-footed)</string>
     <string name="char_detail_maneuvers">Maneuvers</string>
-    <string name="char_detail_saves">Fort Ref Will</string>
+    <string name="char_detail_saves">Saves (Fort, Ref, Will)</string>
     <string name="char_detail_notes">Notes</string>
     <string name="char_detail_debuffs">Debuffs, buffs, spells</string>
     <string name="char_detail_add_button">Add</string>
     <string name="char_detail_clear_button">Clear all</string>
 
     <!-- Edit Order fragment -->
-    <string name="up_button_label">Λ</string>
-    <string name="down_button_label">v</string>
+    <string name="edit_order_up">Move up</string>
+    <string name="edit_order_down">Move down</string>
+    <string name="edit_order_first_in_round">First in round</string>
     <string name="edit_order_instruction">Press and hold a character to set it to be the one first in the round.</string>
 
     <!-- EditText Hints-->
@@ -86,6 +80,8 @@
     <string name="dialog_about_info">To learn more about the app, and its developer, please visit the website.</string>
     <string name="dialog_about_info_title">About</string>
     <string name="dialog_about_ok">Go to website</string>
+    <string name="licenses_button">Licenses</string>
+    <string name="licenses_title">Licenses</string>
     <string name="error_no_such_value">The following value was not found:\u0020</string>
     <string name="dialog_reset_round_counter_title">Reset round counter?</string>
     <string name="dialog_reset_round_counter">Confirming will reset the round counter to 1.</string>
@@ -99,8 +95,8 @@
 
     <!--Dialog Hp-->
     <string name="hp_dialog_title">Adjust hp value</string>
-    <string name="hp_dialog_old_value">Old value:\u0020</string>
-    <string name="hp_dialog_input">Input</string>
+    <string name="hp_dialog_old_value">Current hp:\u0020</string>
+    <string name="hp_dialog_input">Amount</string>
     <string name="hp_dialog_preview">Preview values</string>
     <string name="hp_dialog_add_btn">Add</string>
     <string name="hp_dialog_set_btn">Set</string>
@@ -113,24 +109,24 @@
     <string name="dialog_delete_low_negative">NO, keep character</string>
 
     <!--Round counter-->
-    <string name="plus_round_button_label">+</string>
-    <string name="minus_round_button_label">-</string>
+    <string name="round_label">Round</string>
+    <string name="round_next">Next round</string>
+    <string name="round_previous">Previous round</string>
     <string name="reset_round_button_label">Reset</string>
-    <string name="edit_order_button_label">Edit\norder</string>
+    <string name="edit_order_button_label">Edit order</string>
 
     <!--Character details-->
     <string name="character_details_name_title">Character details for :\u0020 %1$s</string>
     <string name="standard_ac">AC %1$d (touch %1$d, flatfooted %1$d)</string>
     <string name="standard_saves">Fort %1$d Ref %1$d Will %1$d</string>
-    <string name="standard_mobile_ac">AC %1$d (touch %1$d, \n flatfooted %1$d)</string>
-    <string name="standard__mobile_saves">Fort %1$d Ref %1$d \n Will %1$d</string>
     <string name="maneuvers">CMB +%1$d CMD %2$d</string>
 
     <!--Tip dialog    -->
     <string name="tip_dialog_title">Tip the developer</string>
-    <string name="tip_dialog_select">Select your amount\n \nAmount is before taxes, total price in your currency is displayed next to it.</string>
-    <string name="tip_dialog_five">€5,-</string>
-    <string name="tip_dialog_ten">€10,-</string>
+    <string name="tip_dialog_intro">Enjoying Initiative Tracker? A tip helps keep it going.</string>
+    <string name="tip_small">Small tip</string>
+    <string name="tip_big">Big tip</string>
+    <string name="tip_dialog_price_note">Price as shown by Google Play, in your currency.</string>
     <string name="billing_not_ready">Google Play is not ready yet, please try again in a moment.</string>
     <string name="billing_tip_thanks">Thank you for your tip!</string>
 

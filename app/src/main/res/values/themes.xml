@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================
+         Same structure and values as Secret Roller (the reference app) and Mook Roller.
+         Contents
+           1. App theme
+           2. Buttons
+           3. Text fields
+           4. Cards
+           5. Toolbar & popup menu
+           6. Dialogs
+           7. Shapes
+         Text appearances live in typography.xml; app-specific widgets in styles.xml.
+         The launch theme is in themes_launch.xml (and values-v31 for Android 12+).
+         ============================================================ -->
+
+
+    <!-- ======================= 1. APP THEME ======================= -->
+
+    <style name="Base.Theme.InitiativeTracker" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <style name="Theme.InitiativeTracker" parent="Base.Theme.InitiativeTracker">
+
+        <!-- Brand: bordeaux (filled actions) -->
+        <item name="colorPrimary">@color/md_primary</item>
+        <item name="colorOnPrimary">@color/md_on_primary</item>
+        <item name="colorPrimaryContainer">@color/md_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/md_on_primary_container</item>
+
+        <!-- Accent: gold (text buttons, controls, highlights) -->
+        <item name="colorSecondary">@color/md_secondary</item>
+        <item name="colorOnSecondary">@color/md_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/md_on_secondary_container</item>
+
+        <!-- Tertiary is unused: mapped to gold so M3 never falls back to its default purple -->
+        <item name="colorTertiary">@color/md_secondary</item>
+        <item name="colorOnTertiary">@color/md_on_secondary</item>
+        <item name="colorTertiaryContainer">@color/md_secondary_container</item>
+        <item name="colorOnTertiaryContainer">@color/md_on_secondary_container</item>
+
+        <!-- Surfaces -->
+        <item name="colorSurface">@color/md_surface</item>
+        <item name="colorOnSurface">@color/md_on_surface</item>
+        <item name="colorSurfaceVariant">@color/md_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/md_on_surface_variant</item>
+
+        <!-- M3 surface containers: without these, dialogs and menus fall back to purple tints -->
+        <item name="colorSurfaceContainerLowest">@color/md_surface_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/md_surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/md_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/md_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/md_surface_container_highest</item>
+        <item name="colorSurfaceDim">@color/md_background</item>
+        <item name="colorSurfaceBright">@color/md_surface_container_high</item>
+
+        <!-- Background -->
+        <item name="android:colorBackground">@color/md_background</item>
+        <item name="colorOnBackground">@color/md_on_background</item>
+
+        <!-- Borders -->
+        <item name="colorOutline">@color/md_outline</item>
+        <item name="colorOutlineVariant">@color/md_outline_variant</item>
+
+        <!-- Errors -->
+        <item name="colorError">@color/md_error</item>
+        <item name="colorOnError">@color/md_on_error</item>
+
+        <!-- Controls (cursors, focused fields) use gold -->
+        <item name="colorControlActivated">?attr/colorSecondary</item>
+
+        <!-- Edge-to-edge system bars (MainActivity pads for the insets) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">@bool/rk_light_system_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/rk_light_system_bars</item>
+
+        <!-- Default widget styles -->
+        <item name="materialButtonStyle">@style/Widget.Rekijan.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.Rekijan.Card</item>
+        <item name="editTextStyle">@style/Widget.Rekijan.EditText</item>
+        <item name="toolbarStyle">@style/Widget.Rekijan.Toolbar</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Rekijan.Dialog</item>
+        <item name="colorControlNormal">?attr/colorOnSurface</item>
+
+        <!-- Shapes -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Rekijan.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Rekijan.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Rekijan.Large</item>
+
+        <!-- Typography: Manrope everywhere (see typography.xml) -->
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Rekijan.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Rekijan.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Rekijan.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Rekijan.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Rekijan.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Rekijan.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Rekijan.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Rekijan.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Rekijan.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Rekijan.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Rekijan.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Rekijan.M3BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Rekijan.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Rekijan.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Rekijan.LabelSmall</item>
+    </style>
+
+
+    <!-- ======================= 2. BUTTONS ======================= -->
+
+    <!-- Primary: filled bordeaux, flat, 12dp corners. Default for every MaterialButton. -->
+    <style name="Widget.Rekijan.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Rekijan.Small</item>
+        <item name="android:minHeight">48dp</item>
+        <!-- Less side padding than Material's 24dp so two buttons side by side fit their label on a 360dp phone, also in Dutch -->
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- Secondary, inside cards: neutral tonal fill -->
+    <style name="Widget.Rekijan.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="backgroundTint">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Rekijan.Small</item>
+        <item name="android:minHeight">48dp</item>
+        <!-- Less side padding than Material's 24dp so two buttons side by side fit their label on a 360dp phone, also in Dutch -->
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- Low-emphasis action: gold text, no fill -->
+    <style name="Widget.Rekijan.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="rippleColor">?attr/colorSecondaryContainer</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+
+    <!-- ======================= 3. TEXT FIELDS ======================= -->
+
+    <!-- Plain EditText (default via editTextStyle): gold cursor and selection -->
+    <style name="Widget.Rekijan.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColorHighlight">@color/selection_highlight</item>
+        <item name="android:textCursorDrawable">@drawable/cursor_secondary</item>
+    </style>
+
+
+    <!-- ======================= 4. CARDS ======================= -->
+
+    <!-- Card (default via materialCardViewStyle): container color on the background,
+         no stroke, no elevation. contentPadding is the only addition for this app's screens. -->
+    <style name="Widget.Rekijan.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="shapeAppearance">@style/ShapeAppearance.Rekijan.Medium</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="contentPadding">@dimen/space_3</item>
+    </style>
+
+    <!-- Tip dialog row: filled bordeaux, fully tappable. Uses the color directly, not
+         ?attr/colorPrimary: inside a dialog the overlay maps colorPrimary to gold. -->
+    <style name="Widget.Rekijan.TipRow" parent="Widget.Material3.CardView.Filled">
+        <item name="shapeAppearance">@style/ShapeAppearance.Rekijan.Small</item>
+        <item name="cardBackgroundColor">@color/md_primary</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="rippleColor">@color/ripple_on_primary</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.Rekijan.TipRow.Content" parent="">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="Widget.Rekijan.TipRow.Label" parent="">
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">@color/md_on_primary</item>
+    </style>
+
+    <style name="Widget.Rekijan.TipRow.Price" parent="">
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+        <item name="android:textColor">@color/md_on_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+
+    <!-- ======================= 5. TOOLBAR & POPUP MENU ======================= -->
+
+    <!-- Toolbar (default via toolbarStyle): Cinzel wordmark title, themed popup menu -->
+    <style name="Widget.Rekijan.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="popupTheme">@style/ThemeOverlay.Rekijan.Menu</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Rekijan.Wordmark</item>
+        <item name="titleTextColor">@color/rk_wordmark</item>
+    </style>
+
+    <style name="ThemeOverlay.Rekijan.Menu" parent="ThemeOverlay.Material3">
+        <item name="popupMenuStyle">@style/Widget.Rekijan.PopupMenu</item>
+        <item name="android:popupMenuStyle">@style/Widget.Rekijan.PopupMenu</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Rekijan.PopupMenu</item>
+    </style>
+
+    <style name="Widget.Rekijan.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
+        <item name="itemTextAppearance">@style/TextAppearance.Rekijan.PopupMenu</item>
+        <item name="android:itemTextAppearance">@style/TextAppearance.Rekijan.PopupMenu</item>
+        <item name="android:tint">?attr/colorOnSurface</item>
+    </style>
+
+
+    <!-- ======================= 6. DIALOGS ======================= -->
+
+    <!-- Overlay for every MaterialAlertDialogBuilder: gold text buttons and a Cinzel title -->
+    <style name="ThemeOverlay.Rekijan.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.Rekijan.DialogTitle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Rekijan.TextButton.Dialog</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Rekijan.TextButton.Dialog</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Rekijan.TextButton.Dialog</item>
+    </style>
+
+    <style name="Widget.Rekijan.TextButton.Dialog" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="rippleColor">?attr/colorSecondaryContainer</item>
+    </style>
+
+    <!-- Dialog titles: Cinzel in the wordmark color. fontFamily is set directly (not only via
+         textAppearance), otherwise the theme's Manrope wins. -->
+    <style name="TextAppearance.Rekijan.DialogTitle" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Rekijan.Wordmark</item>
+        <item name="android:fontFamily">@font/cinzel</item>
+        <item name="fontFamily">@font/cinzel</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/rk_wordmark</item>
+    </style>
+
+
+    <!-- ======================= 7. SHAPES ======================= -->
+
+    <!-- Buttons, input fields -->
+    <style name="ShapeAppearance.Rekijan.Small" parent="ShapeAppearance.Material3.Corner.None">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <!-- Cards -->
+    <style name="ShapeAppearance.Rekijan.Medium" parent="ShapeAppearance.Material3.Corner.None">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!-- Sheets, dialogs -->
+    <style name="ShapeAppearance.Rekijan.Large" parent="ShapeAppearance.Material3.Corner.None">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+
+</resources>

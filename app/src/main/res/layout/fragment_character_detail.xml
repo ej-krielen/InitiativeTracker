@@ -1,378 +1,258 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The details of one character: PC or not, the numbers, the free-text stat lines, notes and the
+     (de)buffs. CharacterDetailFragment binds it. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/space_3">
 
-    <TextView
-        android:id="@+id/character_detail_textView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/colorPrimaryLight"
-        android:gravity="center"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/space_3"
+        android:paddingEnd="@dimen/space_3">
 
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/colorBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/character_detail_textView">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/character_detail_textView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/space_2"
+            android:paddingBottom="@dimen/space_1"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            tools:text="Character details for: Valeros" />
 
-            <Switch
-                android:id="@+id/is_pc_switch"
-                android:layout_width="wrap_content"
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/is_pc_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/touch_target"
+            android:text="@string/char_detail_switch_pc_on"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+        <!-- Numbers, two per row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginEnd="@dimen/space_1"
+                android:layout_weight="1"
+                android:hint="@string/char_detail_initiative_bonus">
 
-            <TextView
-                android:id="@+id/is_pc_label"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/initiative_bonus_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="numberSigned"
+                    android:selectAllOnFocus="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_switch_pc_on"
-                app:layout_constraintEnd_toEndOf="@+id/guideline_50"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginStart="@dimen/space_1"
+                android:layout_weight="1"
+                android:hint="@string/char_detail_max_hp">
 
-            <EditText
-                android:id="@+id/initiative_bonus_editText"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/max_hp_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="numberSigned"
-                android:selectAllOnFocus="true"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/is_pc_switch" />
+                android:layout_marginEnd="@dimen/space_1"
+                android:layout_weight="1"
+                android:hint="@string/char_detail_fast_healing">
 
-            <TextView
-                android:id="@+id/initiative_bonus_label_textView"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fast_healing_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_initiative_bonus"
-                app:layout_constraintBottom_toBottomOf="@+id/initiative_bonus_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
+                android:layout_marginStart="@dimen/space_1"
+                android:layout_weight="1"
+                android:hint="@string/char_detail_regeneration">
 
-            <EditText
-                android:id="@+id/max_hp_editText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                app:layout_constraintStart_toStartOf="@+id/guideline_67"
-                app:layout_constraintTop_toBottomOf="@+id/is_pc_switch" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/regeneration_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
-            <TextView
-                android:id="@+id/max_hp_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_max_hp"
-                app:layout_constraintBottom_toBottomOf="@+id/initiative_bonus_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_67" />
+        <!-- Free-text stat lines -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:hint="@string/char_detail_skills">
 
-            <EditText
-                android:id="@+id/fast_healing_editText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/initiative_bonus_editText"/>
-
-            <TextView
-                android:id="@+id/fast_healing_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_fast_healing"
-                app:layout_constraintBottom_toBottomOf="@+id/fast_healing_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_33" />
-
-            <EditText
-                android:id="@+id/regeneration_editText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                app:layout_constraintStart_toStartOf="@+id/guideline_75"
-                app:layout_constraintTop_toTopOf="@+id/fast_healing_editText" />
-
-            <TextView
-                android:id="@+id/regeneration_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_regeneration"
-                app:layout_constraintBottom_toBottomOf="@+id/fast_healing_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_75" />
-
-            <TextView
-                android:id="@+id/skill_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_skills"
-                app:layout_constraintBottom_toBottomOf="@+id/skills_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
-
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/skills_editText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fast_healing_editText" />
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:hint="@string/char_detail_attack_routine"
+            app:placeholderText="@string/char_detail_attack_routine_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/attack_routine_editText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:hint="@string/char_detail_attack_routine_hint"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/skills_editText" />
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/attack_routine_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_attack_routine"
-                app:layout_constraintBottom_toBottomOf="@+id/attack_routine_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:hint="@string/char_detail_ac">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/ac_editText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/attack_routine_editText" />
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/ac_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_ac"
-                app:layout_constraintBottom_toBottomOf="@+id/ac_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:hint="@string/char_detail_maneuvers">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/maneuvers_editText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/ac_editText" />
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/maneuvers_label_textView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_maneuvers"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/maneuvers_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:hint="@string/char_detail_saves">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/saves_editText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline_50"
-                app:layout_constraintTop_toBottomOf="@+id/maneuvers_editText" />
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/saves_label_textView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/char_detail_saves"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/saves_editText"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_50" />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Rekijan.TextInputLayout.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:hint="@string/char_detail_notes">
 
-            <TextView
-                android:id="@+id/notes_label_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/char_detail_notes"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/saves_editText" />
-
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/notes_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/colorBackgroundLight"
-                android:hint="@string/char_detail_notes"
-                android:lines="5"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/notes_label_textView" />
+                android:gravity="top|start"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="4" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- (De)buffs: heading with Clear all and Add, then the list -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:layout_marginBottom="@dimen/space_2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/debuff_label_textView"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
+                android:layout_weight="1"
                 android:text="@string/char_detail_debuffs"
-                app:layout_constraintBottom_toBottomOf="@+id/add_debuff_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/add_debuff_button" />
+                android:textAppearance="@style/TextAppearance.Rekijan.SectionHeader" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/debuff_recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_debuff_button" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_50"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clear_all_debuffs_button"
+                style="@style/Widget.Rekijan.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5" />
+                android:text="@string/char_detail_clear_button" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_33"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.33" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_67"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.67" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_75"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.75" />
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_debuff_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 android:text="@string/char_detail_add_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/debuff_label_textView"
-                app:layout_constraintTop_toBottomOf="@+id/notes_editText" />
+                app:icon="@drawable/ic_add" />
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/clear_all_debuffs_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:text="@string/char_detail_clear_button"
-                app:layout_constraintEnd_toStartOf="@+id/debuff_label_textView"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/notes_editText" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </ScrollView>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/debuff_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

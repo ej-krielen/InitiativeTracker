@@ -1,6 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">8dp</dimen>
-    <dimen name="activity_vertical_margin">8dp</dimen>
-    <dimen name="fab_margin">8dp</dimen>
+    <!-- Spacing steps, as in Secret Roller and Mook Roller -->
+    <dimen name="space_1">4dp</dimen>
+    <dimen name="space_2">8dp</dimen>
+    <dimen name="space_3">16dp</dimen>
+    <dimen name="space_4">24dp</dimen>
+
+    <!-- Corner radii live in the ShapeAppearance styles (themes.xml), as in Secret Roller -->
+
+    <!-- Controls -->
+    <dimen name="touch_target">48dp</dimen>
+    <!-- Initiative and hp boxes on a character card -->
+    <dimen name="stat_box_width">56dp</dimen>
+    <!-- PC / NPC stripe on the start edge of a character card -->
+    <dimen name="card_marker_width">5dp</dimen>
+    <!-- Outline on the card of the character whose turn it is -->
+    <dimen name="active_card_stroke">2dp</dimen>
 </resources>

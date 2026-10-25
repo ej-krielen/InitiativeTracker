@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cinzel: only for the app name and screen titles, never for data -->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font android:font="@font/cinzel_bold" android:fontStyle="normal" android:fontWeight="700" />
+</font-family>

@@ -1,22 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Initiative Tracker - Rekijan Apps "Bordeaux" theme (DARK, the primary variant).
+     Same names as values/colors.xml and the same values as Secret Roller and Mook Roller. -->
 <resources>
-    <color name="colorPrimary">#1E1E1E</color>
-    <color name="colorPrimaryDark">#252525</color>
-    <color name="colorAccent">#F37F5A</color>
 
-    <color name="colorPrimaryLight">#494949</color>
-    <color name="colorBackground">#121212</color>
-    <color name="colorBackgroundLight">#252525</color>
+    <!-- ============ Palette ============ -->
+    <color name="rk_background">#17141A</color>
+    <color name="rk_surface">#221E25</color>
+    <color name="rk_surface_high">#2D2830</color>
+    <color name="rk_surface_highest">#37313A</color>
+    <color name="rk_outline">#3E3842</color>
+    <color name="rk_primary">#9E3845</color>
+    <color name="rk_on_primary">#FFFFFF</color>
+    <color name="rk_accent">#DDBB74</color>
+    <color name="rk_text">#EFE8E1</color>
+    <color name="rk_text_muted">#B7ADA7</color>
+    <color name="rk_wordmark">@color/rk_accent</color>
 
-    <color name="npcColor">#B3F6ACA6</color>
-    <color name="pcColor">#6F848E</color>
+    <!-- ============ Initiative Tracker: PC and NPC cards ============ -->
+    <color name="rk_pc_container">#2E2921</color>
+    <color name="rk_pc_marker">@color/rk_accent</color>
+    <color name="rk_npc_container">#33222A</color>
+    <!-- Lighter than rk_primary so the stripe and label stay readable on the dark card -->
+    <color name="rk_npc_marker">#C4505F</color>
 
-    <color name="text_background_color">#000000</color>
-    <color name="text_color">#FFFFFF</color>
+    <!-- ============ Material 3 roles ============ -->
+    <color name="md_primary">@color/rk_primary</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#3A2A30</color>
+    <color name="md_on_primary_container">#F2C9CE</color>
 
-    <color name="edit_text_color">#B3FFFFFF</color>
+    <color name="md_secondary">@color/rk_accent</color>
+    <color name="md_on_secondary">@color/rk_background</color>
+    <color name="md_secondary_container">#3F372E</color>
+    <color name="md_on_secondary_container">#F3CE63</color>
 
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+    <color name="md_background">@color/rk_background</color>
+    <color name="md_on_background">@color/rk_text</color>
+    <color name="md_surface">@color/rk_background</color>
+    <color name="md_on_surface">@color/rk_text</color>
+    <color name="md_surface_variant">@color/rk_surface_high</color>
+    <color name="md_on_surface_variant">@color/rk_text_muted</color>
+
+    <color name="md_surface_container_lowest">#0B0A0C</color>
+    <color name="md_surface_container_low">@color/rk_surface</color>
+    <color name="md_surface_container">@color/rk_surface</color>
+    <color name="md_surface_container_high">@color/rk_surface_high</color>
+    <color name="md_surface_container_highest">@color/rk_surface_highest</color>
+
+    <color name="md_outline">#7A7079</color>
+    <color name="md_outline_variant">@color/rk_outline</color>
+
+    <color name="md_error">#EE7C89</color>
+    <color name="md_on_error">@color/rk_background</color>
 
 </resources>

@@ -1,47 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Styles that only Initiative Tracker needs, built on the shared theme in themes.xml
+     (same theme as Secret Roller, the reference app, and Mook Roller). -->
 <resources>
 
-    <!-- Interim theme until the 2.0 restyle: follows the phone's light/dark setting,
-         colors come from values/ and values-night/colors.xml -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+    <!-- ===== Text ===== -->
+
+    <style name="TextAppearance.Rekijan.Body" parent="TextAppearance.Rekijan.BodyLarge">
+        <item name="android:textSize">17sp</item>
+        <item name="android:lineHeight">27sp</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="TextAppearance.Rekijan.BodySmall" parent="TextAppearance.Rekijan.BodyMedium">
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineHeight">22sp</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />
-
-    <style name="AppTheme.Button" parent="Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@color/colorPrimary</item>
-        <item name="android:textColor">@color/white</item>
+    <!-- Group heading ("ROUND", "NOTES"): small caps-like label in gold -->
+    <style name="TextAppearance.Rekijan.SectionHeader" parent="TextAppearance.Rekijan.LabelLarge">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 
-    <style name="ButtonAppTheme" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:background">@color/colorAccent</item>
-        <item name="android:textColor">@color/white</item>
+    <!-- Character name on a card -->
+    <style name="TextAppearance.Rekijan.CardTitle" parent="TextAppearance.Rekijan.TitleLarge">
+        <item name="android:textSize">17sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="AlertDialogStyle" parent="Theme.AppCompat.DayNight.Dialog.Alert">
-        <item name="android:colorBackground">@color/colorPrimaryDark</item>
-        <item name="android:textColor">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="android:textColorPrimary">@color/white</item>
+    <!-- Numbers in the initiative and hp boxes and the round counter -->
+    <style name="TextAppearance.Rekijan.StatValue" parent="TextAppearance.Rekijan.TitleLarge">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
-    <style name="EditTextStyle" parent="@android:style/Widget.EditText"/>
+    <!-- Small caps label under a number ("INIT", "HP") and the PC / NPC tag -->
+    <style name="TextAppearance.Rekijan.StatLabel" parent="TextAppearance.Rekijan.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
 
-    <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:itemBackground">@color/colorPrimaryLight</item>
+    <!-- ===== Widgets ===== -->
+
+    <!-- Outlined text field (character details, dialogs): 12dp corners like the buttons, gold
+         border and label when focused. Same as Mook Roller. -->
+    <style name="Widget.Rekijan.TextInputLayout.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearance">@style/ShapeAppearance.Rekijan.Small</item>
+        <item name="boxStrokeColor">@color/text_input_stroke</item>
+        <item name="hintTextColor">?attr/colorSecondary</item>
+    </style>
+
+    <!-- Square button with only an icon (round counter, Edit Order arrows) -->
+    <style name="Widget.Rekijan.Button.Icon">
+        <item name="android:minWidth">@dimen/touch_target</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+    </style>
+
+    <style name="Widget.Rekijan.Button.Tonal.Icon">
+        <item name="android:minWidth">@dimen/touch_target</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+    </style>
+
+    <!-- Filled bordeaux button inside a dialog (hp dialog). Uses the color directly, not
+         ?attr/colorPrimary: inside a dialog the overlay maps colorPrimary to gold, and tonal
+         buttons would match the dialog surface. -->
+    <style name="Widget.Rekijan.Button.Dialog">
+        <item name="backgroundTint">@color/md_primary</item>
+        <item name="android:textColor">@color/md_on_primary</item>
+        <item name="rippleColor">@color/ripple_on_primary</item>
+    </style>
+
+    <!-- Borderless 48dp icon button in gold (card details, remove (de)buff) -->
+    <style name="Widget.Rekijan.IconButton" parent="">
+        <item name="android:layout_width">@dimen/touch_target</item>
+        <item name="android:layout_height">@dimen/touch_target</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="tint">?attr/colorSecondary</item>
+    </style>
+
+    <!-- Boxed number on a card (initiative, hp): white box with a thin border -->
+    <style name="Widget.Rekijan.StatBox" parent="">
+        <item name="android:layout_width">@dimen/stat_box_width</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_stat_box</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">4dp</item>
     </style>
 
 </resources>

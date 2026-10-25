@@ -1,26 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The encounter: round counter on top, then one card per character in initiative order.
+     The top card is the character whose turn it is. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:tag="MAIN_FRAGMENT"
-    
-    tools:showIn="@layout/activity_main">
+    android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryLight"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <include layout="@layout/content_round_counter" />
-
-    </RelativeLayout>
+    <include layout="@layout/content_round_counter" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/characters_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/space_3"
+        android:paddingEnd="@dimen/space_3"
+        android:paddingBottom="@dimen/space_3" />
 </LinearLayout>

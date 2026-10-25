@@ -1,61 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Round counter on top of the encounter: minus, the round, plus, Edit Order and Reset.
+     EncounterFragment wires the buttons. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_3"
+    android:layout_marginTop="@dimen/space_1"
+    android:layout_marginEnd="@dimen/space_3"
+    android:layout_marginBottom="@dimen/space_2"
+    app:contentPadding="@dimen/space_2">
 
-    <Button
-        android:id="@+id/plus_round_button"
-        android:layout_width="32dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="@string/plus_round_button_label"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/round_counter_textView"
-        android:layout_width="75dp"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:background="@color/text_background_color"
-        android:gravity="center"
-        android:textColor="@color/text_color"
-        app:layout_constraintBottom_toBottomOf="@+id/plus_round_button"
-        app:layout_constraintStart_toEndOf="@+id/plus_round_button"
-        app:layout_constraintTop_toTopOf="@+id/plus_round_button" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minus_round_button"
+            style="@style/Widget.Rekijan.Button.Tonal.Icon"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:contentDescription="@string/round_previous"
+            app:icon="@drawable/ic_remove" />
 
-    <Button
-        android:id="@+id/minus_round_button"
-        android:layout_width="32dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="@string/minus_round_button_label"
-        app:layout_constraintStart_toEndOf="@+id/round_counter_textView"
-        app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:layout_width="56dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/reset_round_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="@string/reset_round_button_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/round_label"
+                android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+                android:textColor="?attr/colorSecondary" />
 
-    <Button
-        android:id="@+id/edit_order_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:text="@string/edit_order_button_label"
-        app:layout_constraintEnd_toStartOf="@+id/reset_round_button"
-        app:layout_constraintStart_toEndOf="@+id/minus_round_button"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/round_counter_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rekijan.StatValue"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="3" />
+        </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/plus_round_button"
+            style="@style/Widget.Rekijan.Button.Icon"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:contentDescription="@string/round_next"
+            app:icon="@drawable/ic_add" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/edit_order_button"
+            style="@style/Widget.Rekijan.Button.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:text="@string/edit_order_button_label" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reset_round_button"
+            style="@style/Widget.Rekijan.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:paddingStart="@dimen/space_2"
+            android:paddingEnd="@dimen/space_2"
+            android:text="@string/reset_round_button_label" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

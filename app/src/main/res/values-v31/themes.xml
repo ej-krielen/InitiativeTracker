@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash: bordeaux field with the creme sprinter icon, plus the
+         "by Rekijan Apps" line at the bottom, as in Secret Roller -->
+    <style name="Theme.InitiativeTracker.Launch" parent="Theme.InitiativeTracker">
+        <item name="android:windowSplashScreenBackground">@color/brand_bordeaux</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/splash_branding</item>
+    </style>
+</resources>
