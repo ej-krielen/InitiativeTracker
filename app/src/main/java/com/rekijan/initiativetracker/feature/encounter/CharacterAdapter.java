@@ -1,6 +1,7 @@
 package com.rekijan.initiativetracker.feature.encounter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -21,14 +22,17 @@ import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.TextBinding;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.DebuffModel;
+import com.rekijan.initiativetracker.feature.sync.SyncRules;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 
 /**
  * Shows the initiative order: one card per character with initiative and name (editable in
  * place), hp (tap to change) and a summary of their (de)buffs. PCs get gold cards and NPCs
- * bordeaux ones; the top card, whose turn it is, gets a gold outline.
+ * bordeaux ones; the top card, whose turn it is, gets a gold outline. While hosting Table sync,
+ * a synced PC is tagged Synced, or Player left when its player isn't in the session.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -37,13 +41,17 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     private final Encounter encounter;
     private final IntConsumer onShowDetails;
+    private final Function<CharacterModel, SyncRules.Status> syncStatus;
 
     /**
      * @param onShowDetails Gets the position of the character whose details button was tapped.
+     * @param syncStatus    What each card shows about Table sync.
      */
-    public CharacterAdapter(Encounter encounter, IntConsumer onShowDetails) {
+    public CharacterAdapter(Encounter encounter, IntConsumer onShowDetails,
+                            Function<CharacterModel, SyncRules.Status> syncStatus) {
         this.encounter = encounter;
         this.onShowDetails = onShowDetails;
+        this.syncStatus = syncStatus;
     }
 
     static class CharacterViewHolder extends RecyclerView.ViewHolder {
@@ -52,6 +60,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         final EditText initiativeEditText;
         final EditText nameEditText;
         final TextView typeTextView;
+        final TextView syncTextView;
         final View hpBox;
         final TextView hpTextView;
         final TextView debuffsTextView;
@@ -64,6 +73,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             initiativeEditText = itemView.findViewById(R.id.character_initiative_editText);
             nameEditText = itemView.findViewById(R.id.character_name_editText);
             typeTextView = itemView.findViewById(R.id.character_type_textView);
+            syncTextView = itemView.findViewById(R.id.character_sync_textView);
             hpBox = itemView.findViewById(R.id.character_hp_box);
             hpTextView = itemView.findViewById(R.id.character_hp_textView);
             debuffsTextView = itemView.findViewById(R.id.character_debuffs_textView);
@@ -84,6 +94,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         CharacterModel character = encounter.get(position);
 
         bindColors(holder, context, character.isPC(), position == 0);
+        bindSyncTag(holder.syncTextView, context, syncStatus.apply(character));
 
         TextBinding.bindInt(holder.initiativeEditText, character.getInitiative(),
                 CharacterModel.MIN_INITIATIVE, CharacterModel.MAX_INITIATIVE, character::setInitiative);
@@ -123,6 +134,20 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
                 MaterialColors.getColor(holder.cardView, com.google.android.material.R.attr.colorSecondary));
         holder.cardView.setStrokeWidth(isActive
                 ? context.getResources().getDimensionPixelSize(R.dimen.active_card_stroke) : 0);
+    }
+
+    /** Synced in green, Player left in amber, or nothing; the outline takes the same color. */
+    private static void bindSyncTag(TextView tag, Context context, SyncRules.Status status) {
+        if (status == SyncRules.Status.NONE) {
+            tag.setVisibility(View.GONE);
+            return;
+        }
+        boolean synced = status == SyncRules.Status.SYNCED;
+        int color = ContextCompat.getColor(context, synced ? R.color.rk_status_on : R.color.rk_status_wait);
+        tag.setText(synced ? R.string.char_card_synced : R.string.char_card_player_left);
+        tag.setTextColor(color);
+        tag.setBackgroundTintList(ColorStateList.valueOf(color));
+        tag.setVisibility(View.VISIBLE);
     }
 
     /** E.g. "24 / 32", with the max smaller and muted. */

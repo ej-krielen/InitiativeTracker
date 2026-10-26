@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
+import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.CharacterSheet;
 import com.rekijan.initiativetracker.feature.sync.SessionCodes;
@@ -91,7 +92,7 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
         }
 
         view.findViewById(R.id.player_join_button).setOnClickListener(v -> join());
-        view.findViewById(R.id.player_leave_button).setOnClickListener(v -> sync.leave(characterId));
+        view.findViewById(R.id.player_leave_button).setOnClickListener(v -> askLeave());
         view.findViewById(R.id.player_send_button).setOnClickListener(v -> send());
         EditText codeText = view.findViewById(R.id.player_code_editText);
         codeText.setOnEditorActionListener((v, actionId, event) -> {
@@ -149,9 +150,45 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
             case REJECTED:
                 toast(getString(R.string.player_answer_rejected, character.getCharacterName()));
                 break;
+            case REMOVED:
+                showNotice(getString(R.string.player_notice_removed_title),
+                        getString(R.string.player_notice_removed, displayName()));
+                break;
+            case UNLINKED:
+                showNotice(getString(R.string.player_notice_unlinked_title, displayName()),
+                        getString(R.string.player_notice_unlinked, displayName()));
+                break;
+            case SESSION_ENDED:
+                showNotice(getString(R.string.player_notice_session_ended_title),
+                        getString(R.string.player_notice_session_ended, displayName()));
+                break;
             default:
                 break;
         }
+    }
+
+    /** The GM ended the link: a popup, since the player may not be looking at the screen. */
+    private void showNotice(String title, String message) {
+        Dialogs.builder(requireContext())
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.dialog_ok, null)
+                .show();
+    }
+
+    /** Leaving is easy to tap by mistake, and the GM keeps the character: ask first. */
+    private void askLeave() {
+        Dialogs.builder(requireContext())
+                .setTitle(R.string.player_leave_title)
+                .setMessage(getString(R.string.player_leave_message, displayName()))
+                .setPositiveButton(R.string.sync_leave, (d, w) -> sync.leave(characterId))
+                .setNegativeButton(R.string.dialog_cancel, null)
+                .show();
+    }
+
+    private String displayName() {
+        String name = character.getCharacterName();
+        return name.trim().isEmpty() ? getString(R.string.empty_character_name) : name;
     }
 
     private void onSheetChanged() {

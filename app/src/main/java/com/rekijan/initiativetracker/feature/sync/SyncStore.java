@@ -13,10 +13,12 @@ import java.util.Map;
  * Saves the Table sync state on the device, in the app's SharedPreferences:
  * <ul>
  *     <li>GM side: the code of the hosted session, the party it sends to, and per player the
- *     sentAt of the send the GM last approved or refused.</li>
+ *     sentAt of the send the GM last approved or refused; and which players the GM removed from
+ *     which party, so a new request from them says so.</li>
  *     <li>Player side, per player character: the code of the joined session; when it was last
  *     sent and last updated from the GM; the GM's version it last got (the merge base); what it
- *     last sent, until answered; and which answer it has seen. The character itself is kept by
+ *     last sent, until answered; which answer it has seen; and its sentAt when it joined, so a
+ *     removal notice from before then is old. The character itself is kept by
  *     PlayerBook.</li>
  * </ul>
  * Plain Java on top of {@link KeyValueStore}, so it is unit tested.
@@ -29,15 +31,19 @@ public class SyncStore {
     static final String KEY_HOST_CODE = "sync_host_code";
     static final String KEY_HOST_PARTY = "sync_host_party_id";
     static final String KEY_HOST_APPLIED = "sync_host_applied";
+    static final String KEY_HOST_REMOVED = "sync_host_removed";
     static final String KEY_PLAYER_CODE_PREFIX = "sync_player_code_";
     static final String KEY_PLAYER_SENT_AT_PREFIX = "sync_player_sent_at_";
     static final String KEY_PLAYER_SYNCED_AT_PREFIX = "sync_player_synced_at_";
     static final String KEY_PLAYER_BASE_PREFIX = "sync_player_base_";
     static final String KEY_PLAYER_SENT_PREFIX = "sync_player_sent_";
     static final String KEY_PLAYER_ANSWERED_PREFIX = "sync_player_answered_";
+    static final String KEY_PLAYER_JOIN_FLOOR_PREFIX = "sync_player_join_floor_";
 
     private static final Gson GSON = new Gson();
     private static final Type APPLIED_TYPE = new TypeToken<HashMap<String, Long>>() {
+    }.getType();
+    private static final Type REMOVED_TYPE = new TypeToken<HashMap<String, String>>() {
     }.getType();
 
     private final KeyValueStore values;
@@ -91,6 +97,37 @@ public class SyncStore {
         values.edit().putString(KEY_HOST_APPLIED, GSON.toJson(applied, APPLIED_TYPE)).apply();
     }
 
+    /** Remembers that the GM removed this player's character from this party. Kept across sessions. */
+    public void markRemoved(String docId, String partyId) {
+        Map<String, String> removed = loadRemoved();
+        removed.put(docId, partyId);
+        values.edit().putString(KEY_HOST_REMOVED, GSON.toJson(removed, REMOVED_TYPE)).apply();
+    }
+
+    /** @return True when the GM removed this player's character from this party before. */
+    public boolean wasRemoved(String docId, String partyId) {
+        return partyId != null && partyId.equals(loadRemoved().get(docId));
+    }
+
+    /** The player is in a party again (added or linked): forget the removal. */
+    public void clearRemoved(String docId) {
+        Map<String, String> removed = loadRemoved();
+        if (removed.remove(docId) != null) {
+            values.edit().putString(KEY_HOST_REMOVED, GSON.toJson(removed, REMOVED_TYPE)).apply();
+        }
+    }
+
+    private Map<String, String> loadRemoved() {
+        String json = values.getString(KEY_HOST_REMOVED, null);
+        if (json == null) return new HashMap<>();
+        try {
+            Map<String, String> map = GSON.fromJson(json, REMOVED_TYPE);
+            return map != null ? new HashMap<>(map) : new HashMap<>();
+        } catch (JsonParseException e) {
+            return new HashMap<>();
+        }
+    }
+
     // ---------------------------------------------------------------- Player (per character)
 
     /** @return The code of the session this player character joined, or null when not joined. */
@@ -98,7 +135,10 @@ public class SyncStore {
         return values.getString(KEY_PLAYER_CODE_PREFIX + characterId, null);
     }
 
-    /** Joins (code) or leaves (null); leaving also forgets when it was last sent and synced. */
+    /**
+     * Joins (code) or leaves (null); leaving also forgets when it was last synced. Joining
+     * remembers the last sentAt as the join floor ({@link #getPlayerJoinFloor}).
+     */
     public void setPlayerCode(String characterId, String code) {
         if (code == null) {
             values.edit()
@@ -109,8 +149,16 @@ public class SyncStore {
                     .remove(KEY_PLAYER_ANSWERED_PREFIX + characterId)
                     .apply();
         } else {
-            values.edit().putString(KEY_PLAYER_CODE_PREFIX + characterId, code).apply();
+            values.edit()
+                    .putString(KEY_PLAYER_CODE_PREFIX + characterId, code)
+                    .putString(KEY_PLAYER_JOIN_FLOOR_PREFIX + characterId, Long.toString(getPlayerSentAt(characterId)))
+                    .apply();
         }
+    }
+
+    /** @return The character's sentAt when it last joined; GM notices answering up to this are old. */
+    public long getPlayerJoinFloor(String characterId) {
+        return readLong(KEY_PLAYER_JOIN_FLOOR_PREFIX + characterId);
     }
 
     /** @return When this character was last sent, in ms, or 0 when never. */
@@ -151,6 +199,7 @@ public class SyncStore {
                 .remove(KEY_PLAYER_BASE_PREFIX + characterId)
                 .remove(KEY_PLAYER_SENT_PREFIX + characterId)
                 .remove(KEY_PLAYER_ANSWERED_PREFIX + characterId)
+                .remove(KEY_PLAYER_JOIN_FLOOR_PREFIX + characterId)
                 .apply();
     }
 

@@ -16,6 +16,7 @@ import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.encounter.Encounter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,6 +38,10 @@ import java.util.concurrent.TimeoutException;
  * attached again after a delay that doubles up to five minutes, and a session that turns out to
  * be gone is ended.
  * <p>
+ * The GM may link a joining player to a PC they ran so far ({@link #link}), and remove or unlink
+ * a synced PC ({@link #removeCharacters}, {@link #unlink}); the player then gets a notice. The
+ * rules are in {@link SyncRules}.
+ * <p>
  * Player side, per player character: joins a session by code and sends the whole sheet. While
  * its screen is open it follows the GM's copy live and merges it in ({@link SheetMerge}), so the
  * GM's answer and later changes arrive by themselves and unsent edits are kept.
@@ -57,6 +62,9 @@ public class SyncManager implements Encounter.Listener {
     private static final long SIGN_IN_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(15);
     /** The GM's copies go up this long after the last change, so typing doesn't write every key. */
     private static final long UPLOAD_DELAY_MS = TimeUnit.SECONDS.toMillis(3);
+    /** How often, and how far apart, a player checks whether a session ended after its GM's copy went. */
+    private static final int SESSION_END_CHECKS = 3;
+    private static final long SESSION_END_CHECK_DELAY_MS = TimeUnit.SECONDS.toMillis(4);
 
     /** The app side Table sync needs: the active party, saving it, and the player characters. */
     public interface Host {
@@ -100,7 +108,13 @@ public class SyncManager implements Encounter.Listener {
         /** Some sent values are the GM's again. */
         KEPT,
         /** The GM didn't let the character join; it left the session. */
-        REJECTED
+        REJECTED,
+        /** The GM removed the character from the party; it left the session. */
+        REMOVED,
+        /** The GM runs the character from now on; it left the session. */
+        UNLINKED,
+        /** The GM ended the session (or it expired); the character left it. */
+        SESSION_ENDED
     }
 
     /** A player's send waiting for the GM. */
@@ -111,12 +125,19 @@ public class SyncManager implements Encounter.Listener {
         public final boolean join;
         /** For a known character: the changes from the GM's version to the send. */
         public final List<SyncDiff.Change> changes;
+        /** For a join: the PCs the player can be linked to ({@link SyncRules#linkCandidates}). */
+        public final List<CharacterModel> linkCandidates;
+        /** For a join: the GM removed this player's character from this party before. */
+        public final boolean removedBefore;
 
-        Request(String docId, PlayerSheet sheet, boolean join, List<SyncDiff.Change> changes) {
+        Request(String docId, PlayerSheet sheet, boolean join, List<SyncDiff.Change> changes,
+                List<CharacterModel> linkCandidates, boolean removedBefore) {
             this.docId = docId;
             this.sheet = sheet;
             this.join = join;
             this.changes = changes;
+            this.linkCandidates = linkCandidates;
+            this.removedBefore = removedBefore;
         }
     }
 
@@ -145,6 +166,8 @@ public class SyncManager implements Encounter.Listener {
     private PlayerUpdateListener playerUpdateListener;
     private ListenerRegistration playersRegistration;
     private Map<String, PlayerSheet> lastSheets = new LinkedHashMap<>();
+    /** True once the players' listener answered in this run, so {@link #lastSheets} says who is there. */
+    private boolean playersLoaded;
     /** Per document id, the latest send the GM hasn't answered yet. */
     private final Map<String, PlayerSheet> requests = new LinkedHashMap<>();
     /** Per document id, the GM's copy last uploaded in this run, to skip unchanged ones. */
@@ -216,6 +239,7 @@ public class SyncManager implements Encounter.Listener {
                     public void onCreated(String code) {
                         store.startHosting(code, host.getActivePartyId());
                         lastSheets = new LinkedHashMap<>();
+                        playersLoaded = false;
                         requests.clear();
                         uploaded.clear();
                         startWatchingParty();
@@ -297,12 +321,15 @@ public class SyncManager implements Encounter.Listener {
             PlayerSheet sheet = e.getValue();
             CharacterModel character = find(docId);
             if (character == null) {
-                next = new Request(docId, sheet, true, Collections.emptyList());
+                List<CharacterModel> candidates = SyncRules.linkCandidates(host.getEncounter().getCharacters(),
+                        lastSheets.keySet(), docId, sheet.name);
+                next = new Request(docId, sheet, true, Collections.emptyList(), candidates,
+                        store.wasRemoved(docId, store.getHostPartyId()));
                 break;
             }
             List<SyncDiff.Change> changes = SyncDiff.changes(PlayerSheet.of(character), sheet);
             if (!changes.isEmpty()) {
-                next = new Request(docId, sheet, false, changes);
+                next = new Request(docId, sheet, false, changes, Collections.emptyList(), false);
                 break;
             }
             markAnswered(docId, sheet.sentAt);
@@ -327,6 +354,7 @@ public class SyncManager implements Encounter.Listener {
             request.sheet.applyTo(added);
             added.setPC(true);
             encounter.add(added);
+            store.clearRemoved(request.docId);
         } else {
             SyncDiff.apply(PlayerSheet.of(character), request.sheet, accepted).applyTo(character);
             encounter.notifyChanged();
@@ -363,6 +391,53 @@ public class SyncManager implements Encounter.Listener {
             uploadNow();
         }
         notifyRequests();
+    }
+
+    /**
+     * The GM links a player asking to join to a PC they ran so far, instead of adding a new one.
+     * The request stays open and comes back as changes from that PC to the send, so the GM picks
+     * which values to keep.
+     */
+    public void link(@NonNull Request request, @NonNull CharacterModel character) {
+        if (!hostedPartyIsActive() || !host.getEncounter().getCharacters().contains(character)) return;
+        character.setSyncId(request.docId);
+        character.setPC(true);
+        store.clearRemoved(request.docId);
+        host.getEncounter().notifyChanged();
+        host.saveEncounter();
+        notifyStateChanged();
+        notifyRequests();
+    }
+
+    /** @return What this character's card shows about Table sync. */
+    public SyncRules.Status getStatus(CharacterModel character) {
+        return SyncRules.status(character.getSyncId(), hostedPartyIsActive(), playersLoaded, lastSheets.keySet());
+    }
+
+    /**
+     * Removes characters from the active party. A synced player among them gets a notice and
+     * leaves the session; a new request from them says the GM removed them before.
+     */
+    public void removeCharacters(@NonNull Collection<CharacterModel> characters) {
+        if (hostedPartyIsActive()) {
+            for (CharacterModel c : characters) {
+                if (!SyncRules.isLinked(c.getSyncId())) continue;
+                sendNotice(c, GmCopy.Ending.REMOVED);
+                store.markRemoved(c.getSyncId(), store.getHostPartyId());
+            }
+        }
+        host.getEncounter().removeAll(characters);
+        notifyStateChanged();
+    }
+
+    /** The GM keeps this PC and runs it from now on: the player gets a notice and leaves the session. */
+    public void unlink(@NonNull CharacterModel character) {
+        if (!SyncRules.isLinked(character.getSyncId())) return;
+        if (hostedPartyIsActive()) sendNotice(character, GmCopy.Ending.UNLINKED);
+        character.setSyncId(null);
+        host.getEncounter().notifyChanged();
+        host.saveEncounter();
+        notifyStateChanged();
     }
 
     // ---------------------------------------------------------------- Player
@@ -501,7 +576,13 @@ public class SyncManager implements Encounter.Listener {
         playerWatches.put(characterId, repository.listenToGmCopy(code, docId, new SyncRepository.GmCopyListener() {
             @Override
             public void onGmCopy(@Nullable GmCopy copy) {
-                if (copy != null && code.equals(store.getPlayerCode(characterId))) onGmCopyReceived(characterId, copy);
+                if (!code.equals(store.getPlayerCode(characterId))) return;
+                if (copy != null) {
+                    onGmCopyReceived(characterId, copy);
+                } else {
+                    // Not added yet, or the GM ended the session (which removes the copies too)
+                    checkSessionEnded(characterId, code);
+                }
             }
 
             @Override
@@ -546,6 +627,15 @@ public class SyncManager implements Encounter.Listener {
      */
     private void onGmCopyReceived(String characterId, GmCopy copy) {
         Log.d(TAG, "GM copy received, answered " + copy.answeredSentAt);
+        if (copy.ended != GmCopy.Ending.NONE) {
+            // A removal or unlink from before the last join is old: ignore it, also its sheet
+            if (!SyncRules.endsPlayer(copy, store.getPlayerJoinFloor(characterId))) return;
+            store.clearPlayerSent(characterId);
+            leave(characterId);
+            Answer ended = copy.ended == GmCopy.Ending.REMOVED ? Answer.REMOVED : Answer.UNLINKED;
+            if (playerUpdateListener != null) playerUpdateListener.onPlayerUpdated(characterId, ended, 0);
+            return;
+        }
         PlayerSheet sent = store.loadPlayerSent(characterId);
         long lastSentAt = store.getPlayerSentAt(characterId);
         boolean answer = sent != null && copy.answeredSentAt >= lastSentAt;
@@ -579,6 +669,41 @@ public class SyncManager implements Encounter.Listener {
         }
         notifyStateChanged();
         if (playerUpdateListener != null) playerUpdateListener.onPlayerUpdated(characterId, result, kept);
+    }
+
+    /**
+     * The GM's copy is gone: when the session is gone too, the character leaves it and the player
+     * is told. Ending a session deletes the copies before the session itself, so a session that is
+     * still there is checked again a little later.
+     */
+    private void checkSessionEnded(String characterId, String code) {
+        checkSessionEnded(characterId, code, SESSION_END_CHECKS);
+    }
+
+    private void checkSessionEnded(String characterId, String code, int checksLeft) {
+        repository.fetchExpiry(code, new SyncRepository.ExpiryCallback() {
+            @Override
+            public void onResult(@Nullable Timestamp expiresAt) {
+                if (!code.equals(store.getPlayerCode(characterId))) return;
+                if (expiresAt != null) {
+                    // Only a player who had the GM's copy can have lost it; a new one just waits
+                    if (checksLeft > 1 && store.loadPlayerBase(characterId) != null) {
+                        timeoutHandler.postDelayed(() -> checkSessionEnded(characterId, code, checksLeft - 1),
+                                SESSION_END_CHECK_DELAY_MS);
+                    }
+                    return;
+                }
+                leaveGoneSession(characterId);
+                if (playerUpdateListener != null) {
+                    playerUpdateListener.onPlayerUpdated(characterId, Answer.SESSION_ENDED, 0);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Offline: the next send finds out
+            }
+        });
     }
 
     private void leaveGoneSession(String characterId) {
@@ -645,6 +770,7 @@ public class SyncManager implements Encounter.Listener {
                 if (!code.equals(store.getHostCode())) return;
                 retryDelayMs = RETRY_MIN_MS;
                 lastSheets = new LinkedHashMap<>(sheets);
+                playersLoaded = true;
                 Map<String, Long> answered = store.loadApplied();
                 requests.keySet().retainAll(sheets.keySet());
                 for (Map.Entry<String, PlayerSheet> e : sheets.entrySet()) {
@@ -665,6 +791,32 @@ public class SyncManager implements Encounter.Listener {
                 // Firestore has removed the listener already
                 playersRegistration = null;
                 scheduleRetry(code);
+            }
+        });
+    }
+
+    /**
+     * Tells a synced player their link ended: a GM copy with the notice, answering everything
+     * they sent, and their sheet in the session is removed so it can't come back as a request.
+     */
+    private void sendNotice(CharacterModel character, GmCopy.Ending ending) {
+        String code = store.getHostCode();
+        String docId = character.getSyncId();
+        PlayerSheet last = lastSheets.get(docId);
+        long answeredSentAt = SyncRules.noticeSentAt(last != null ? last.sentAt : null, store.loadApplied().get(docId));
+        markAnswered(docId, answeredSentAt);
+        uploaded.remove(docId);
+        GmCopy notice = GmCopy.notice(character, answeredSentAt, ending);
+        repository.deletePlayer(code, docId);
+        repository.fetchExpiry(code, new SyncRepository.ExpiryCallback() {
+            @Override
+            public void onResult(@Nullable Timestamp expiresAt) {
+                if (expiresAt != null) repository.saveGmCopy(code, docId, notice, expiresAt);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Logged by the repository; the player finds out when they send again
             }
         });
     }
@@ -775,6 +927,7 @@ public class SyncManager implements Encounter.Listener {
         host.getEncounter().removeListener(this);
         store.stopHosting();
         lastSheets = new LinkedHashMap<>();
+        playersLoaded = false;
         requests.clear();
         uploaded.clear();
         retryDelayMs = RETRY_MIN_MS;

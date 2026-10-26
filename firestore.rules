@@ -7,11 +7,12 @@ rules_version = '2';
 // Data:
 //   sessions/{code}                  gmUid, createdAt, expiresAt          (written by the GM)
 //   sessions/{code}/players/{docId}  a player character's sheet, sentAt, expiresAt (that player)
-//   sessions/{code}/gmCopies/{docId} the GM's version of that sheet, answeredSentAt, rejected (the GM)
+//   sessions/{code}/gmCopies/{docId} the GM's version of that sheet, answeredSentAt, rejected, ended (the GM)
 //   docId = "<player uid>_<character id>"
 //
 // Keep in sync with the app: SessionCodes (code pattern), SyncIds (docId), PlayerSheet and GmCopy
-// (field names and limits), SyncRepository (30-day expiry, capped at 33 days here for clock margin).
+// (field names and limits), GmCopy.Ending (ended values), SyncRepository (30-day expiry, capped at
+// 33 days here for clock margin).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -90,13 +91,15 @@ service cloud.firestore {
           && d.expiresAt == session(code).expiresAt;
     }
 
-    // The GM's copy: the sheet (a name may be empty), the send it answers, and a rejected join
+    // The GM's copy: the sheet (a name may be empty), the send it answers, a rejected join, and
+    // whether the GM removed or unlinked the character ('' while linked)
     function validGmCopy(code, d) {
-      return d.keys().hasOnly(sheetKeys().concat(['answeredSentAt', 'rejected']))
-          && d.keys().hasAll(sheetKeys().concat(['answeredSentAt', 'rejected']))
+      return d.keys().hasOnly(sheetKeys().concat(['answeredSentAt', 'rejected', 'ended']))
+          && d.keys().hasAll(sheetKeys().concat(['answeredSentAt', 'rejected', 'ended']))
           && validSheetFields(d)
           && d.answeredSentAt is int && d.answeredSentAt >= 0
           && d.rejected is bool
+          && d.ended in ['', 'removed', 'unlinked']
           && d.expiresAt == session(code).expiresAt;
     }
 

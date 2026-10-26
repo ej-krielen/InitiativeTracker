@@ -82,6 +82,25 @@ public class GmCopyTest {
     }
 
     @Test
+    public void noticeSurvivesTheTrip() {
+        GmCopy back = GmCopy.fromMap(GmCopy.notice(gmValeros(), 4000, GmCopy.Ending.UNLINKED).toMap());
+        assertEquals(GmCopy.Ending.UNLINKED, back.ended);
+        assertEquals(4000, back.answeredSentAt);
+        assertFalse(back.rejected);
+        assertEquals("removed", GmCopy.notice(gmValeros(), 0, GmCopy.Ending.REMOVED).toMap().get(GmCopy.KEY_ENDED));
+    }
+
+    @Test
+    public void ordinaryCopyAndOldOrBrokenOnesAreNotEnded() {
+        assertEquals("", GmCopy.of(gmValeros(), 0).toMap().get(GmCopy.KEY_ENDED));
+        Map<String, Object> map = GmCopy.of(gmValeros(), 0).toMap();
+        map.remove(GmCopy.KEY_ENDED);
+        assertEquals(GmCopy.Ending.NONE, GmCopy.fromMap(map).ended);
+        map.put(GmCopy.KEY_ENDED, "banished");
+        assertEquals(GmCopy.Ending.NONE, GmCopy.fromMap(map).ended);
+    }
+
+    @Test
     public void noMapGivesNull() {
         assertNull(GmCopy.fromMap(null));
     }

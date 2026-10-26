@@ -3,6 +3,7 @@ package com.rekijan.initiativetracker.feature.sync;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
@@ -10,6 +11,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
@@ -17,6 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.color.MaterialColors;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.Dialogs;
+import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.DebuffModel;
 
 import java.util.ArrayList;
@@ -24,9 +29,9 @@ import java.util.List;
 
 /**
  * The GM's popups for Table sync requests. A new player: "Valeros wants to join" with their
- * stats, Add to party or Reject. A known player: a checklist with one row per change, all ticked;
- * the GM unticks what they don't accept and taps Apply, or Refuse all. Neither can be dismissed
- * without an answer, since the player waits for it.
+ * stats, Add to party or Reject, or Link to a PC the GM ran so far. A known player: a checklist
+ * with one row per change, all ticked; the GM unticks what they don't accept and taps Apply,
+ * or Refuse all. Neither can be dismissed without an answer, since the player waits for it.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -38,6 +43,9 @@ public final class ApprovalDialogs {
         void onApprove(List<SyncDiff.Change> accepted);
 
         void onRefuse();
+
+        /** A new player is linked to this PC instead of being added. */
+        void onLink(CharacterModel pc);
     }
 
     /** Values longer than this are shown as "changed" with the new text below. */
@@ -46,20 +54,82 @@ public final class ApprovalDialogs {
     private ApprovalDialogs() {
     }
 
-    /** @return The shown dialog, so the caller knows when it is gone. */
-    public static AlertDialog showJoin(Context context, PlayerSheet sheet, String partyName, Listener listener) {
-        String name = sheet.name;
+    /**
+     * A new player. When the party has PCs they could be linked to, the GM picks one of those or
+     * a new PC; a PC with the same name is picked at first ({@link SyncRules#defaultLink}).
+     *
+     * @return The shown dialog, so the caller knows when it is gone.
+     */
+    public static AlertDialog showJoin(Context context, SyncManager.Request request, String partyName,
+                                       Listener listener) {
+        PlayerSheet sheet = request.sheet;
         String stats = context.getString(R.string.approval_join_stats, sheet.initiative, sheet.hp, sheet.maxHp,
                 sheet.ac.isEmpty() ? "–" : sheet.ac);
         String conditions = context.getResources().getQuantityString(
                 R.plurals.approval_join_conditions, sheet.conditions.size(), sheet.conditions.size());
-        return Dialogs.builder(context)
+        String message = context.getString(R.string.approval_join_message, sheet.name, partyName)
+                + "\n\n" + stats + "\n" + conditions;
+        if (request.removedBefore) message += "\n\n" + context.getString(R.string.approval_join_removed_before);
+
+        List<CharacterModel> candidates = request.linkCandidates;
+        if (candidates.isEmpty()) {
+            return Dialogs.builder(context)
+                    .setTitle(R.string.approval_join_title)
+                    .setMessage(message)
+                    .setCancelable(false)
+                    .setNegativeButton(R.string.approval_reject, (d, w) -> listener.onRefuse())
+                    .setPositiveButton(R.string.approval_add, (d, w) -> listener.onApprove(new ArrayList<>()))
+                    .show();
+        }
+
+        View content = LayoutInflater.from(context).inflate(R.layout.dialog_join, null);
+        ((TextView) content.findViewById(R.id.join_message_textView)).setText(message);
+        RadioGroup choices = content.findViewById(R.id.join_choices);
+        for (int i = 0; i <= candidates.size(); i++) {
+            RadioButton choice = new RadioButton(context);
+            choice.setId(View.generateViewId());
+            choice.setTag(i);
+            choice.setMinHeight(context.getResources().getDimensionPixelSize(R.dimen.touch_target));
+            choice.setText(i < candidates.size() ? linkText(context, candidates.get(i))
+                    : context.getString(R.string.approval_add_new));
+            choices.addView(choice);
+        }
+        int first = SyncRules.defaultLink(candidates, sheet.name);
+        choices.check(choices.getChildAt(first >= 0 ? first : candidates.size()).getId());
+
+        AlertDialog dialog = Dialogs.builder(context)
                 .setTitle(R.string.approval_join_title)
-                .setMessage(context.getString(R.string.approval_join_message, name, partyName) + "\n\n" + stats + "\n" + conditions)
+                .setView(content)
                 .setCancelable(false)
                 .setNegativeButton(R.string.approval_reject, (d, w) -> listener.onRefuse())
-                .setPositiveButton(R.string.approval_add, (d, w) -> listener.onApprove(new ArrayList<>()))
-                .show();
+                .setPositiveButton(R.string.approval_next, (d, w) -> {
+                    int picked = (int) content.findViewById(choices.getCheckedRadioButtonId()).getTag();
+                    if (picked < candidates.size()) {
+                        listener.onLink(candidates.get(picked));
+                    } else {
+                        listener.onApprove(new ArrayList<>());
+                    }
+                })
+                .create();
+        Runnable updateNext = () -> {
+            Button next = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (next == null) return;
+            int picked = (int) content.findViewById(choices.getCheckedRadioButtonId()).getTag();
+            next.setText(picked < candidates.size() ? R.string.approval_next : R.string.approval_add);
+        };
+        choices.setOnCheckedChangeListener((group, id) -> updateNext.run());
+        dialog.setOnShowListener(d -> updateNext.run());
+        dialog.show();
+        return dialog;
+    }
+
+    /** E.g. "Link to Kyra (yours, not synced)". */
+    private static String linkText(Context context, CharacterModel pc) {
+        String name = TextUtils.isEmpty(pc.getCharacterName())
+                ? context.getString(R.string.empty_character_name) : pc.getCharacterName();
+        String kind = context.getString(SyncRules.isLinked(pc.getSyncId())
+                ? R.string.approval_link_player_left : R.string.approval_link_your_pc);
+        return context.getString(R.string.approval_link_to, name) + " (" + kind + ")";
     }
 
     /** @return The shown dialog, so the caller knows when it is gone. */

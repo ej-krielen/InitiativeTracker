@@ -29,6 +29,7 @@ import com.rekijan.initiativetracker.BuildConfig;
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.feature.character.CharacterDefaults;
 import com.rekijan.initiativetracker.feature.character.CharacterDetailFragment;
+import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.encounter.CharacterDialogs;
 import com.rekijan.initiativetracker.feature.encounter.Encounter;
 import com.rekijan.initiativetracker.feature.encounter.EncounterFragment;
@@ -584,10 +585,16 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
             public void onRefuse() {
                 sync.refuse(request);
             }
+
+            @Override
+            public void onLink(CharacterModel pc) {
+                // The request comes back as changes from that PC once this dialog is gone
+                sync.link(request, pc);
+            }
         };
         String name = request.sheet.name.isEmpty() ? getString(R.string.empty_character_name) : request.sheet.name;
         requestDialog = request.join
-                ? ApprovalDialogs.showJoin(this, request.sheet, app.getParties().getActive().getName(), answer)
+                ? ApprovalDialogs.showJoin(this, request, app.getParties().getActive().getName(), answer)
                 : ApprovalDialogs.showChanges(this, name, request.changes, answer);
         requestDialog.setOnDismissListener(d -> {
             requestDialog = null;

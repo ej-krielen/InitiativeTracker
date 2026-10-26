@@ -13,22 +13,28 @@ import androidx.fragment.app.Fragment;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
+import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.feature.encounter.Encounter;
+import com.rekijan.initiativetracker.feature.sync.SyncManager;
+import com.rekijan.initiativetracker.feature.sync.SyncRules;
 
 /**
  * The details of one character in the GM's encounter: the name on top, then the sheet with the
  * Stats and Conditions tabs ({@link CharacterSheet}). In portrait it replaces the list; in
- * landscape it is shown next to it. The open tab survives rotation.
+ * landscape it is shown next to it. The open tab survives rotation. While hosting Table sync, a
+ * synced PC shows that under the name, with Unlink: the GM runs it from then on.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 1-6-2019
  */
-public class CharacterDetailFragment extends Fragment {
+public class CharacterDetailFragment extends Fragment implements SyncManager.StateListener {
 
     private static final String ARG_POSITION = "POSITION";
     private static final String STATE_TAB = "sheet_tab";
 
     private CharacterSheet sheet;
+    private SyncManager sync;
+    private CharacterModel character;
 
     public static CharacterDetailFragment newInstance(int position) {
         CharacterDetailFragment fragment = new CharacterDetailFragment();
@@ -51,14 +57,16 @@ public class CharacterDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Encounter encounter = ((InitiativeTrackerApp) requireActivity().getApplication()).getEncounter();
+        InitiativeTrackerApp app = (InitiativeTrackerApp) requireActivity().getApplication();
+        Encounter encounter = app.getEncounter();
+        sync = app.getSync();
         int position = getPosition();
         if (!encounter.isValidPosition(position)) {
             // The character was removed (e.g. before a rotation); show nothing
             view.setVisibility(View.INVISIBLE);
             return;
         }
-        CharacterModel character = encounter.get(position);
+        character = encounter.get(position);
 
         TextView titleTextView = view.findViewById(R.id.character_detail_textView);
         String name = character.getCharacterName();
@@ -69,6 +77,44 @@ public class CharacterDetailFragment extends Fragment {
         if (savedInstanceState != null) {
             sheet.selectTab(savedInstanceState.getInt(STATE_TAB, CharacterSheet.TAB_STATS));
         }
+
+        String shownName = titleTextView.getText().toString();
+        view.findViewById(R.id.character_unlink_button).setOnClickListener(v -> Dialogs.builder(requireContext())
+                .setTitle(getString(R.string.sync_unlink_title, shownName))
+                .setMessage(getString(R.string.sync_unlink_message, shownName))
+                .setPositiveButton(R.string.sync_unlink, (d, w) -> sync.unlink(character))
+                .setNegativeButton(R.string.dialog_cancel, null)
+                .show());
+        renderSync();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (sync != null) sync.addStateListener(this);
+        renderSync();
+    }
+
+    @Override
+    public void onStop() {
+        if (sync != null) sync.removeStateListener(this);
+        super.onStop();
+    }
+
+    @Override
+    public void onSyncStateChanged() {
+        renderSync();
+    }
+
+    /** The sync row: shown while the character is synced, or linked to a player who left. */
+    private void renderSync() {
+        View view = getView();
+        if (view == null || character == null) return;
+        SyncRules.Status status = sync.getStatus(character);
+        view.findViewById(R.id.character_sync_row).setVisibility(
+                status == SyncRules.Status.NONE ? View.GONE : View.VISIBLE);
+        ((TextView) view.findViewById(R.id.character_sync_status_textView)).setText(
+                status == SyncRules.Status.SYNCED ? R.string.sync_linked_synced : R.string.sync_linked_player_left);
     }
 
     @Override

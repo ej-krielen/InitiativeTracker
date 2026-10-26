@@ -316,6 +316,34 @@
     <string name="approval_condition_removed">− %1$s</string>
     <string name="approval_condition_changed">%1$s: %2$d rounds</string>
     <string name="approval_condition_unnamed">Unnamed condition</string>
+    <string name="approval_join_removed_before">You removed this player\'s character from this party earlier.</string>
+    <string name="approval_link_to">Link to %1$s</string>
+    <string name="approval_link_your_pc">yours, not synced</string>
+    <string name="approval_link_player_left">player left</string>
+    <string name="approval_add_new">Add as a new PC</string>
+    <string name="approval_link_hint">Linking shows the changes next, so you pick which values to keep.</string>
+    <string name="approval_next">Next</string>
+
+    <!-- Synced PCs (SyncRules): the card tag, removing and unlinking, the player's notices -->
+    <string name="char_card_synced">Synced</string>
+    <string name="char_card_player_left">Player left</string>
+    <string name="sync_remove_title">Remove %1$s?</string>
+    <string name="sync_remove_message">A player runs %1$s over Table sync. They get a notice and leave the session; they can ask to join again with the code.</string>
+    <string name="sync_remove">Remove</string>
+    <string name="sync_keep_unlink">Keep, unlink</string>
+    <string name="sync_linked_synced">Synced with a player</string>
+    <string name="sync_linked_player_left">Linked to a player who left</string>
+    <string name="sync_unlink">Unlink</string>
+    <string name="sync_unlink_title">Unlink %1$s?</string>
+    <string name="sync_unlink_message">You keep %1$s as a PC and run it from now on. The player gets a notice and leaves the session.</string>
+    <string name="player_leave_title">Leave the session?</string>
+    <string name="player_leave_message">Your GM keeps %1$s in their party. Join again with the code to sync it again.</string>
+    <string name="player_notice_removed_title">Removed from the party</string>
+    <string name="player_notice_removed">Your GM removed %1$s from the party, so it left the session. Your sheet stays on this phone.</string>
+    <string name="player_notice_unlinked_title">Your GM runs %1$s</string>
+    <string name="player_notice_unlinked">Your GM unlinked %1$s and runs it from now on, so it left the session. Your sheet stays on this phone.</string>
+    <string name="player_notice_session_ended_title">Session ended</string>
+    <string name="player_notice_session_ended">Your GM ended the session, so %1$s left it. Ask your GM for a new code to join again.</string>
 
     <!-- Snackbar at the start of a turn (TurnDialogs.showTicks) -->
     <string name="turn_ticks">%1$s\'s turn · %2$s</string>

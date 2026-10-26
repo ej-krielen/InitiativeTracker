@@ -12,9 +12,12 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 
 import com.rekijan.initiativetracker.R;
+import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.core.util.NumberInput;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
+
+import java.util.Collections;
 
 /**
  * The hp dialog: the user types an amount and adds it, sets it or subtracts it, with a preview
@@ -95,7 +98,9 @@ public final class HpDialog {
         Dialogs.builder(context)
                 .setTitle(R.string.dialog_delete_low_title)
                 .setMessage(R.string.dialog_delete_low)
-                .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) -> encounter.remove(character))
+                .setPositiveButton(R.string.dialog_delete_low_positive, (d, w) ->
+                        ((InitiativeTrackerApp) context.getApplicationContext()).getSync()
+                                .removeCharacters(Collections.singletonList(character)))
                 .setNegativeButton(R.string.dialog_delete_low_negative, null)
                 .show();
     }
