@@ -375,7 +375,7 @@
     <string name="dialog_spell_expired_title">Spell ended</string>
     <string name="spell_expired">%1$s ended on %2$s.</string>
     <string name="spell_caster_gone_title">%1$s left the fight</string>
-    <string name="spell_caster_gone_message">Ticked spells keep going on %1$s\'s initiative as a spell card. The rest end.</string>
+    <string name="spell_caster_gone_message">Selected spells keep going on %1$s\'s initiative as a spell card. The rest end.</string>
     <string name="spell_caster_gone_item">%1$s (on %2$s)</string>
     <string name="spell_caster_gone_done">Done</string>
     <string name="char_card_spell">Spell</string>
