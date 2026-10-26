@@ -38,8 +38,8 @@ import java.util.Set;
  * A player's own character, like Secret Roller's character screen: the session card on top, the
  * sheet with the Stats and Conditions tabs ({@link CharacterSheet}), and Send to GM.
  * <p>
- * Not joined, the card has the session code and Join. Joined, the GM is the final arbiter: Send
- * asks the GM for the changes, and while this screen is open the GM's version comes in by itself
+ * Not joined, the card has the session code and Join, which also sends the sheet. Joined, the GM
+ * is the final arbiter: Send asks the GM for the changes, and while this screen is open the GM's version comes in by itself
  * (their answer, damage, conditions). The card shows the state with a light: gold when there are
  * changes not sent yet (marked on the fields), amber while waiting for the GM, green when up to
  * date. The sheet also works without a session. Every edit is saved on the phone straight away.
@@ -299,7 +299,10 @@ public class PlayerFragment extends Fragment implements SyncManager.StateListene
             @Override
             public void onSuccess() {
                 busy = false;
-                if (getView() != null) codeText.setText("");
+                if (getView() == null) return;
+                codeText.setText("");
+                // Joining syncs right away: a new player asks to join, a known one is linked again
+                send();
             }
 
             @Override
