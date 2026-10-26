@@ -22,6 +22,8 @@ import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.core.util.TextBinding;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.DebuffModel;
+import com.rekijan.initiativetracker.feature.spell.SpellDialogs;
+import com.rekijan.initiativetracker.feature.spell.Spells;
 import com.rekijan.initiativetracker.feature.sync.SyncRules;
 
 import java.util.List;
@@ -32,7 +34,9 @@ import java.util.function.IntConsumer;
  * Shows the initiative order: one card per character with initiative and name (editable in
  * place), hp (tap to change) and a summary of their (de)buffs. PCs get gold cards and NPCs
  * bordeaux ones; the top card, whose turn it is, gets a gold outline. While hosting Table sync,
- * a synced PC is tagged Synced, or Player left when its player isn't in the session.
+ * a synced PC is tagged Synced, or Player left when its player isn't in the session. Spell
+ * conditions show their caster in gold; a spell card (a removed caster's spell that goes on) gets
+ * a plain card with a gold outline, its caster, targets and rounds left, and no hp.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 17-9-2015
@@ -93,22 +97,32 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         Context context = holder.itemView.getContext();
         CharacterModel character = encounter.get(position);
 
-        bindColors(holder, context, character.isPC(), position == 0);
+        boolean spellCard = character.isSpellCard();
+        if (spellCard) {
+            bindSpellCardColors(holder, context, position == 0);
+        } else {
+            bindColors(holder, context, character.isPC(), position == 0);
+        }
         bindSyncTag(holder.syncTextView, context, syncStatus.apply(character));
 
         TextBinding.bindInt(holder.initiativeEditText, character.getInitiative(),
                 CharacterModel.MIN_INITIATIVE, CharacterModel.MAX_INITIATIVE, character::setInitiative);
         TextBinding.bindText(holder.nameEditText, character.getCharacterName(), character::setCharacterName);
 
+        holder.hpBox.setVisibility(spellCard ? View.GONE : View.VISIBLE);
+        holder.showDetailButton.setVisibility(spellCard ? View.GONE : View.VISIBLE);
         holder.hpTextView.setText(hpText(holder.hpTextView, character));
         holder.hpBox.setOnClickListener(v -> HpDialog.show(context, encounter, character));
 
         List<DebuffModel> debuffs = character.getDebuffList();
-        if (debuffs.isEmpty()) {
+        if (spellCard) {
+            holder.debuffsTextView.setVisibility(View.VISIBLE);
+            holder.debuffsTextView.setText(spellCardLine(context, character));
+        } else if (debuffs.isEmpty()) {
             holder.debuffsTextView.setVisibility(View.GONE);
         } else {
             holder.debuffsTextView.setVisibility(View.VISIBLE);
-            holder.debuffsTextView.setText(debuffSummary(debuffs));
+            holder.debuffsTextView.setText(debuffSummary(context, debuffs));
         }
 
         holder.showDetailButton.setOnClickListener(v -> {
@@ -162,14 +176,64 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
     }
 
     /** E.g. "Haste (3) · Shaken (1) · Sickened"; a condition without a duration has no number. */
-    private static String debuffSummary(List<DebuffModel> debuffs) {
-        StringBuilder sb = new StringBuilder();
+    /**
+     * E.g. "Prone · Haste (3) · Bless (2, Mira)": a condition without a duration shows just its
+     * name, a spell also its caster, in gold.
+     */
+    private static CharSequence debuffSummary(Context context, List<DebuffModel> debuffs) {
+        int gold = ContextCompat.getColor(context, R.color.rk_pc_marker);
+        SpannableStringBuilder sb = new SpannableStringBuilder();
         for (int i = 0; i < debuffs.size(); i++) {
             DebuffModel d = debuffs.get(i);
             if (i > 0) sb.append(" · ");
+            int start = sb.length();
             sb.append(d.getName());
-            // A condition without a duration shows just its name
-            if (d.getDuration() > 0) sb.append(" (").append(d.getDuration()).append(")");
+            String caster = d.getSpellId() != null ? d.getCasterName() : "";
+            if (d.getDuration() > 0 && !caster.isEmpty()) {
+                sb.append(" (").append(String.valueOf(d.getDuration())).append(", ").append(caster).append(")");
+            } else if (d.getDuration() > 0) {
+                sb.append(" (").append(String.valueOf(d.getDuration())).append(")");
+            } else if (!caster.isEmpty()) {
+                sb.append(" (").append(caster).append(")");
+            }
+            if (d.getSpellId() != null) {
+                sb.setSpan(new ForegroundColorSpan(gold), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        return sb;
+    }
+
+    /** A spell card: no hp or details, a gold outline and marker, Spell as its type. */
+    private static void bindSpellCardColors(CharacterViewHolder holder, Context context, boolean isActive) {
+        int gold = ContextCompat.getColor(context, R.color.rk_pc_marker);
+        holder.cardView.setCardBackgroundColor(
+                MaterialColors.getColor(holder.cardView, com.google.android.material.R.attr.colorSurfaceContainer));
+        holder.markerView.setBackgroundColor(gold);
+        holder.typeTextView.setText(R.string.char_card_spell);
+        holder.typeTextView.setTextColor(gold);
+        holder.cardView.setStrokeColor(gold);
+        holder.cardView.setStrokeWidth(context.getResources().getDimensionPixelSize(
+                isActive ? R.dimen.active_card_stroke : R.dimen.spell_card_stroke));
+    }
+
+    /** "Mira's spell · on Tor, Ash · 2 rnds". */
+    private CharSequence spellCardLine(Context context, CharacterModel card) {
+        String caster = card.getSpellCardCaster().isEmpty()
+                ? context.getString(R.string.empty_character_name) : card.getSpellCardCaster();
+        String spellId = Spells.spellOfCard(encounter, card);
+        String targets = SpellDialogs.targetNames(context, encounter, spellId);
+        StringBuilder sb = new StringBuilder(targets.isEmpty()
+                ? context.getString(R.string.spell_card_line_none, caster)
+                : context.getString(R.string.spell_card_line, caster, targets));
+        int rounds = 0;
+        String id = card.getStableId();
+        for (CharacterModel c : encounter.getCharacters()) {
+            for (DebuffModel d : c.getDebuffList()) {
+                if (id.equals(d.getCasterId())) rounds = Math.max(rounds, d.getDuration());
+            }
+        }
+        if (rounds > 0) {
+            sb.append(" · ").append(context.getResources().getQuantityString(R.plurals.spell_rounds, rounds, rounds));
         }
         return sb.toString();
     }

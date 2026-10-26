@@ -4,6 +4,7 @@ import com.rekijan.initiativetracker.core.util.NumberInput;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * One combatant in the initiative order: a PC or an NPC/monster with initiative, hit points,
@@ -42,6 +43,16 @@ public class CharacterModel {
     private ArrayList<DebuffModel> debuffList = new ArrayList<>();
     /** Firebase uid of the player who sent this character with Table sync; null for everyone else. */
     private String syncId;
+    /**
+     * Stays the same while the character exists, so a spell knows its caster whatever the order.
+     * Not called "id": 1.x saved a numeric "id" that was always 0. Old saves get one when first asked.
+     */
+    private String stableId;
+    /**
+     * Set on a spell card: the stand-in that keeps a spell going on the initiative of a caster who
+     * left the fight. It holds the caster's name; null for every real character.
+     */
+    private String spellCardCaster;
 
     /** Empty character; also used by Gson when loading saved data. */
     public CharacterModel() {
@@ -62,11 +73,30 @@ public class CharacterModel {
     public List<DebuffModel> tickDebuffs() {
         List<DebuffModel> expired = new ArrayList<>();
         for (DebuffModel d : getDebuffList()) {
-            int duration = d.getDuration() - 1;
-            if (duration == 0) expired.add(d);
-            d.setDuration(duration);
+            if (d.tick()) expired.add(d);
         }
         return expired;
+    }
+
+    /** @return The id that stays the same while this character exists; made on first use. */
+    public String getStableId() {
+        if (stableId == null || stableId.isEmpty()) stableId = UUID.randomUUID().toString();
+        return stableId;
+    }
+
+    /** @return True for a spell card, which only keeps a removed caster's spell going. */
+    public boolean isSpellCard() {
+        return spellCardCaster != null;
+    }
+
+    /** @return The name of the caster a spell card stands in for, or "" for a real character. */
+    public String getSpellCardCaster() {
+        return spellCardCaster == null ? "" : spellCardCaster;
+    }
+
+    /** Makes this a spell card standing in for the caster with this name. */
+    public void setSpellCardCaster(String casterName) {
+        this.spellCardCaster = casterName == null ? "" : casterName;
     }
 
     /** Adds healing (fast healing, regeneration) to the current hp. */

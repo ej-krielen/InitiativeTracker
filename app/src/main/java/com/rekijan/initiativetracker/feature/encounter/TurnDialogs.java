@@ -14,7 +14,9 @@ import com.rekijan.initiativetracker.feature.character.CharacterModel;
 import com.rekijan.initiativetracker.feature.character.DebuffModel;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * What the app shows when the turn moves on (which conditions counted down, as a snackbar;
@@ -32,8 +34,20 @@ public final class TurnDialogs {
     /** Asks the questions that belong to the start of a character's turn. */
     public static void onTurnStarted(Context context, Encounter encounter, Encounter.Turn turn) {
         CharacterModel active = turn.active;
-        for (DebuffModel debuff : turn.expiredDebuffs) {
-            askRemoveExpiredDebuff(context, encounter, active, debuff);
+        // One question per spell, for all its targets at once; other conditions one by one
+        Map<String, List<Encounter.Expired>> spells = new LinkedHashMap<>();
+        for (Encounter.Expired e : turn.expired) {
+            String spellId = e.condition.getSpellId();
+            if (spellId == null) {
+                askRemoveExpiredDebuff(context, encounter, e.character, e.condition);
+            } else {
+                List<Encounter.Expired> group = spells.get(spellId);
+                if (group == null) spells.put(spellId, group = new ArrayList<>());
+                group.add(e);
+            }
+        }
+        for (List<Encounter.Expired> group : spells.values()) {
+            askRemoveExpiredSpell(context, encounter, group);
         }
         if (active.getFastHealing() > 0) {
             askAutomaticHealing(context, encounter, active, active.getFastHealing(),
@@ -46,10 +60,10 @@ public final class TurnDialogs {
     }
 
     /**
-     * Shows which conditions of the active character went down a round, as a snackbar at the
-     * bottom ("Rekijan's turn · Haste 3 → 2, Bless 5 → 4"), so it is seen without stopping play.
-     * Nothing shows when no condition has a duration. A condition that ended also gets its own
-     * dialog from {@link #onTurnStarted}.
+     * Shows which conditions went down a round, as a snackbar at the bottom ("Mira's turn ·
+     * Haste 3 → 2, Bless 2 → 1 (Rekijan, Tor, Ash)"), so it is seen without stopping play. A
+     * spell the active character cast is shown once, with its targets. Nothing shows when no
+     * condition has a duration. A condition that ended also gets a dialog from {@link #onTurnStarted}.
      *
      * @param root   A view in the screen, for the snackbar.
      * @param anchor The view to show it above (the ad bar), or null.
@@ -57,13 +71,29 @@ public final class TurnDialogs {
     public static void showTicks(View root, @Nullable View anchor, Encounter.Turn turn) {
         if (turn.ticks.isEmpty()) return;
         Context context = root.getContext();
+        String who = nameOf(context, turn.active);
         List<String> parts = new ArrayList<>();
+        // Spell ticks with the same rounds are joined: spell id + rounds -> the names of its targets
+        Map<String, List<String>> spellTargets = new LinkedHashMap<>();
+        Map<String, Encounter.Tick> spellTicks = new LinkedHashMap<>();
         for (Encounter.Tick tick : turn.ticks) {
-            String name = TextUtils.isEmpty(tick.name) ? context.getString(R.string.approval_condition_unnamed) : tick.name;
-            parts.add(context.getString(R.string.turn_tick, name, tick.from, tick.to));
+            if (tick.spellId == null) {
+                parts.add(context.getString(R.string.turn_tick, conditionName(context, tick.name), tick.from, tick.to));
+                continue;
+            }
+            String key = tick.spellId + ":" + tick.from + ":" + tick.to;
+            List<String> targets = spellTargets.get(key);
+            if (targets == null) {
+                spellTargets.put(key, targets = new ArrayList<>());
+                spellTicks.put(key, tick);
+            }
+            targets.add(tick.target == null ? who : nameOf(context, tick.target));
         }
-        String who = turn.active.getCharacterName();
-        if (TextUtils.isEmpty(who)) who = context.getString(R.string.empty_character_name);
+        for (Map.Entry<String, Encounter.Tick> entry : spellTicks.entrySet()) {
+            Encounter.Tick tick = entry.getValue();
+            parts.add(context.getString(R.string.turn_tick_spell, conditionName(context, tick.name), tick.from, tick.to,
+                    TextUtils.join(", ", spellTargets.get(entry.getKey()))));
+        }
         Snackbar snackbar = Snackbar.make(root, context.getString(R.string.turn_ticks, who, TextUtils.join(", ", parts)),
                 Snackbar.LENGTH_LONG);
         if (anchor != null && anchor.getVisibility() == View.VISIBLE) snackbar.setAnchorView(anchor);
@@ -110,6 +140,31 @@ public final class TurnDialogs {
                 })
                 .setNegativeButton(R.string.dialog_debuff_keep, null)
                 .show();
+    }
+
+    /** "Bless ended on Rekijan, Tor and Ash": Remove takes it off all of them. */
+    private static void askRemoveExpiredSpell(Context context, Encounter encounter, List<Encounter.Expired> group) {
+        List<String> names = new ArrayList<>();
+        for (Encounter.Expired e : group) names.add(nameOf(context, e.character));
+        String spell = conditionName(context, group.get(0).condition.getName());
+        Dialogs.builder(context)
+                .setTitle(R.string.dialog_spell_expired_title)
+                .setMessage(context.getString(R.string.spell_expired, spell, TextUtils.join(", ", names)))
+                .setPositiveButton(R.string.dialog_debuff_remove, (d, w) -> {
+                    for (Encounter.Expired e : group) e.character.getDebuffList().remove(e.condition);
+                    encounter.notifyChanged();
+                })
+                .setNegativeButton(R.string.dialog_debuff_keep, null)
+                .show();
+    }
+
+    static String nameOf(Context context, CharacterModel character) {
+        String name = character.getCharacterName();
+        return TextUtils.isEmpty(name) ? context.getString(R.string.empty_character_name) : name;
+    }
+
+    private static String conditionName(Context context, String name) {
+        return TextUtils.isEmpty(name) ? context.getString(R.string.approval_condition_unnamed) : name;
     }
 
     private static void askAutomaticHealing(Context context, Encounter encounter, CharacterModel character,

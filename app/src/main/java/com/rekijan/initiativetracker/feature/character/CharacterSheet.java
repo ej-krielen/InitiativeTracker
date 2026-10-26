@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,6 +61,8 @@ public class CharacterSheet {
     private final TextView conditionsEmpty;
     private CharacterModel character;
     private DebuffAdapter adapter;
+    @Nullable
+    private Consumer<DebuffModel> onEndSpell;
     private boolean conditionsUnsent;
 
     /**
@@ -140,8 +143,21 @@ public class CharacterSheet {
         bindText(R.id.saves_editText, character.getSaves(), character::setSaves);
         bindText(R.id.notes_editText, character.getCharacterNotes(), character::setCharacterNotes);
 
-        adapter = new DebuffAdapter(character, this::onConditionsChanged);
+        adapter = new DebuffAdapter(character, this::onConditionsChanged, onEndSpell);
         conditionList.setAdapter(adapter);
+        updateConditionCount();
+    }
+
+    /** GM only, before {@link #bind}: what End on all targets on a spell condition does. */
+    public void setOnEndSpell(@Nullable Consumer<DebuffModel> onEndSpell) {
+        this.onEndSpell = onEndSpell;
+    }
+
+    /** Redraws the conditions after they changed elsewhere (a spell ended on all targets). */
+    @SuppressLint("NotifyDataSetChanged") // Any number of conditions may be gone
+    public void refreshConditions() {
+        if (adapter == null) return;
+        adapter.notifyDataSetChanged();
         updateConditionCount();
     }
 

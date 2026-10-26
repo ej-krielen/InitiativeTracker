@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One target in the Cast spell dialog: a checkbox with the name, an Active tag for the
+     character whose turn it is (that row gets a gold outline, bg_spell_target_active), and PC or
+     NPC. SpellDialogs binds it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="2dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingEnd="@dimen/space_3">
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/spell_target_checkBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Rekijan.Body"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="Rekijan" />
+
+    <TextView
+        android:id="@+id/spell_target_active"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_2"
+        android:background="@drawable/bg_sync_tag"
+        android:backgroundTint="?attr/colorSecondary"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:text="@string/spell_active_tag"
+        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+        android:textColor="?attr/colorSecondary"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/spell_target_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Rekijan.StatLabel"
+        tools:text="@string/char_card_pc" />
+</LinearLayout>

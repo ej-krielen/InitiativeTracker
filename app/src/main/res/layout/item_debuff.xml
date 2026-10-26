@@ -3,6 +3,7 @@
      DebuffAdapter binds it. -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/debuff_cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -79,5 +80,38 @@
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine|textCapSentences" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Only for a spell: who cast it, and (GM only) ending it on every target -->
+        <LinearLayout
+            android:id="@+id/debuff_spell_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:layout_marginEnd="@dimen/space_3"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/debuff_caster_textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawablePadding="@dimen/space_1"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.Rekijan.M3BodySmall"
+                android:textColor="?attr/colorSecondary"
+                app:drawableStartCompat="@drawable/ic_spellbook"
+                app:drawableTint="?attr/colorSecondary"
+                tools:text="Cast by Mira" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/debuff_end_all_button"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debuff_end_all" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

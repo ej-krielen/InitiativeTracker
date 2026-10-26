@@ -214,6 +214,8 @@ public final class SyncDiff {
     }
 
     private static DebuffModel copy(DebuffModel d) {
-        return new DebuffModel(d.getName(), d.getDuration(), d.getDescription());
+        DebuffModel c = new DebuffModel(d.getName(), d.getDuration(), d.getDescription());
+        c.copyCasterFrom(d);
+        return c;
     }
 }

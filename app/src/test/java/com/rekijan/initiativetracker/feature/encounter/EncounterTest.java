@@ -112,8 +112,8 @@ public class EncounterTest {
         Encounter.Turn turn = e.nextTurn();
 
         assertSame(b, turn.active);
-        assertEquals(1, turn.expiredDebuffs.size());
-        assertSame(shaken, turn.expiredDebuffs.get(0));
+        assertEquals(1, turn.expired.size());
+        assertSame(shaken, turn.expired.get(0).condition);
         assertEquals(0, shaken.getDuration());
         assertEquals(2, haste.getDuration());
         assertEquals(2, a.getDebuffList().get(0).getDuration());
@@ -271,7 +271,7 @@ public class EncounterTest {
         assertEquals(3, turn.ticks.get(0).from);
         assertEquals(2, turn.ticks.get(0).to);
         assertEquals(0, turn.ticks.get(1).to);
-        assertEquals(1, turn.expiredDebuffs.size());
+        assertEquals(1, turn.expired.size());
         assertEquals(0, b.getDebuffList().get(1).getDuration());
     }
 }

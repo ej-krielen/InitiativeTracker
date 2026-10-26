@@ -19,6 +19,10 @@ import java.util.Map;
  * Whatever comes in is cleaned up: numbers are kept inside the ranges of {@link CharacterModel},
  * texts are cut to the limits below and there are at most {@link #MAX_CONDITIONS} conditions, the
  * same limits the Firestore rules enforce. Plain Java, so the mapping and the limits are unit tested.
+ * <p>
+ * A spell condition travels with its caster's name only ("caster"), so the player sees who cast
+ * it. The caster and spell ids stay with the GM: {@link #applyTo} keeps them on the conditions
+ * that come back.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -52,6 +56,7 @@ public class PlayerSheet {
     static final String KEY_CONDITION_NAME = "name";
     static final String KEY_CONDITION_DURATION = "duration";
     static final String KEY_CONDITION_DESCRIPTION = "description";
+    static final String KEY_CONDITION_CASTER = "caster";
     static final String KEY_SENT_AT = "sentAt";
 
     public String name = "";
@@ -115,7 +120,11 @@ public class PlayerSheet {
         if (conditions != null) {
             for (DebuffModel d : conditions) {
                 if (s.conditions.size() >= MAX_CONDITIONS) break;
-                if (d != null) s.conditions.add(cleanedCondition(d.getName(), d.getDuration(), d.getDescription()));
+                if (d == null) continue;
+                DebuffModel c = cleanedCondition(d.getName(), d.getDuration(), d.getDescription());
+                c.copyCasterFrom(d);
+                c.setCasterName(cutRaw(d.getCasterName(), MAX_NAME));
+                s.conditions.add(c);
             }
         }
         s.sentAt = Math.max(0, sentAt);
@@ -145,6 +154,7 @@ public class PlayerSheet {
             item.put(KEY_CONDITION_NAME, d.getName());
             item.put(KEY_CONDITION_DURATION, (long) d.getDuration());
             item.put(KEY_CONDITION_DESCRIPTION, d.getDescription());
+            if (!d.getCasterName().isEmpty()) item.put(KEY_CONDITION_CASTER, d.getCasterName());
             list.add(item);
         }
         map.put(KEY_CONDITIONS, list);
@@ -189,8 +199,10 @@ public class PlayerSheet {
             for (Object item : (List<?>) list) {
                 if (!(item instanceof Map)) continue;
                 Map<?, ?> m = (Map<?, ?>) item;
-                s.conditions.add(new DebuffModel(text(m.get(KEY_CONDITION_NAME)),
-                        whole(m.get(KEY_CONDITION_DURATION)), text(m.get(KEY_CONDITION_DESCRIPTION))));
+                DebuffModel d = new DebuffModel(text(m.get(KEY_CONDITION_NAME)),
+                        whole(m.get(KEY_CONDITION_DURATION)), text(m.get(KEY_CONDITION_DESCRIPTION)));
+                d.setCasterName(text(m.get(KEY_CONDITION_CASTER)));
+                s.conditions.add(d);
             }
         }
         s.sentAt = number(map.get(KEY_SENT_AT));
@@ -199,7 +211,9 @@ public class PlayerSheet {
 
     /**
      * Puts this sheet on a character: every shared field, and the conditions are replaced. Whether
-     * it is a PC, its turn order and its sync id stay as they are.
+     * it is a PC, its turn order and its sync id stay as they are. A condition that matches one the
+     * character had (by name, in order) keeps that one's caster and spell, so a spell keeps
+     * counting on its caster's turn after the GM approves a player's change.
      */
     public void applyTo(CharacterModel character) {
         PlayerSheet s = cleaned();
@@ -216,6 +230,16 @@ public class PlayerSheet {
         character.setSkills(s.skills);
         character.setAttackRoutine(s.attackRoutine);
         character.setCharacterNotes(s.notes);
+        List<DebuffModel> old = new ArrayList<>(character.getDebuffList());
+        for (DebuffModel d : s.conditions) {
+            for (int i = 0; i < old.size(); i++) {
+                if (old.get(i).getName().trim().equalsIgnoreCase(d.getName().trim())) {
+                    if (old.get(i).hasCaster()) d.copyCasterFrom(old.get(i));
+                    old.remove(i);
+                    break;
+                }
+            }
+        }
         character.getDebuffList().clear();
         character.getDebuffList().addAll(s.conditions);
     }

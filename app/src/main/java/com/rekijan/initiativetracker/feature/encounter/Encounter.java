@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,6 +19,11 @@ import java.util.Set;
  * <p>
  * Changes to the order, the list or the round are passed to the {@link Listener}s, so open
  * screens can redraw.
+ * <p>
+ * Spells: a condition with a caster counts down when its caster's turn starts, on every target.
+ * When a caster leaves the fight while their spells still hold targets, each spell gets a spell
+ * card in the caster's place, so it keeps counting on the same initiative; the screen then asks
+ * which of them go on ({@link #takeCastersGone}). A spell card goes away once its spell ended.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 25-10-2026
@@ -31,14 +38,15 @@ public class Encounter {
     /** What happened when the turn moved on. */
     public static final class Turn {
         public final CharacterModel active;
-        public final List<DebuffModel> expiredDebuffs;
-        /** The conditions with a duration that went down a round, in their order. */
+        /** The conditions that reached 0 this turn: the active character's own and its spells'. */
+        public final List<Expired> expired;
+        /** The conditions with a duration that went down a round, the active character's own first. */
         public final List<Tick> ticks;
         public final boolean newRound;
 
-        Turn(CharacterModel active, List<DebuffModel> expiredDebuffs, List<Tick> ticks, boolean newRound) {
+        Turn(CharacterModel active, List<Expired> expired, List<Tick> ticks, boolean newRound) {
             this.active = active;
-            this.expiredDebuffs = expiredDebuffs;
+            this.expired = expired;
             this.ticks = ticks;
             this.newRound = newRound;
         }
@@ -49,16 +57,45 @@ public class Encounter {
         public final String name;
         public final int from;
         public final int to;
+        /** Who has it, when that is not the active character (a spell the active one cast); else null. */
+        public final CharacterModel target;
+        /** The spell it belongs to, or null. */
+        public final String spellId;
 
-        Tick(String name, int from, int to) {
+        Tick(String name, int from, int to, CharacterModel target, String spellId) {
             this.name = name;
             this.from = from;
             this.to = to;
+            this.target = target;
+            this.spellId = spellId;
+        }
+    }
+
+    /** A condition that reached 0, and who has it. */
+    public static final class Expired {
+        public final CharacterModel character;
+        public final DebuffModel condition;
+
+        Expired(CharacterModel character, DebuffModel condition) {
+            this.character = character;
+            this.condition = condition;
+        }
+    }
+
+    /** A caster left the fight; their spells go on as these spell cards until the GM says otherwise. */
+    public static final class CasterGone {
+        public final String casterName;
+        public final List<CharacterModel> spellCards;
+
+        CasterGone(String casterName, List<CharacterModel> spellCards) {
+            this.casterName = casterName;
+            this.spellCards = spellCards;
         }
     }
 
     private final List<CharacterModel> characters = new ArrayList<>();
     private final List<Listener> listeners = new ArrayList<>();
+    private final List<CasterGone> castersGone = new ArrayList<>();
     private int round;
 
     public Encounter(List<CharacterModel> characters, int round) {
@@ -73,6 +110,7 @@ public class Encounter {
     public void replace(List<CharacterModel> newCharacters, int newRound) {
         characters.clear();
         characters.addAll(newCharacters);
+        castersGone.clear();
         round = Math.max(0, newRound);
         notifyChanged();
     }
@@ -107,28 +145,113 @@ public class Encounter {
 
     /**
      * Removes a character. When it was first in round, the next character in the order takes
-     * that over, so the round counter keeps going up at the right moment.
+     * that over, so the round counter keeps going up at the right moment. See {@link #removeAll}
+     * for casters and spell cards.
      */
     public void remove(int position) {
         if (!isValidPosition(position)) return;
-        removeSilently(position);
-        notifyChanged();
+        removeAll(Collections.singletonList(characters.get(position)));
     }
 
     public void remove(CharacterModel character) {
         remove(characters.indexOf(character));
     }
 
-    /** Removes several characters (Delete characters in the drawer), with one change notice. */
+    /**
+     * Removes several characters (Delete characters in the drawer), with one change notice.
+     * A caster whose spells still hold targets that stay is replaced by one spell card per spell,
+     * on the same spot, and reported by {@link #takeCastersGone}. A spell card that is removed
+     * ends its spell on every target.
+     */
     public void removeAll(Collection<CharacterModel> toRemove) {
-        boolean changed = false;
+        List<CharacterModel> leaving = new ArrayList<>();
         for (CharacterModel c : toRemove) {
-            int position = characters.indexOf(c);
-            if (position < 0) continue;
-            removeSilently(position);
-            changed = true;
+            if (characters.contains(c) && !leaving.contains(c)) leaving.add(c);
         }
-        if (changed) notifyChanged();
+        if (leaving.isEmpty()) return;
+        for (CharacterModel c : leaving) {
+            if (c.isSpellCard()) removeSpellsOf(c.getStableId());
+        }
+        for (CharacterModel c : leaving) {
+            int position = characters.indexOf(c);
+            List<CharacterModel> cards = c.isSpellCard()
+                    ? Collections.emptyList() : spellCardsFor(c, leaving);
+            if (cards.isEmpty()) {
+                removeSilently(position);
+                continue;
+            }
+            characters.remove(position);
+            characters.addAll(position, cards);
+            cards.get(0).setFirstInRound(c.isFirstInRound());
+            castersGone.add(new CasterGone(c.getCharacterName(), cards));
+        }
+        notifyChanged();
+    }
+
+    /**
+     * @return The casters that left the fight since the last call, with the spell cards that
+     * took their place; the list is emptied, so each one is asked about once.
+     */
+    public List<CasterGone> takeCastersGone() {
+        List<CasterGone> taken = new ArrayList<>(castersGone);
+        castersGone.clear();
+        return taken;
+    }
+
+    /** @return True when a condition in the fight was cast by this character (or spell card). */
+    public boolean hasSpellsOf(CharacterModel caster) {
+        String id = caster.getStableId();
+        for (CharacterModel c : characters) {
+            for (DebuffModel d : c.getDebuffList()) {
+                if (id.equals(d.getCasterId())) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * One spell card per spell the caster cast on characters that stay, with the caster's
+     * initiative and the spell's name. Those conditions now count on the card's turn.
+     */
+    private List<CharacterModel> spellCardsFor(CharacterModel caster, List<CharacterModel> leaving) {
+        String id = caster.getStableId();
+        Map<String, CharacterModel> cards = new LinkedHashMap<>();
+        for (CharacterModel c : characters) {
+            if (leaving.contains(c)) continue;
+            for (DebuffModel d : c.getDebuffList()) {
+                if (!id.equals(d.getCasterId())) continue;
+                // A spell from before spell ids would have none; one card per name then
+                String key = d.getSpellId() != null ? d.getSpellId() : "name:" + d.getName();
+                CharacterModel card = cards.get(key);
+                if (card == null) {
+                    card = new CharacterModel();
+                    card.setCharacterName(d.getName());
+                    card.setInitiative(caster.getInitiative());
+                    card.setSpellCardCaster(caster.getCharacterName());
+                    cards.put(key, card);
+                }
+                d.setCasterId(card.getStableId());
+            }
+        }
+        return new ArrayList<>(cards.values());
+    }
+
+    /** Takes every condition cast by this id off every character. */
+    private void removeSpellsOf(String casterId) {
+        for (CharacterModel c : characters) {
+            c.getDebuffList().removeIf(d -> casterId.equals(d.getCasterId()));
+        }
+    }
+
+    /**
+     * Spell cards whose spells all ended go away. Not the one at the top: it is having its turn,
+     * so it goes when the turn moves on ({@link #nextTurn}).
+     */
+    private void removeEndedSpellCards() {
+        for (int i = characters.size() - 1; i >= 1; i--) {
+            CharacterModel c = characters.get(i);
+            if (c.isSpellCard() && !hasSpellsOf(c)) removeSilently(i);
+        }
     }
 
     private void removeSilently(int position) {
@@ -165,35 +288,58 @@ public class Encounter {
     }
 
     /**
-     * Moves the turn on: the top character goes to the bottom, the next one becomes active, their
-     * conditions with a duration count down (reported in Turn.ticks), and the round goes up when
-     * they are first in round.
+     * Moves the turn on: the top character goes to the bottom, the next one becomes active, and
+     * the round goes up when they are first in round. Then these conditions with a duration count
+     * down (reported in Turn.ticks): the active character's own, except spells, and on every
+     * character the spells the active one cast. A spell whose caster isn't in the fight counts on
+     * its own character's turn, so it still ends. A spell card at the top whose spells all ended
+     * leaves instead of going to the bottom.
      *
      * @return What happened, or null when there is nobody in the fight.
      */
     public Turn nextTurn() {
         if (characters.isEmpty()) return null;
-        Collections.rotate(characters, -1);
+        CharacterModel top = characters.get(0);
+        boolean roundStarted = false;
+        if (characters.size() > 1 && top.isSpellCard() && !hasSpellsOf(top)) {
+            characters.remove(0);
+            // Its round already started on its turn; the next one takes over first in round from now on
+            roundStarted = top.isFirstInRound();
+            if (roundStarted) characters.get(0).setFirstInRound(true);
+        } else {
+            Collections.rotate(characters, -1);
+        }
         CharacterModel active = characters.get(0);
-        // Conditions without a duration (0) don't count down, so they aren't reported
-        List<DebuffModel> counting = new ArrayList<>();
-        List<Integer> before = new ArrayList<>();
-        for (DebuffModel d : active.getDebuffList()) {
-            if (d.getDuration() > 0) {
-                counting.add(d);
-                before.add(d.getDuration());
-            }
-        }
-        List<DebuffModel> expired = active.tickDebuffs();
+
+        Set<String> present = new HashSet<>();
+        for (CharacterModel c : characters) present.add(c.getStableId());
+        List<Expired> expired = new ArrayList<>();
         List<Tick> ticks = new ArrayList<>();
-        for (int i = 0; i < counting.size(); i++) {
-            DebuffModel d = counting.get(i);
-            ticks.add(new Tick(d.getName(), before.get(i), d.getDuration()));
+        tickConditions(active, active, present, expired, ticks);
+        for (CharacterModel c : characters) {
+            if (c != active) tickConditions(c, active, present, expired, ticks);
         }
-        boolean newRound = active.isFirstInRound();
+
+        boolean newRound = active.isFirstInRound() && !roundStarted;
         if (newRound) round++;
         notifyChanged();
         return new Turn(active, expired, ticks, newRound);
+    }
+
+    /** Counts down the conditions of {@code target} that count on {@code active}'s turn. */
+    private static void tickConditions(CharacterModel target, CharacterModel active, Set<String> present,
+                                       List<Expired> expired, List<Tick> ticks) {
+        for (DebuffModel d : target.getDebuffList()) {
+            // Conditions without a duration (0) don't count down, so they aren't reported
+            if (d.getDuration() <= 0) continue;
+            boolean onThisTurn = d.hasCaster() && present.contains(d.getCasterId())
+                    ? d.getCasterId().equals(active.getStableId())
+                    : target == active;
+            if (!onThisTurn) continue;
+            int from = d.getDuration();
+            if (d.tick()) expired.add(new Expired(target, d));
+            ticks.add(new Tick(d.getName(), from, d.getDuration(), target == active ? null : target, d.getSpellId()));
+        }
     }
 
     /** Swaps a character with the one above it; the top one swaps with the bottom one. */
@@ -258,8 +404,12 @@ public class Encounter {
         listeners.remove(listener);
     }
 
-    /** Tells the listeners; call this after changing a character's hp or (de)buffs from outside. */
+    /**
+     * Tells the listeners; call this after changing a character's hp or conditions from outside.
+     * Spell cards whose spell just ended are removed first.
+     */
     public void notifyChanged() {
+        removeEndedSpellCards();
         for (Listener l : new ArrayList<>(listeners)) {
             l.onEncounterChanged();
         }

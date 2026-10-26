@@ -348,4 +348,48 @@
     <!-- Snackbar at the start of a turn (TurnDialogs.showTicks) -->
     <string name="turn_ticks">%1$s\'s turn · %2$s</string>
     <string name="turn_tick">%1$s %2$d → %3$d</string>
+    <string name="turn_tick_spell">%1$s %2$d → %3$d (%4$s)</string>
+
+    <!-- Spells (feature/spell): Cast spell in the turn bar, spell cards, ending a spell -->
+    <string name="action_cast_spell">Cast spell</string>
+    <string name="spell_caster">Caster</string>
+    <string name="spell_caster_active">%1$s (turn now)</string>
+    <string name="spell_name">Spell</string>
+    <string name="spell_duration">Duration</string>
+    <plurals name="spell_rounds_suffix">
+        <item quantity="one">rnd</item>
+        <item quantity="other">rnds</item>
+    </plurals>
+    <string name="spell_description">Description</string>
+    <string name="spell_targets">Targets</string>
+    <string name="spell_active_tag">Active</string>
+    <plurals name="spell_cast_on">
+        <item quantity="one">Cast on %d</item>
+        <item quantity="other">Cast on %d</item>
+    </plurals>
+    <string name="spell_cast">Cast</string>
+    <string name="spell_error_name">Enter a spell name</string>
+    <string name="spell_error_duration">Enter 1 to %1$d rounds, or leave it empty for no timer</string>
+    <string name="spell_error_targets">Pick at least one target</string>
+    <string name="spell_need_characters">Add a character first</string>
+    <string name="dialog_spell_expired_title">Spell ended</string>
+    <string name="spell_expired">%1$s ended on %2$s.</string>
+    <string name="spell_caster_gone_title">%1$s left the fight</string>
+    <string name="spell_caster_gone_message">Ticked spells keep going on %1$s\'s initiative as a spell card. The rest end.</string>
+    <string name="spell_caster_gone_item">%1$s (on %2$s)</string>
+    <string name="spell_caster_gone_done">Done</string>
+    <string name="char_card_spell">Spell</string>
+    <string name="spell_card_line">%1$s\'s spell · on %2$s</string>
+    <string name="spell_card_line_none">%1$s\'s spell</string>
+    <plurals name="spell_rounds">
+        <item quantity="one">%d rnd</item>
+        <item quantity="other">%d rnds</item>
+    </plurals>
+    <string name="spell_condition_summary">%1$s (%2$s)</string>
+    <string name="debuff_cast_by">Cast by %1$s</string>
+    <string name="debuff_end_all">End on all targets</string>
+    <string name="spell_end_title">End %1$s?</string>
+    <string name="spell_end_message">%1$s comes off %2$s.</string>
+    <string name="spell_end_card_message">%1$s comes off %2$s, and its spell card leaves the order.</string>
+    <string name="spell_end">End spell</string>
 </resources>

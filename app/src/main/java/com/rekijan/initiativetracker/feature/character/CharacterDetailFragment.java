@@ -15,6 +15,7 @@ import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.feature.encounter.Encounter;
+import com.rekijan.initiativetracker.feature.spell.SpellDialogs;
 import com.rekijan.initiativetracker.feature.sync.SyncManager;
 import com.rekijan.initiativetracker.feature.sync.SyncRules;
 
@@ -73,6 +74,8 @@ public class CharacterDetailFragment extends Fragment implements SyncManager.Sta
         titleTextView.setText(TextUtils.isEmpty(name) ? getString(R.string.empty_character_name) : name);
 
         sheet = new CharacterSheet(view.findViewById(R.id.character_sheet), false, encounter::notifyChanged);
+        sheet.setOnEndSpell(spell -> SpellDialogs.askEnd(requireContext(), encounter, spell.getSpellId(),
+                spell.getName(), false, sheet::refreshConditions));
         sheet.bind(character);
         if (savedInstanceState != null) {
             sheet.selectTab(savedInstanceState.getInt(STATE_TAB, CharacterSheet.TAB_STATS));

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Turn bar under the encounter, above the ad bar: the round with minus and plus, and Next turn,
+<!-- Turn bar under the encounter, above the ad bar: the round with minus and plus, Cast spell, and Next turn,
      the main action, in thumb reach. EncounterFragment wires the buttons. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -61,6 +61,16 @@
             android:layout_height="@dimen/touch_target"
             android:contentDescription="@string/round_next"
             app:icon="@drawable/ic_add" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cast_spell_button"
+            style="@style/Widget.Rekijan.Button.Tonal.Icon"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:layout_marginStart="@dimen/space_3"
+            android:contentDescription="@string/action_cast_spell"
+            android:tooltipText="@string/action_cast_spell"
+            app:icon="@drawable/ic_spellbook" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/next_turn_button"

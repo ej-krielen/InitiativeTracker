@@ -20,15 +20,18 @@ import com.rekijan.initiativetracker.app.MainActivity;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.core.util.RecyclerLongPressListener;
 import com.rekijan.initiativetracker.feature.character.CharacterModel;
+import com.rekijan.initiativetracker.feature.spell.SpellDialogs;
+import com.rekijan.initiativetracker.feature.spell.Spells;
 import com.rekijan.initiativetracker.feature.sync.SyncManager;
 import com.rekijan.initiativetracker.feature.sync.SyncRules;
 
 import java.util.Collections;
 
 /**
- * The main screen: the initiative order with the turn bar under it (the round and Next turn).
- * Long press a card to remove that character; a synced PC can also be unlinked there, and its
- * player is told. Next turn, Sort and PCs to max HP (toolbar) and the
+ * The main screen: the initiative order with the turn bar under it (the round, Cast spell and
+ * Next turn). Long press a card to remove that character; a synced PC can also be unlinked there,
+ * and its player is told. Long press on a spell card ends its spell. When a caster leaves the
+ * fight, this screen asks which of their spells keep going. Next turn, Sort and PCs to max HP (toolbar) and the
  * drawer actions are handled by {@link MainActivity}.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
@@ -63,6 +66,8 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
         View turnBar = view.findViewById(R.id.turn_bar);
         view.findViewById(R.id.next_turn_button).setOnClickListener(v ->
                 ((MainActivity) requireActivity()).nextTurn(turnBar));
+        view.findViewById(R.id.cast_spell_button).setOnClickListener(v ->
+                SpellDialogs.showCast(requireContext(), encounter));
 
         RecyclerView recyclerView = view.findViewById(R.id.characters_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -89,6 +94,11 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
     public void onEncounterChanged() {
         roundTextView.setText(String.valueOf(encounter.getRound()));
         adapter.notifyDataSetChanged();
+        // A caster left (from any screen or Table sync): ask which of their spells keep going
+        if (!isAdded()) return;
+        for (Encounter.CasterGone gone : encounter.takeCastersGone()) {
+            SpellDialogs.askCasterGone(requireContext(), encounter, gone);
+        }
     }
 
     /** Players' sheets came or went: the Synced and Player left tags change. */
@@ -101,6 +111,11 @@ public class EncounterFragment extends Fragment implements Encounter.Listener, S
     private void askRemoveCharacter(int position) {
         if (!encounter.isValidPosition(position)) return;
         CharacterModel character = encounter.get(position);
+        if (character.isSpellCard()) {
+            SpellDialogs.askEnd(requireContext(), encounter, Spells.spellOfCard(encounter, character),
+                    character.getCharacterName(), true, null);
+            return;
+        }
         String name = character.getCharacterName();
         if (TextUtils.isEmpty(name)) name = getString(R.string.empty_character_name);
         if (sync.getStatus(character) != SyncRules.Status.NONE) {

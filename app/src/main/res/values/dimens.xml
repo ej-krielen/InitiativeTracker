@@ -16,6 +16,8 @@
     <dimen name="card_marker_width">5dp</dimen>
     <!-- Outline on the card of the character whose turn it is -->
     <dimen name="active_card_stroke">2dp</dimen>
+    <!-- Outline of a spell card that is not having its turn -->
+    <dimen name="spell_card_stroke">1dp</dimen>
     <!-- Outline of the open profile in the profile list -->
     <dimen name="profile_open_stroke">2dp</dimen>
 </resources>
