@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Toolbar: Next turn and Sort, only on the encounter. Add, Delete and Edit order are in the
-     navigation drawer, PCs to max HP in the round bar. -->
+<!-- Toolbar: PCs to max HP and Sort, only on the encounter. Next turn and the round are in the
+     turn bar under the encounter; Add, Delete and Edit order are in the navigation drawer. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Only shown on the encounter -->
     <group android:id="@+id/group_encounter">
         <item
-            android:id="@+id/action_settings_next_turn"
-            android:icon="@drawable/ic_skip_next"
+            android:id="@+id/action_pcs_max_hp"
+            android:icon="@drawable/ic_heal"
             android:orderInCategory="1"
-            android:title="@string/action_next_turn"
+            android:title="@string/action_pcs_max_hp_short"
             app:showAsAction="always" />
         <item
             android:id="@+id/action_settings_sort"

@@ -1,6 +1,7 @@
 package com.rekijan.initiativetracker.app;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,8 +57,8 @@ import nl.rekijan.ads.RekijanBannerAdView;
  * goes to the profile list ({@link ProfilesFragment}); back on the list closes the app.
  * <p>
  * For the GM, the encounter list is swapped in portrait for the character details, Edit order or
- * Table sync; in landscape (layout-land) the details sit next to the list. The toolbar holds Next
- * turn and Sort; the navigation drawer ({@link NavDrawer}) holds Add character, Delete
+ * Table sync; in landscape (layout-land) the details sit next to the list. The toolbar holds PCs
+ * to max HP and Sort, Next turn is in the encounter's turn bar; the navigation drawer ({@link NavDrawer}) holds Add character, Delete
  * characters, Edit order and Table sync, and the app items. It also runs the ad consent flow and
  * the ad bar, billing (tips, Remove Ads, party packs), shows the GM's Table sync requests
  * ({@link ApprovalDialogs}) one at a time, and saves the fight when the app goes to the background.
@@ -202,9 +203,8 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings_next_turn) {
-            closeDetailsInOnePane();
-            nextTurn();
+        if (id == R.id.action_pcs_max_hp) {
+            setPcsToMaxHp();
         } else if (id == R.id.action_settings_sort) {
             closeDetailsInOnePane();
             TurnDialogs.askSort(this, encounter);
@@ -397,13 +397,27 @@ public class MainActivity extends AppCompatActivity implements NavDrawer.Listene
         }
     }
 
-    private void nextTurn() {
+    /**
+     * Next turn, from the encounter's turn bar. Conditions that ticked down show in a snackbar
+     * above the bar.
+     *
+     * @param turnBar the turn bar, the snackbar's anchor
+     */
+    public void nextTurn(View turnBar) {
         Encounter.Turn turn = encounter.nextTurn();
         if (turn == null) return;
         TurnDialogs.onTurnStarted(this, encounter, turn);
-        TurnDialogs.showTicks(findViewById(R.id.main_fragment_container), adBar, turn);
+        TurnDialogs.showTicks(findViewById(R.id.main_fragment_container), turnBar, turn);
         // In two panes the details follow whoever's turn it is
         if (isTwoPane) showCharacterDetail(0);
+    }
+
+    /** Heals every PC to max hp; PCs with temporary hp (above max) are left alone and listed. */
+    private void setPcsToMaxHp() {
+        List<String> skipped = encounter.setPcsToMaxHp();
+        if (skipped.isEmpty()) return;
+        Toast.makeText(this, getString(R.string.toast_max_hp, TextUtils.join("\n", skipped)),
+                Toast.LENGTH_LONG).show();
     }
 
     /** Encounter actions go back to the list first when there is one pane. */

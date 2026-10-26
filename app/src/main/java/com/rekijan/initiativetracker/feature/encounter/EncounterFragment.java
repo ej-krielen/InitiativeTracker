@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,12 +20,10 @@ import com.rekijan.initiativetracker.app.MainActivity;
 import com.rekijan.initiativetracker.core.util.Dialogs;
 import com.rekijan.initiativetracker.core.util.RecyclerLongPressListener;
 
-import java.util.List;
-
 /**
- * The main screen: the round counter with PCs to max HP, and the initiative order. Long press a
- * card to remove that character. Next turn and Sort (toolbar) and the drawer actions are handled
- * by {@link MainActivity}.
+ * The main screen: the initiative order with the turn bar under it (the round and Next turn).
+ * Long press a card to remove that character. Next turn, Sort and PCs to max HP (toolbar) and the
+ * drawer actions are handled by {@link MainActivity}.
  *
  * @author Erik-Jan Krielen rekijan.apps@gmail.com
  * @since 11-10-2015
@@ -54,7 +51,9 @@ public class EncounterFragment extends Fragment implements Encounter.Listener {
         roundTextView = view.findViewById(R.id.round_counter_textView);
         view.findViewById(R.id.plus_round_button).setOnClickListener(v -> encounter.nextRound());
         view.findViewById(R.id.minus_round_button).setOnClickListener(v -> encounter.previousRound());
-        view.findViewById(R.id.pcs_max_hp_button).setOnClickListener(v -> setPcsToMaxHp());
+        View turnBar = view.findViewById(R.id.turn_bar);
+        view.findViewById(R.id.next_turn_button).setOnClickListener(v ->
+                ((MainActivity) requireActivity()).nextTurn(turnBar));
 
         RecyclerView recyclerView = view.findViewById(R.id.characters_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -79,14 +78,6 @@ public class EncounterFragment extends Fragment implements Encounter.Listener {
     public void onEncounterChanged() {
         roundTextView.setText(String.valueOf(encounter.getRound()));
         adapter.notifyDataSetChanged();
-    }
-
-    /** Heals every PC to max hp; PCs with temporary hp (above max) are left alone and listed. */
-    private void setPcsToMaxHp() {
-        List<String> skipped = encounter.setPcsToMaxHp();
-        if (skipped.isEmpty()) return;
-        Toast.makeText(requireContext(), getString(R.string.toast_max_hp, TextUtils.join("\n", skipped)),
-                Toast.LENGTH_LONG).show();
     }
 
     private void askRemoveCharacter(int position) {

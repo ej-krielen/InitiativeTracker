@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Round counter on top of the encounter: minus, the round, plus, and PCs to max HP.
-     EncounterFragment wires the buttons. -->
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Turn bar under the encounter, above the ad bar: the round with minus and plus, and Next turn,
+     the main action, in thumb reach. EncounterFragment wires the buttons. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/space_3"
-    android:layout_marginTop="@dimen/space_1"
-    android:layout_marginEnd="@dimen/space_3"
-    android:layout_marginBottom="@dimen/space_2"
-    app:contentPadding="@dimen/space_2">
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutlineVariant" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorSurfaceContainer"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_3"
+        android:paddingTop="@dimen/space_2"
+        android:paddingEnd="@dimen/space_3"
+        android:paddingBottom="@dimen/space_2">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/minus_round_button"
@@ -50,25 +56,21 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/plus_round_button"
-            style="@style/Widget.Rekijan.Button.Icon"
+            style="@style/Widget.Rekijan.Button.Tonal.Icon"
             android:layout_width="@dimen/touch_target"
             android:layout_height="@dimen/touch_target"
             android:contentDescription="@string/round_next"
             app:icon="@drawable/ic_add" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/pcs_max_hp_button"
-            style="@style/Widget.Rekijan.Button.Tonal"
-            android:layout_width="wrap_content"
+            android:id="@+id/next_turn_button"
+            style="@style/Widget.Rekijan.Button"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minWidth="0dp"
-            android:text="@string/action_pcs_max_hp_short"
-            app:icon="@drawable/ic_heal"
-            app:iconPadding="@dimen/space_1" />
+            android:layout_marginStart="@dimen/space_3"
+            android:layout_weight="1"
+            android:text="@string/action_next_turn"
+            app:icon="@drawable/ic_skip_next"
+            app:iconGravity="textStart" />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</LinearLayout>
