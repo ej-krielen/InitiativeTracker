@@ -15,7 +15,7 @@ import com.rekijan.initiativetracker.core.util.Dialogs;
 public final class InfoDialogs {
 
     private static final String WEBSITE_URL = "https://rekijan.nl/";
-    private static final String PRIVACY_URL = "https://rekijan.nl/privacypolicy.php";
+    private static final String PRIVACY_URL = "https://rekijan.nl/privacypolicy-initiativetracker.php";
 
     private InfoDialogs() {
     }
