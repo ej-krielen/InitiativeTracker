@@ -79,6 +79,13 @@
         <item name="backgroundTint">@color/md_primary</item>
         <item name="android:textColor">@color/md_on_primary</item>
         <item name="rippleColor">@color/ripple_on_primary</item>
+        <!-- Three in a row (hp dialog): keep the label on one line, shrinking it on narrow
+             screens or with a large font size instead of wrapping -->
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMinTextSize">10sp</item>
     </style>
 
     <!-- Borderless 48dp icon button in gold (card details, remove (de)buff) -->
@@ -91,7 +98,11 @@
 
     <!-- Boxed number on a card (initiative, hp): white box with a thin border -->
     <style name="Widget.Rekijan.StatBox" parent="">
-        <item name="android:layout_width">@dimen/stat_box_width</item>
+        <!-- Grows past its usual width for long values (-99) or a large font size -->
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:minWidth">@dimen/stat_box_width</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">52dp</item>
         <item name="android:orientation">vertical</item>

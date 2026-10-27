@@ -3,6 +3,7 @@ package com.rekijan.initiativetracker.feature.encounter;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.widget.TextViewCompat;
 
 import com.rekijan.initiativetracker.R;
 import com.rekijan.initiativetracker.app.InitiativeTrackerApp;
@@ -90,8 +92,30 @@ public final class HpDialog {
             dialog.dismiss();
             if (character.shouldOfferRemoval()) askRemoval(context, encounter, character);
         });
+        matchTextSizes(addButton, setButton, subtractButton);
 
         dialog.show();
+    }
+
+    /**
+     * The buttons shrink their label to fit on one line, each on its own. After the first layout
+     * all three take the smallest size, so a long label (Subtract) doesn't stand out.
+     */
+    private static void matchTextSizes(Button... buttons) {
+        View row = (View) buttons[0].getParent();
+        row.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                row.removeOnLayoutChangeListener(this);
+                float smallest = Float.MAX_VALUE;
+                for (Button b : buttons) smallest = Math.min(smallest, b.getTextSize());
+                for (Button b : buttons) {
+                    TextViewCompat.setAutoSizeTextTypeWithDefaults(b, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+                    b.setTextSize(TypedValue.COMPLEX_UNIT_PX, smallest);
+                }
+            }
+        });
     }
 
     private static void askRemoval(Context context, Encounter encounter, CharacterModel character) {

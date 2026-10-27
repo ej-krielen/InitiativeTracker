@@ -6,7 +6,10 @@
     android:tint="?attr/colorControlNormal"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M6,18l8.5,-6L6,6v12zM16,6v12h2V6h-2z" />
+    <!-- Moved down a bit: next to "Next turn" (no descenders) the centered icon looked too high -->
+    <group android:translateY="2">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M6,18l8.5,-6L6,6v12zM16,6v12h2V6h-2z" />
+    </group>
 </vector>
